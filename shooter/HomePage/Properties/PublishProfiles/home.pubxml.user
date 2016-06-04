@@ -1,0 +1,124 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<!--
+This file is used by the publish/package process of your Web project. You can customize the behavior of this process
+by editing this MSBuild file. In order to learn more about this please visit http://go.microsoft.com/fwlink/?LinkID=208121. 
+-->
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <TimeStampOfAssociatedLegacyPublishXmlFile />
+    <_PublishTargetUrl>X:\</_PublishTargetUrl>
+  </PropertyGroup>
+  <ItemGroup>
+    <File Include="bin/HomePage.dll">
+      <publishTime>02/15/2016 10:33:33</publishTime>
+    </File>
+    <File Include="homejs.js">
+      <publishTime>02/11/2016 14:44:51</publishTime>
+    </File>
+    <File Include="images/1plane.png">
+      <publishTime>02/13/2016 13:16:40</publishTime>
+    </File>
+    <File Include="images/alienship.png">
+      <publishTime>02/14/2016 10:13:08</publishTime>
+    </File>
+    <File Include="images/boss.png">
+      <publishTime>02/14/2016 21:08:24</publishTime>
+    </File>
+    <File Include="images/cloud.png">
+      <publishTime>02/13/2016 14:11:14</publishTime>
+    </File>
+    <File Include="images/enemy.png">
+      <publishTime>12/24/2010 12:21:22</publishTime>
+    </File>
+    <File Include="images/explode.png">
+      <publishTime>02/14/2016 10:28:48</publishTime>
+    </File>
+    <File Include="images/explode1.png">
+      <publishTime>02/14/2016 11:03:34</publishTime>
+    </File>
+    <File Include="images/jet.png">
+      <publishTime>02/14/2016 21:42:56</publishTime>
+    </File>
+    <File Include="images/player.png">
+      <publishTime>12/24/2010 12:58:36</publishTime>
+    </File>
+    <File Include="images/sky.jpg">
+      <publishTime>02/12/2016 17:10:38</publishTime>
+    </File>
+    <File Include="images/sprite.png">
+      <publishTime>12/06/2012 10:21:00</publishTime>
+    </File>
+    <File Include="images/sun.png">
+      <publishTime>02/13/2016 14:11:14</publishTime>
+    </File>
+    <File Include="index.html">
+      <publishTime>02/14/2016 22:28:32</publishTime>
+    </File>
+    <File Include="javascripts/homejs.js">
+      <publishTime>02/15/2016 10:41:57</publishTime>
+    </File>
+    <File Include="javascripts/jqfloat.js">
+      <publishTime>12/07/2012 09:39:46</publishTime>
+    </File>
+    <File Include="javascripts/jquery-2.2.0.js">
+      <publishTime>01/28/2016 19:01:22</publishTime>
+    </File>
+    <File Include="javascripts/jquery.hotkeys.js">
+      <publishTime>12/21/2010 12:09:12</publishTime>
+    </File>
+    <File Include="javascripts/key_status.js">
+      <publishTime>12/21/2010 12:19:20</publishTime>
+    </File>
+    <File Include="javascripts/sound.js">
+      <publishTime>12/24/2010 15:21:22</publishTime>
+    </File>
+    <File Include="javascripts/sprite.js">
+      <publishTime>02/13/2016 12:35:12</publishTime>
+    </File>
+    <File Include="javascripts/util.js">
+      <publishTime>12/21/2010 12:26:08</publishTime>
+    </File>
+    <File Include="jqfloat.js">
+      <publishTime>12/07/2012 09:39:46</publishTime>
+    </File>
+    <File Include="jquery-2.2.0.js">
+      <publishTime>01/28/2016 19:01:21</publishTime>
+    </File>
+    <File Include="plane.png">
+      <publishTime>01/29/2016 12:58:18</publishTime>
+    </File>
+    <File Include="sounds/explosion.mp3">
+      <publishTime>12/24/2010 15:04:12</publishTime>
+    </File>
+    <File Include="sounds/explosion.wav">
+      <publishTime>12/24/2010 15:03:52</publishTime>
+    </File>
+    <File Include="sounds/shoot.mp3">
+      <publishTime>12/24/2010 15:04:24</publishTime>
+    </File>
+    <File Include="sounds/shoot.wav">
+      <publishTime>12/24/2010 15:04:34</publishTime>
+    </File>
+    <File Include="sprite.png">
+      <publishTime>12/06/2012 10:21:00</publishTime>
+    </File>
+    <File Include="style.css">
+      <publishTime>02/11/2016 14:12:21</publishTime>
+    </File>
+    <File Include="stylesheets/screen.css">
+      <publishTime>12/24/2010 15:26:04</publishTime>
+    </File>
+    <File Include="stylesheets/style.css">
+      <publishTime>02/14/2016 21:44:16</publishTime>
+    </File>
+    <File Include="stylesheets/wp.jpg">
+      <publishTime>01/28/2016 18:35:32</publishTime>
+    </File>
+    <File Include="Web.config">
+      <publishTime>01/15/2016 15:41:24</publishTime>
+    </File>
+    <File Include="wp.jpg">
+      <publishTime>01/28/2016 18:35:31</publishTime>
+    </File>
+  </ItemGroup>
+</Project>
