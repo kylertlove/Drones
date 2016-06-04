@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title>Kyler Love</title>
+    <script src="javascripts/jquery-2.2.0.js"></script>
+    <script src="javascripts/bootstrap.js"></script>
+    <script src="javascripts/main.js"></script>
+    <link href="stylesheets/bootstrap.css" rel="stylesheet" />
+    <script src="javascripts/jquery.hotkeys.js"></script>
+    <script src="javascripts/key_status.js"></script>
+    <script src="javascripts/sprite.js"></script>
+    <script src="javascripts/util.js"></script>
+    <script src="javascripts/homejs.js"></script>
+    <link href="stylesheets/style.css" rel="stylesheet" />
+</head>
+<body style="background-color:#051634;">
+    <br>
+    <div>
+        <div class="col-md-6">
+            <button type="button" class="btn btn-info" data-toggle="modal" data-target="#modalCode">View Code</button>
+        </div>
+        <div class="col-md-6">
+            <span onclick="gameStart();" class="btn btn-danger">PLAY</span>
+            <span class="btn btn-info text-right">SpaceBar to shoot</span>
+            <span class="btn btn-info text-right">Arrows to move</span>
+        </div>
+        <div class="col-md-4 col-md-offset-2" style="">
+            <label class="btn btn-default btn-xs">Boss Kills: </label><label id="lblBossKills" class="badge">0</label>
+            <label class="btn btn-default btn-xs">Drone Kills: </label><label id="lblKillCount" class="badge">0</label><br>
+            <div class="progress">
+                <div class="progress-bar progress-bar-danger" id="BossHP">
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4" style="margin-top:.3%;">
+            <br>
+            <div class="progress">
+                <div class="progress-bar progress-bar-success" id="PlayerHP">
+                </div>
+            </div>
+        </div>
+        <section style="height: 500px; background-image:url('images/sky.jpg');" id="gameBoard" class="col-md-10 col-md-offset-1"></section>
+    </div>
+</body>
+<!-- Modal -->
+<div id="modalGameOver" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Game Over</h4>
+            </div>
+            <div class="modal-body">
+                <p>GAME OVER</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+<!-- Modal -->
+<div id="modalCode" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-lg">
+        <!-- Modal content-->
+        <div class="modal-content ">
+            <div class="modal-header" style="background-color: #800000; color: white;">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Game Code</h4>
+            </div>
+            <div class="modal-body">
+                <p>
+                    Here is the main source code for the game.  Feel free to use it or fork it from my
+                    <a href="https://github.com/kylertlove/Drones">GitHub Repo</a>
+                </p>
+                <iframe src="javascripts/homejs.js" width="100%" height="400px"></iframe>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+</html>

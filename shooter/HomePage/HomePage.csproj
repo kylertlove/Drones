@@ -19,6 +19,7 @@
     <IISExpressAnonymousAuthentication />
     <IISExpressWindowsAuthentication />
     <IISExpressUseClassicPipelineMode />
+    <UseGlobalApplicationHostFile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -57,6 +58,7 @@
     <Reference Include="System.EnterpriseServices" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="drones.html" />
     <Content Include="images\alienship.png" />
     <Content Include="images\boss.png" />
     <Content Include="images\cloud.png" />
@@ -64,16 +66,17 @@
     <Content Include="images\explode1.png" />
     <Content Include="images\jet.png" />
     <Content Include="images\sun.png" />
+    <Content Include="javascripts\bootstrap.js" />
     <Content Include="javascripts\homejs.js" />
     <Content Include="images\1plane.png" />
     <Content Include="images\enemy.png" />
     <Content Include="images\player.png" />
     <Content Include="images\sky.jpg" />
-    <Content Include="index.html" />
     <Content Include="javascripts\jqfloat.js" />
     <Content Include="javascripts\jquery-2.2.0.js" />
     <Content Include="javascripts\jquery.hotkeys.js" />
     <Content Include="javascripts\key_status.js" />
+    <Content Include="javascripts\main.js" />
     <Content Include="javascripts\sound.js" />
     <Content Include="javascripts\sprite.js" />
     <Content Include="javascripts\util.js" />
@@ -89,6 +92,7 @@
     <Content Include="sounds\shoot.mp3" />
     <Content Include="sounds\shoot.wav" />
     <Content Include="images\sprite.png" />
+    <Content Include="stylesheets\bootstrap.css" />
     <Content Include="stylesheets\screen.css" />
     <Content Include="stylesheets\style.css" />
     <Content Include="Web.config" />
