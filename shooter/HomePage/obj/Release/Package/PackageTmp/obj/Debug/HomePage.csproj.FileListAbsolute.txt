@@ -1,9 +1,0 @@
-C:\Users\Kyler\Documents\Visual Studio 2012\Projects\CIS3342Solution\HomePage\bin\HomePage.dll
-C:\Users\Kyler\Documents\Visual Studio 2012\Projects\CIS3342Solution\HomePage\bin\HomePage.pdb
-C:\Users\Kyler\Documents\Visual Studio 2012\Projects\CIS3342Solution\HomePage\obj\Debug\HomePage.csprojResolveAssemblyReference.cache
-C:\Users\Kyler\Documents\Visual Studio 2012\Projects\CIS3342Solution\HomePage\obj\Debug\HomePage.dll
-C:\Users\Kyler\Documents\Visual Studio 2012\Projects\CIS3342Solution\HomePage\obj\Debug\HomePage.pdb
-G:\CIS3342\CIS3342Solution\HomePage\bin\HomePage.dll
-G:\CIS3342\CIS3342Solution\HomePage\bin\HomePage.pdb
-G:\CIS3342\CIS3342Solution\HomePage\obj\Debug\HomePage.dll
-G:\CIS3342\CIS3342Solution\HomePage\obj\Debug\HomePage.pdb

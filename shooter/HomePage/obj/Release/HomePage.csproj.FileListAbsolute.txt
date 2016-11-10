@@ -1,5 +1,0 @@
-G:\CIS3342\CIS3342Solution\HomePage\bin\HomePage.dll
-G:\CIS3342\CIS3342Solution\HomePage\bin\HomePage.pdb
-G:\CIS3342\CIS3342Solution\HomePage\obj\Release\HomePage.dll
-G:\CIS3342\CIS3342Solution\HomePage\obj\Release\HomePage.pdb
-G:\CIS3342\CIS3342Solution\HomePage\obj\Release\HomePage.csprojResolveAssemblyReference.cache
