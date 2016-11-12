@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Page Title</title>
+  <script type="text/javascript" src="javascripts/jquery-2.2.0.js"></script>
+  <script type="text/javascript" src="javascripts/jquery.hotkeys.js"></script>
+  <script type="text/javascript" src="javascripts/sprite.js"></script>
+  <script type="text/javascript" src="javascripts/key_status.js"></script>
+  <script type="text/javascript" src="javascripts/util.js"></script>
+  <script type="text/javascript" src="javascripts/homejs.js"></script>
+  <script type="text/javascript" src="javascripts/TU.js"></script>
+  <script type="text/javascript" src="javascripts/bootstrap.js"></script>
+  <link href="stylesheets/bootstrap.css" rel="stylesheet" />
+  <style media="screen">
+  .butn{
+    margin-left: 3%;
+    margin-top: 1%;
+  }
+
+  #animateBG{
+    margin: 0px auto;
+    height: 500px;
+    background: url('images/sky.jpg');
+    background-position: 0px 0px;
+    background-repeat: repeat;
+    -webkit-animation: animate-background linear 90s infinite;
+    animation: animate-background linear 90s infinite;
+  }
+  @-webkit-keyframes animate-background {
+    from {
+      background-position: 0px 0px;
+    }
+    to {
+      background-position: 1000px 0px;
+    }
+  }
+  @keyframes animate-background {
+    from {
+      background-position: 0px 0px;
+    }
+    to {
+      background-position: 1000px 0px;
+    }
+  }
+  </style>
+  <script type="text/javascript">
+  $(document).ready( function(){
+    if(localStorage.getItem('DronesHighScore') === null)
+    {
+      $('#lblHighScore').html("There are no high scores on this computer");
+    }else{
+      $('#lblHighScore').html("Current High Score: " + localStorage.getItem('DronesHighScore'));
+    }
+    $('#btnFullScreen').click( function(){
+      $('#animateBG').height(TU.getWindowSize()[1] - 70);
+      $('#finalSection').height(TU.getWindowSize()[1] - 70);
+      console.log("Window height: " + TU.getWindowSize()[1]);
+      $('html, body').animate({
+        scrollTop: $("#holder").offset().top
+      }, 2000);
+      gameStart();
+    });
+  });
+
+  function clearScores(){
+    if (confirm('Are you sure you want to erase the high score from this machine?')) {
+      localStorage.removeItem('DronesHighScore');
+      $('#lblHighScore').html("There are no high scores on this computer");
+    } else {
+      // do nothing
+    }
+  }
+  </script>
+</head>
+<body style="background-color:black;">
+  <div class="col-md-10 col-md-offset-1" style="background-color:#e8e8e8;">
+    <div class="text-center col-md-12" >
+      <h1>DRONES</h1>
+      <button type="button" name="button" id="btnFullScreen" style="width:15%;" class="btn btn-primary">Play</button>
+    </div>
+    <div class="col-md-6">
+      <div class="col-md-3">
+        <label id="lblHighScore">High Score: 0</label>
+        <br>
+        <button type="button" onclick="clearScores();" class="btn btn-xs btn-danger">Clear High Scores</button>
+      </div>
+      <div class="col-md-3">
+        <label>Power Up</label>
+        <br>
+        <input type="checkbox" id="chkbxCheatCodes" name="cheat" value="cheatCodes">
+      </div>
+      <div class="col-md-3">
+        <label id="holder">Difficulty:</label>
+        <input type="range" id="myRange" value="50">
+      </div>
+      <div class="col-md-3">
+        <label>Kills:</label>
+        <br>
+        <label id="lblKillcount">0</label>
+      </div>
+    </div>
+    <div class="col-md-6">
+      <label>Player Health:</label>
+      <br>
+      <progress id="health" style="width:100%;" value="100" max="100"></progress>
+    </div>
+  </div>
+  <div class="col-md-12">
+    <div id="animateBG">
+      <section id="finalSection">
+      </section>
+    </div>
+  </div>
+</body>
+</html>

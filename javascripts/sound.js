@@ -9,7 +9,7 @@ var Sound = (function($) {
 
     return sound;
   }
-  
+
   function Sound(name, maxChannels) {
     return {
       play: function() {
@@ -19,7 +19,7 @@ var Sound = (function($) {
       stop: function() {
         Sound.stop(name);
       }
-    }
+    };
   }
 
   return $.extend(Sound, {
@@ -32,7 +32,7 @@ var Sound = (function($) {
       }
 
       var freeChannels = $.grep(sounds[name], function(sound) {
-        return sound.currentTime == sound.duration || sound.currentTime == 0
+        return sound.currentTime === sound.duration || sound.currentTime == 0;
       });
 
       if(freeChannels[0]) {

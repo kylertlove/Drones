@@ -1,78 +1,56 @@
 
 
 function gameStart(){
+  $('#btnFullScreen').prop("disabled",true);
 
   //creates the game map
-  var CANVAS_WIDTH = $('#gameBoard').width();
-  var CANVAS_HEIGHT = $('#gameBoard').height();
+  var finalSec = $('#finalSection');
+  var CANVAS_WIDTH = $('#finalSection').width();
+  var CANVAS_HEIGHT = $('#finalSection').height();
   var FPS = 30;
   var killcount = 0;
-  var bossHP = 350;
+  var killcountLabel = $('#lblKillcount');
+  var bossHP = 500;
   //var to count when bad guys shoot
   var timeToShoot = 0;
-  var PlayerHealth = 1000;
+  var PlayerHealth = 100;
   var bossKills = 0;
   var PLAYER_WIDTH = 1;
   var BOSS_WIDTH = 1;
-  //health displays
-  var PBBossHP = $('#BossHP');
-  PBBossHP.width(PBBossHP.offsetParent().width());
-  var PBPlayerHP = $('#PlayerHP');
-  PBPlayerHP.width(PBPlayerHP.offsetParent().width());
-  var lblPlayerKillz = $('#lblKillCount');
-  var lblBossKill = $('#lblBossKills');
+  var DiffVal = $('#myRange').val();
+  var GAME_DIFFICULTY = (DiffVal / 300);
 
-  var canvasElement = $("<canvas id='maincanvas' width='" + CANVAS_WIDTH +
+  //health displays
+  var canvasElement = $("<canvas id='maincanvas4' width='" + CANVAS_WIDTH +
   "' height='" + CANVAS_HEIGHT + "'></canvas>");
   var canvas = canvasElement.get(0).getContext("2d");
-  canvasElement.appendTo('section');
+  canvasElement.appendTo(finalSec);
 
   //creates a player object------------------------------------------------------------Player
-  var player = {
-    color: "#00A",
-    x: 500,
-    y: 270,
-    width: 20,
-    height: 30,
-    draw: function () {
+  var player = {};
+  $.extend(player, user(500, 270, "#00A", 20, 30));
+
+    player.draw = function(){
       canvas.fillStyle = this.color;
       canvas.fillRect(this.x, this.y, this.width, this.height);
-    }
-  };
+    };
 
   player.explode = function () {
-    if (PLAYER_WIDTH <= 0) {
-      player.active = false;
+    PlayerHealth -= 5;
+
+    if (PlayerHealth <= 0) {
       gameOver();
     }
   };
 
-  //working on cloud objects
-  var cloud = {
-    x: 1600, y: 200, width: 20, height: 30,
-    draw: function () { canvas.fillStyle = this.color; canvas.fillRect(this.x, this.y, this.width, this.height); }
-  };
-  var cloud2 = {
-    x: 900, y: 100, width: 20, height: 30,
-    draw: function () {
-      canvas.fillStyle = this.color; canvas.fillRect(this.x, this.y, this.width, this.height);
-    }
-  };
-
-
   // boss object-------------------------------------------------------------------Boss
-  var boss = {
-    color: "#00A",
-    x: 0,
-    y: 1500,
-    width: 380,
-    height: 150,
-    draw: function () {
+  var boss = {};
+  $.extend(boss, user(0, 1500, "#00A", 380, 150));
+
+    boss.draw = function () {
       canvas.fillStyle = this.color;
       canvas.fillRect(this.x, this.y, this.width, this.height);
-    }
-
-  };
+    };
   boss.active = false;
 
   //-----------------enimies
@@ -82,7 +60,7 @@ function gameStart(){
 
     //stores ememies
     I = I || {};
-
+  $.extend(I, projectile(2, 120, "#A2B", 32, 32));
 
     //activates it
     I.active = true;
@@ -90,17 +68,10 @@ function gameStart(){
     //sets a timer for life of enemy
     I.age = Math.floor(Math.random() * 128);
 
-    //color of enemy?
-    I.color = "#A2B";
 
     //spacing of enemies on page
     I.y = CANVAS_WIDTH / 12 + Math.random() * CANVAS_WIDTH / 12;
     I.x = 0;
-    I.yVelocity = 0;
-    I.xVelocity = 2;
-
-    I.width = 32;
-    I.height = 32;
 
     I.inBounds = function () {
       return I.x >= 0 && I.x <= CANVAS_WIDTH &&
@@ -114,10 +85,10 @@ function gameStart(){
     };
 
     I.update = function () {
-      I.x += I.xVelocity;
-      I.y += I.yVelocity;
+      I.x += I.xVel;
+      I.y += I.yVel;
 
-      I.yVelocity = 3 * Math.sin(I.age * Math.PI / 64);
+      I.yVel = 3 * Math.sin(I.age * Math.PI / 64);
 
       I.age++;
 
@@ -129,7 +100,7 @@ function gameStart(){
       //change enemy to explosion
       I.sprite = Sprite("explode");
       //  setTimeout(function () { I.sprite = Sprite("explode1"); }, 3000);
-
+        killcountLabel.html(killcount);
       //delay deactivate for explosion
       setTimeout(function () { I.active = false; }, 200);
     };
@@ -145,14 +116,13 @@ function gameStart(){
 
   //bad guy bullets ----------------------------------------------------------------Enemy Bullets
   function badguyBullet(I) {
+
+    I = I || {};
+
+    //inherit entity and projectile
+    $.extend(I, projectile(I.speed, 0, "#00FF00", 10, 6));
     I.active = true;
 
-    //direction of bullets
-    I.xVelocity = I.speed;
-    I.yVelocity = 0;
-    I.width = 10;
-    I.height = 6;
-    I.color = "	#00FF00";
 
     //returns boolean true if in bounds
     I.inBounds = function () {
@@ -162,14 +132,15 @@ function gameStart(){
 
     //display of bullets
     I.draw = function () {
-      canvas.fillStyle = this.color;
-      canvas.fillRect(this.x, this.y, this.width, this.height);
+      this.sprite.draw(canvas, this.x, this.y);
     };
+
+  I.sprite = Sprite("bossBullet");
 
     //updates bullets location
     I.update = function () {
-      I.x += I.xVelocity;
-      I.y += I.yVelocity;
+      I.x += I.xVel;
+      I.y += I.yVel;
 
       //based off of how many bosses you kill <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<TO DO: fix boss difficulty
       //  I.yVelocity = 20 * Math.sin((I.x * int value of how many bosses killed) * Math.PI / 180);
@@ -188,14 +159,14 @@ function gameStart(){
 
   //function for bullet creation----------------------------------------------------Player Bullets
   function Bullet(I) {
-    I.active = true;
 
-    //direction of bullets
-    I.xVelocity = -I.speed;
-    I.yVelocity = 0;
-    I.width = 9;
-    I.height = 3;
-    I.color = "#fff";
+    I = I || {};
+
+    //inherit entity and projectile
+    $.extend(I, projectile(-I.speed, 0, "#fff", 9, 3));
+
+    I.active = true;
+      var bulletCycle = Math.random() * 128;
 
     //returns boolean true if in bounds
     I.inBounds = function () {
@@ -203,16 +174,23 @@ function gameStart(){
       I.y >= 0 && I.y <= CANVAS_HEIGHT;
     };
 
+    I.sprite = Sprite("bullet");
+
     //display of bullets
     I.draw = function () {
-      canvas.fillStyle = this.color;
-      canvas.fillRect(this.x, this.y, this.width, this.height);
+        this.sprite.draw(canvas, this.x, this.y);
     };
 
     //updates bullets location
     I.update = function () {
-      I.x += I.xVelocity;
-      I.y += I.yVelocity;
+      I.x += I.xVel;
+      I.y += I.yVel;
+
+      //cheat codes
+        if($('#chkbxCheatCodes')[0].checked) {
+          I.yVel = 3 * Math.sin(bulletCycle * Math.PI / 60);
+          bulletCycle++;
+        }
 
       I.active = I.active && I.inBounds();
     };
@@ -242,14 +220,14 @@ function gameStart(){
     if (keydown.left) {
       player.x -= 10;
       if (boss.active === true) {
-        boss.x -= 1;
+        boss.x -= 4;
       }
     }
 
     if (keydown.right) {
       player.x += 10;
       if (boss.active === true) {
-        boss.x += 4;
+        boss.x += 1;
       }
     }
 
@@ -266,14 +244,14 @@ function gameStart(){
         boss.y += 4;
       }
     }
-    if (timeToShoot % 7 === 0 && boss.active === true) {
+    if (timeToShoot % 11 === 0 && boss.active === true) {
       // Enemy.shoot();
       boss.shoot();
-      console.log('enemy shooting');
+    //  console.log('enemy shooting');
     }
 
-    player.x = player.x.clamp(0, CANVAS_WIDTH - player.width);
-    player.y = player.y.clamp(0, CANVAS_HEIGHT - player.height);
+    player.x = player.x.clamp(0, CANVAS_WIDTH - 120);
+    player.y = player.y.clamp(0, CANVAS_HEIGHT - (player.height * 2));
 
 if(boss.active === true){
     boss.x = boss.x.clamp(0, CANVAS_WIDTH / 2);
@@ -307,11 +285,15 @@ if(boss.active === true){
     });
 
     handleCollisions();
+     DiffVal = document.getElementById('myRange').value;
+     GAME_DIFFICULTY = (DiffVal / 300);
 
-    if (Math.random() < 0.1) {
+    if (Math.random() < GAME_DIFFICULTY) {
       enemies.push(Enemy());
     }
     timeToShoot++;
+    $('#health').val(PlayerHealth);
+
   }
 
   //shoot function----------------------------------------------------------------------Shoot functions
@@ -357,34 +339,37 @@ if(boss.active === true){
     boss.x = 60;
     boss.y = 250;
   }
+
   //draw everything on the canvas---------------------------------------------------------Draw functions
   function draw() {
     canvas.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
 
     player.draw();
-    cloud.draw();
-    cloud2.draw();
 
 
     //calls the different bosses.  TODO:Make variables that control how hard the boss is
 
-      if(boss.active === false && killcount > 50 && killcount < 55){
+      if(boss.active === false && killcount > 100 && killcount < 105){
         boss.active = true;
         setBossLocation();
-        setTimeout(boss.draw(), 300);
+        bossHP = 500;
+        boss.draw();
+        //setTimeout(boss.draw(), 300);
       }
       else if(boss.active === false && killcount > 400 && killcount < 405){
-        PBBossHP.css('width', 100 + '%');
         boss.active = true;
         setBossLocation();
-        setTimeout(boss.draw(), 300);
+        bossHP = 600;
+        boss.draw();
+        //setTimeout(boss.draw(), 300);
 
       }
       else if(boss.active === false && killcount > 700 && killcount < 705){
-        PBBossHP.css('width', 100 + '%');
         boss.active = true;
         setBossLocation();
-        setTimeout(boss.draw(), 300);
+        bossHP = 700;
+        boss.draw();
+        //setTimeout(boss.draw(), 300);
       }else{
           boss.draw();
       }
@@ -421,21 +406,19 @@ if(boss.active === true){
           bullet.active = false;
           killcount++;
         }
-        lblPlayerKillz.html(killcount);
       });
 
       //kill boss
       if (collides(bullet, boss)) {
         bullet.active = false;
-        BOSS_WIDTH =  getHealthBar(PBBossHP, 20.25);
-        PBBossHP.css('width', BOSS_WIDTH + '%');
-        if (BOSS_WIDTH < 0) {
+        bossHP -= 10;
+        console.log(bossHP);
+        if (bossHP < 0) {
           //get rid of boss
           boss.y = 1500;
           boss.x = 0;
           boss.active = false;
           bossKills++;
-          lblBossKill.html(bossKills);
         }
       }
     });
@@ -445,8 +428,6 @@ if(boss.active === true){
       if (collides(bullet, player)) {
         player.explode();
         bullet.active = false;
-      PLAYER_WIDTH =  getHealthBar(PBPlayerHP, 5.25);
-        PBPlayerHP.css('width', PLAYER_WIDTH + '%');
       }
     });
 
@@ -455,14 +436,12 @@ if(boss.active === true){
       if (collides(enemy, player)) {
         enemy.explode();
         player.explode();
-      PLAYER_WIDTH =  getHealthBar(PBPlayerHP, 4.25);
-        PBPlayerHP.css('width', PLAYER_WIDTH + '%');
       }
     });
   }
 
   //draw the player and grab the sprite
-  player.sprite = Sprite("1plane");
+  player.sprite = Sprite("playerShip");
   player.draw = function () {
     this.sprite.draw(canvas, this.x, this.y);
   };
@@ -476,28 +455,14 @@ if(boss.active === true){
   //ends the game----------------------------------------------------------------ends game
   function gameOver() {
       clearInterval(timer);
-      $('#modalGameOver').modal();
+      alert("Game Over");
+      if(localStorage.getItem('DronesHighScore') < killcount){
+        alert("NEW HIGH SCORE");
+        localStorage.setItem( 'DronesHighScore', killcount );
+        $('#lblHighScore').html("Current High Score: " + localStorage.getItem('DronesHighScore'));
+      }
+
     //  location.reload();
   }
 
-  //scenery
-  cloud.sprite = Sprite("cloud");
-  cloud2.sprite = Sprite("cloud");
-  cloud.draw = function () {
-    this.sprite.draw(canvas, this.x, this.y);
-  };
-  cloud2.draw = function () {
-    this.sprite.draw(canvas, this.x, this.y);
-  };
-
-  //gets the width of the parent so that I can accuratly calculate the
-  //percentage for the width
-  function getHealthBar(div1, x){
-    var width = div1.width() - x;
-    var parentWidth = div1.offsetParent().width();
-    return (100*width/parentWidth);
-  }
-  function viewCode(){
-    $('#modalCode').modal("toggle");
-  }
 }
