@@ -1,8 +1,7 @@
 
-
 function gameStart(){
   $('#btnFullScreen').prop("disabled",true);
-
+  startMusic();
   //creates the game map
   var finalSec = $('#finalSection');
   var CANVAS_WIDTH = $('#finalSection').width();
@@ -10,7 +9,7 @@ function gameStart(){
   var FPS = 30;
   var killcount = 0;
   var killcountLabel = $('#lblKillcount');
-  var bossHP = 500;
+  var bossHP = 1000;
   //var to count when bad guys shoot
   var timeToShoot = 0;
   var PlayerHealth = 100;
@@ -20,6 +19,7 @@ function gameStart(){
   var DiffVal = $('#myRange').val();
   var GAME_DIFFICULTY = (DiffVal / 300);
 
+
   //health displays
   var canvasElement = $("<canvas id='maincanvas4' width='" + CANVAS_WIDTH +
   "' height='" + CANVAS_HEIGHT + "'></canvas>");
@@ -28,14 +28,15 @@ function gameStart(){
 
   //creates a player object------------------------------------------------------------Player
   var player = {};
-  $.extend(player, user(500, 270, "#00A", 20, 30));
+  $.extend(player, user(800, 270, "#00A", 20, 30));
 
-    player.draw = function(){
-      canvas.fillStyle = this.color;
-      canvas.fillRect(this.x, this.y, this.width, this.height);
-    };
+  player.draw = function(){
+    canvas.fillStyle = this.color;
+    canvas.fillRect(this.x, this.y, this.width, this.height);
+  };
 
   player.explode = function () {
+    POWERUP = false;
     PlayerHealth -= 5;
 
     if (PlayerHealth <= 0) {
@@ -47,11 +48,40 @@ function gameStart(){
   var boss = {};
   $.extend(boss, user(0, 1500, "#00A", 380, 150));
 
-    boss.draw = function () {
-      canvas.fillStyle = this.color;
-      canvas.fillRect(this.x, this.y, this.width, this.height);
-    };
+  boss.draw = function () {
+    canvas.fillStyle = this.color;
+    canvas.fillRect(this.x, this.y, this.width, this.height);
+  };
   boss.active = false;
+
+  // power ups-------------------------------------------------------------------powerup
+  var powerup = {};
+  $.extend(powerup, user(1, 270, "#00A", 20, 30));
+  powerup.active = false;
+  powerup.draw = function(){
+    canvas.fillStyle = this.color;
+    canvas.fillRect(this.x, this.y, this.width, this.height);
+  };
+
+  powerup.inBounds = function () {
+    return powerup.x >= 0 && powerup.x <= CANVAS_WIDTH &&
+    powerup.y >= 0 && powerup.y <= CANVAS_HEIGHT;
+  };
+
+  powerup.explode = function () {
+    powerup.active = false;
+  };
+  powerup.update = function(){
+
+    if(powerup.inBounds()){
+      powerup.x += 4;
+          return powerup.active;
+    }
+    else{
+      powerup.x = 0;
+          return false;
+    }
+  };
 
   //-----------------enimies
   enemies = [];
@@ -60,7 +90,7 @@ function gameStart(){
 
     //stores ememies
     I = I || {};
-  $.extend(I, projectile(2, 120, "#A2B", 32, 32));
+    $.extend(I, projectile(2, 120, "#A2B", 32, 32));
 
     //activates it
     I.active = true;
@@ -96,12 +126,11 @@ function gameStart(){
     };
 
     I.explode = function () {
-      //    Sound.play("explosion");
-      //change enemy to explosion
+      killcount++;
       I.sprite = Sprite("explode");
-      //  setTimeout(function () { I.sprite = Sprite("explode1"); }, 3000);
-        killcountLabel.html(killcount);
-      //delay deactivate for explosion
+
+      killcountLabel.html(killcount);
+
       setTimeout(function () { I.active = false; }, 200);
     };
 
@@ -123,7 +152,7 @@ function gameStart(){
     $.extend(I, projectile(I.speed, 0, "#00FF00", 10, 6));
     I.active = true;
 
-
+    var badbulletCycle = Math.random() * 128;
     //returns boolean true if in bounds
     I.inBounds = function () {
       return I.x >= 0 && I.x <= CANVAS_WIDTH &&
@@ -135,15 +164,14 @@ function gameStart(){
       this.sprite.draw(canvas, this.x, this.y);
     };
 
-  I.sprite = Sprite("bossBullet");
+    I.sprite = Sprite("bossBullet");
 
     //updates bullets location
     I.update = function () {
       I.x += I.xVel;
       I.y += I.yVel;
 
-      //based off of how many bosses you kill <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<TO DO: fix boss difficulty
-      //  I.yVelocity = 20 * Math.sin((I.x * int value of how many bosses killed) * Math.PI / 180);
+      I.yVel = 3 * Math.sin(badbulletCycle * Math.PI / 60);
 
       I.active = I.active && I.inBounds();
     };
@@ -166,7 +194,7 @@ function gameStart(){
     $.extend(I, projectile(-I.speed, 0, "#fff", 9, 3));
 
     I.active = true;
-      var bulletCycle = Math.random() * 128;
+    var bulletCycle = Math.random() * 128;
 
     //returns boolean true if in bounds
     I.inBounds = function () {
@@ -178,7 +206,7 @@ function gameStart(){
 
     //display of bullets
     I.draw = function () {
-        this.sprite.draw(canvas, this.x, this.y);
+      this.sprite.draw(canvas, this.x, this.y);
     };
 
     //updates bullets location
@@ -187,10 +215,10 @@ function gameStart(){
       I.y += I.yVel;
 
       //cheat codes
-        if($('#chkbxCheatCodes')[0].checked) {
-          I.yVel = 3 * Math.sin(bulletCycle * Math.PI / 60);
-          bulletCycle++;
-        }
+      if(POWERUP) {
+        I.yVel = 3 * Math.sin(bulletCycle * Math.PI / 60);
+        bulletCycle++;
+      }
 
       I.active = I.active && I.inBounds();
     };
@@ -203,18 +231,19 @@ function gameStart(){
     return I;
   }
   // game controller  ----------------------------------------------------------------SetInterval
-   var timer = setInterval(function () {
-    update();
-    draw();
-
+  var timer = setInterval(function () {
+    if(!PAUSE){
+      update();
+      draw();
+    }
   }, 1000 / FPS);
 
 
   //update the game--------------------------------------------------------------------Updates
   function update() {
+
     if (keydown.space) {
       player.shoot();
-
     }
 
     if (keydown.left) {
@@ -244,19 +273,33 @@ function gameStart(){
         boss.y += 4;
       }
     }
-    if (timeToShoot % 11 === 0 && boss.active === true) {
-      // Enemy.shoot();
-      boss.shoot();
-    //  console.log('enemy shooting');
+
+    if(DiffVal < 25){
+      if (timeToShoot % 11 === 0 && boss.active === true) {
+        boss.shoot();
+      }
+    }
+    else if(DiffVal < 50){
+      if (timeToShoot % 8 === 0 && boss.active === true) {
+        boss.shoot();
+      }
+    }else if(DiffVal < 75){
+      if (timeToShoot % 5 === 0 && boss.active === true) {
+        boss.shoot();
+      }
+    }else{
+      if (timeToShoot % 2 === 0 && boss.active === true) {
+        boss.shoot();
+      }
     }
 
     player.x = player.x.clamp(0, CANVAS_WIDTH - 120);
     player.y = player.y.clamp(0, CANVAS_HEIGHT - (player.height * 2));
 
-if(boss.active === true){
-    boss.x = boss.x.clamp(0, CANVAS_WIDTH / 2);
-    boss.y = boss.y.clamp(0, CANVAS_HEIGHT - boss.height);
-  }
+    if(boss.active === true){
+      boss.x = boss.x.clamp(0, CANVAS_WIDTH / 2);
+      boss.y = boss.y.clamp(0, CANVAS_HEIGHT - boss.height);
+    }
 
     playerBullets.forEach(function (bullet) {
       bullet.update();
@@ -284,9 +327,18 @@ if(boss.active === true){
       return badguyBullet.active;
     });
 
+    if(powerup.active){
+      powerup.active = powerup.update();
+    }
+
+
+    if(killcount % 223 === 0 && powerup.active === false && killcount > 1){
+      powerup.active = true;
+    }
+
     handleCollisions();
-     DiffVal = document.getElementById('myRange').value;
-     GAME_DIFFICULTY = (DiffVal / 300);
+    DiffVal = document.getElementById('myRange').value;
+    GAME_DIFFICULTY = (DiffVal / 300);
 
     if (Math.random() < GAME_DIFFICULTY) {
       enemies.push(Enemy());
@@ -318,14 +370,17 @@ if(boss.active === true){
 
   boss.shoot = function () {
     //  Sound.play("shoot");
-    var bgbulletPosition = this.midpoint();
+    if(boss.active){
+      var bgbulletPosition = this.midpoint();
 
-    badguyBullets.push(badguyBullet({
-      speed: 10,
-      x: bgbulletPosition.x,
-      y: bgbulletPosition.y
+      badguyBullets.push(badguyBullet({
+        speed: 10,
+        x: bgbulletPosition.x,
+        y: bgbulletPosition.y
 
-    }));
+      }));
+    }
+
   };
 
   boss.midpoint = function () {
@@ -346,35 +401,18 @@ if(boss.active === true){
 
     player.draw();
 
-
-    //calls the different bosses.  TODO:Make variables that control how hard the boss is
-
-      if(boss.active === false && killcount > 100 && killcount < 105){
-        boss.active = true;
-        setBossLocation();
-        bossHP = 500;
-        boss.draw();
-        //setTimeout(boss.draw(), 300);
-      }
-      else if(boss.active === false && killcount > 400 && killcount < 405){
-        boss.active = true;
-        setBossLocation();
-        bossHP = 600;
-        boss.draw();
-        //setTimeout(boss.draw(), 300);
-
-      }
-      else if(boss.active === false && killcount > 700 && killcount < 705){
-        boss.active = true;
-        setBossLocation();
-        bossHP = 700;
-        boss.draw();
-        //setTimeout(boss.draw(), 300);
-      }else{
-          boss.draw();
-      }
-
-
+    if(boss.active === false && bossKills > 300 && bossKills < 305){
+      boss.active = true;
+      setBossLocation();
+      bossHP = 1000;
+      //setTimeout(boss.draw(), 300);
+    }
+    if(boss.active){
+      boss.draw();
+    }
+    if(powerup.active){
+      powerup.draw();
+    }
 
     playerBullets.forEach(function (bullet) {
       bullet.draw();
@@ -404,21 +442,22 @@ if(boss.active === true){
         if (collides(bullet, enemy)) {
           enemy.explode();
           bullet.active = false;
-          killcount++;
+
+          bossKills++;
         }
       });
 
       //kill boss
       if (collides(bullet, boss)) {
         bullet.active = false;
-        bossHP -= 10;
+        bossHP -= 2;
         console.log(bossHP);
         if (bossHP < 0) {
-          //get rid of boss
+          //displace boss
           boss.y = 1500;
           boss.x = 0;
           boss.active = false;
-          bossKills++;
+          bossKills = 0;
         }
       }
     });
@@ -438,6 +477,16 @@ if(boss.active === true){
         player.explode();
       }
     });
+
+    if (collides(player, powerup)) {
+      powerup.active = false;
+      powerup.x = 1;
+      if(POWERUP){
+        PlayerHealth += 15;
+      }else{
+        POWERUP = true;
+      }
+    }
   }
 
   //draw the player and grab the sprite
@@ -452,15 +501,20 @@ if(boss.active === true){
     this.sprite.draw(canvas, this.x, this.y);
   };
 
+  powerup.sprite = Sprite("powerup");
+  powerup.draw = function () {
+    this.sprite.draw(canvas, this.x, this.y);
+  };
+
   //ends the game----------------------------------------------------------------ends game
   function gameOver() {
-      clearInterval(timer);
-      alert("Game Over");
-      if(localStorage.getItem('DronesHighScore') < killcount){
-        alert("NEW HIGH SCORE");
-        localStorage.setItem( 'DronesHighScore', killcount );
-        $('#lblHighScore').html("Current High Score: " + localStorage.getItem('DronesHighScore'));
-      }
+    clearInterval(timer);
+    alert("Game Over");
+    if(localStorage.getItem('DronesHighScore') < killcount){
+      alert("NEW HIGH SCORE");
+      localStorage.setItem( 'DronesHighScore', killcount );
+      $('#lblHighScore').html("Current High Score: " + localStorage.getItem('DronesHighScore'));
+    }
 
     //  location.reload();
   }

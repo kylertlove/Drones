@@ -1,10 +1,10 @@
 var Sound = (function($) {
-  var format = $.browser.webkit ? ".mp3" : ".wav";
+  var format = ".mp3";
   var soundPath = "sounds/";
   var sounds = {};
 
   function loadSoundChannel(name) {
-    var sound = $('<audio />').get(0);
+    var sound = $('<audio onended="songFinished();" id="musicTag" />').get(0);
     sound.src = soundPath + name + format;
 
     return sound;
@@ -32,7 +32,7 @@ var Sound = (function($) {
       }
 
       var freeChannels = $.grep(sounds[name], function(sound) {
-        return sound.currentTime === sound.duration || sound.currentTime == 0;
+        return sound.currentTime === sound.duration || sound.currentTime === 0;
       });
 
       if(freeChannels[0]) {
@@ -52,7 +52,10 @@ var Sound = (function($) {
 
     stop: function(name) {
       if(sounds[name]) {
-        sounds[name].stop();
+        for(var j = 0; j < sounds[name].length; j++){
+          sounds[name][j].muted = true;
+        }
+
       }
     }
   });
