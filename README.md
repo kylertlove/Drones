@@ -4,7 +4,7 @@ js/Jquery Arcade style flying shooting game... ALWAYS a work in progress... most
 ##[Demo](http://kylerlove.me/drones/index.html)
 
 
-Notes: 
+Notes: <br>
 -issue with missile obj reset after explosion.  needs to revert back to player.x<br>
 -look for sprite to show splash damage from missile<br>
 -needs how to play text<br>
