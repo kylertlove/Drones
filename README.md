@@ -5,7 +5,7 @@ js/Jquery Arcade style flying shooting game... ALWAYS a work in progress... most
 
 
 Notes: 
--issue with missile obj reset after explosion.  needs to revert back to player.x
--look for sprite to show splash damage from missile
--needs how to play text
+-issue with missile obj reset after explosion.  needs to revert back to player.x<br>
+-look for sprite to show splash damage from missile<br>
+-needs how to play text<br>
 -change score keeping
