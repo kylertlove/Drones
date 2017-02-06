@@ -2,8 +2,6 @@ var PAUSE = false;
 var POWERUP = false;
 
 $(document).ready(function(){
-
-
 //  var pageHeight = $(document).height();
 
   $('#divCodeExampleIntro').hover(function () {
