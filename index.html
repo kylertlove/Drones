@@ -117,10 +117,11 @@
       </div>
       <div class="col-md-6 col-sm-6 col-xs-6">
         <label>Music: </label>
-        <i class="musicbtn glyphicon glyphicon-step-backward" onclick="prevMusic()"></i>
-        <i class="musicbtn glyphicon glyphicon-pause" onclick="stopMusic()"></i>
-        <i class="musicbtn glyphicon glyphicon-play" onclick="startMusic()"></i>
-        <i class="musicbtn glyphicon glyphicon-step-forward" onclick="nextMusic()"></i>
+        <audio onended="songFinished();" id="musicTag" controls="">
+          Your browser does not support audio
+        </audio>
+        <i class="musicbtn glyphicon glyphicon-step-backward" title="Previous Song" onclick="prevMusic()"></i>
+        <i class="musicbtn glyphicon glyphicon-step-forward" title="Next Song" onclick="nextMusic()"></i>
       </div>
     </div>
   </div>

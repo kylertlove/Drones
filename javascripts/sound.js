@@ -4,9 +4,11 @@ var Sound = (function($) {
   var sounds = {};
 
   function loadSoundChannel(name) {
-    var sound = $('<audio onended="songFinished();" id="musicTag" />').get(0);
+  //  var sound = $('<audio onended="songFinished();" id="musicTag" controls="" />').get(0);
+    var sound = $('#musicTag').get(0);
     sound.src = soundPath + name + format;
-
+    sound.muted = false;
+    sound.volume = 0.3;
     return sound;
   }
 
