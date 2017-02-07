@@ -550,6 +550,9 @@ function gameStart() {
             powerup.x = 1;
             if (POWERUP) {
                 PlayerHealth += 15;
+                if(PlayerHealth > 100){
+                  PlayerHealth = 100;
+                }
             } else {
                 POWERUP = true;
             }
@@ -599,7 +602,7 @@ function gameStart() {
 
     bomb.sprite = Sprite("missile");
     bomb.draw = function() {
-        console.log(this.x + ", " + this.y);
+      //  console.log(this.x + ", " + this.y);
         this.sprite.draw(canvas, this.x, this.y);
     };
 
