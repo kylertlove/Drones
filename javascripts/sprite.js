@@ -10,7 +10,6 @@
     };
   }
   
-
     //calls assigns and fills image from sprite
   function Sprite(image, sourceX, sourceY, width, height) {
     sourceX = sourceX || 0;
@@ -18,7 +17,6 @@
     width = width || image.width;
     height = height || image.height;
     
-
       //returns a drawn image
     return {
       draw: function(canvas, x, y) {
