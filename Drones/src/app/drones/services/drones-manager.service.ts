@@ -29,8 +29,7 @@ export class DronesManagerService {
   //easy: .04, Medium: .07,hard: .13
   GAME_DIFFICULTY = .04; // 20/200: .067
   GameOver: Boolean = false;
-  hud: Hud;
-  volumeImageObj; 
+  hud: Hud; 
   KILLS = 0;
 
   constructor(public audio: AudioService) {
@@ -40,9 +39,6 @@ export class DronesManagerService {
     this.powerUp = new Powerup();
     this.playerMissile = new Missile(false);
     this.boss = new Boss();
-
-    this.volumeImageObj = new Image(25, 25);
-    this.volumeImageObj.src = "/assets/drone-images/volume.png";
   }
 
   /** Key change resolver */
@@ -103,7 +99,7 @@ export class DronesManagerService {
 
     //draw HUD
     this.hud.playerStats(canvas, this.player, this.KILLS);
-    this.hud.volumeHud(canvas, this.volumeImageObj);
+    this.hud.volumeHud(canvas);
   }
 
   /**
@@ -370,9 +366,9 @@ export class DronesManagerService {
 
   audioControl(pause:Boolean){
     if(pause){
-      this.volumeImageObj.src = "/assets/drone-images/volume-pause.png";
+      this.hud.pauseVolume("/assets/drone-images/volume-pause.png");
     }else{
-      this.volumeImageObj.src = "/assets/drone-images/volume.png";
+      this.hud.pauseVolume("/assets/drone-images/volume.png");
     }
     this.audio.toggle(pause);
   }

@@ -2,6 +2,7 @@ import { Component, OnInit, ViewChild, HostListener } from '@angular/core';
 import { DronesManagerService } from '../services/drones-manager.service';
 import { AudioService } from '../services/audio.service';
 import { OnDestroy } from '@angular/core/src/metadata/lifecycle_hooks';
+import { DronesAudioComponent } from '../drones-audio/drones-audio.component';
 
 @Component({
   selector: 'app-drones-canvas',
@@ -17,6 +18,7 @@ export class DronesCanvasComponent implements OnInit, OnDestroy {
   private interval = 1000/30;
   manager: DronesManagerService;
   @ViewChild('myCanvas') myCanvas;
+  @ViewChild('audioComponent') audioComponent:DronesAudioComponent;
   audioPause: Boolean = false;
 
   constructor(private audio: AudioService) {
@@ -49,10 +51,14 @@ export class DronesCanvasComponent implements OnInit, OnDestroy {
         x: e.clientX,
         y: e.clientY
       };
+      //console.log(`posx: ${pos.x}, posy: ${pos.y}`)
       //do all checks for things that I can click on
-      if(pos.x < 60 && pos.y < 60){
+      if(pos.x < 30 && pos.x > 0 && pos.y < 50 && pos.y > 0){
         this.audioPause = !this.audioPause;
         this.manager.audioControl(this.audioPause);
+      }
+      if(pos.x < 60 && pos.x > 30 && pos.y < 50 && pos.y > 0){
+        this.audioComponent.nextSong();
       }
     });
 

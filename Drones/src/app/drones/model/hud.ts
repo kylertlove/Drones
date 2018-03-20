@@ -5,7 +5,14 @@ import { Entity } from "./entity.drones";
 
 export class Hud{
     showLevelText: string = "Level 1";
-    constructor(){ }
+    volumeImageObj;
+    nextImageObj;
+    constructor(){
+      this.volumeImageObj = new Image(25, 25);
+      this.volumeImageObj.src = "/assets/drone-images/volume.png";
+      this.nextImageObj = new Image(25, 25);
+      this.nextImageObj.src = "/assets/drone-images/volumeNext.jpg";
+     }
 
   /** Draw a menu box onto canvas.  only function called during pause or gameover */
   menuBox(canvas: CanvasRenderingContext2D, word: string) {
@@ -35,8 +42,12 @@ export class Hud{
     (canvas.canvas.height - (canvas.canvas.height / 7)));
   }
 
-  volumeHud(canvas: CanvasRenderingContext2D, img:any){
-    canvas.drawImage(img, 10, 10);
+  volumeHud(canvas: CanvasRenderingContext2D){
+    canvas.drawImage(this.volumeImageObj, 0, 0);
+    canvas.drawImage(this.nextImageObj, 20, 0);
+  }
+  pauseVolume(src: string){
+    this.volumeImageObj.src = src;
   }
 
   addCount(canvas: CanvasRenderingContext2D, enemy: Entity){

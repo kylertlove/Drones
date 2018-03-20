@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, OnInit, ViewChild, Input, Output } from '@angular/core';
 import { AudioService } from '../services/audio.service';
 
 @Component({
@@ -33,7 +33,10 @@ export class DronesAudioComponent implements OnInit {
   }
 
   nextSong() {
+    console.log("next song");
+    this.audioElem.pause();
     this.audioElem.src = this.audio.next();
+    this.audioElem.play();
   }
 
   toggleMusic() {
