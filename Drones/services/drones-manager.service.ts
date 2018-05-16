@@ -1,4 +1,3 @@
-import { Injectable } from '@angular/core';
 import { Player } from '../model/player.drones';
 import { KeyDown } from '../services/key-status';
 import { PlayerBullets } from "../model/playerBullets";
@@ -11,7 +10,6 @@ import { EnemyBullet } from "../model/enemyBullets";
 import { Hud } from "../model/hud";
 import { AudioService } from '../services/audio.service';
 
-@Injectable()
 export class DronesManagerService {
 
   dT: number = 0;
@@ -32,7 +30,7 @@ export class DronesManagerService {
   hud: Hud; 
   KILLS = 0;
 
-  constructor(public audio: AudioService) {
+  constructor() {
     this.hud = new Hud();
     this.player = new Player();
     this.keyHandler = new KeyDown();
@@ -370,6 +368,6 @@ export class DronesManagerService {
     }else{
       this.hud.pauseVolume("/assets/drone-images/volume.png");
     }
-    this.audio.toggle(pause);
+    //this.audio.toggle(pause);
   }
 }

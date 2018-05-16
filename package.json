@@ -1,0 +1,16 @@
+{
+    "name": "drones",
+    "version": "1.0.0",
+    "description": "HTML5 Canvas game",
+    "main": "index.js",
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1"
+    },
+    "author": "Kyler Love",
+    "license": "MIT",
+    "dependencies": {
+        "rxjs": "^6.1.0",
+        "rxjs-compat": "^6.1.0",
+        "typescript": "^2.8.3"
+    }
+}

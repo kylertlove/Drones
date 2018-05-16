@@ -1,7 +1,5 @@
-import { Injectable } from '@angular/core';
-import { BehaviorSubject } from 'rxjs/BehaviorSubject';
+import {BehaviorSubject} from "../../node_modules/rxjs/BehaviorSubject";
 
-@Injectable()
 export class AudioService {
 
   isPaused = new BehaviorSubject<Boolean>(false);
@@ -18,7 +16,7 @@ export class AudioService {
    }
 
    /** Toggle Audio Pause/play */
-   toggle(isPaused){
+   toggle(isPaused:boolean){
      this.isPaused.next(isPaused);
    }
 
