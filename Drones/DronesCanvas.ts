@@ -1,27 +1,27 @@
 import { DronesManagerService } from "./services/drones-manager.service";
+import { AudioService } from "./services/audio.service";
 
 
 export class DronesCanvas {
 
     public CanvasObject: CanvasRenderingContext2D;
-    public audioObject: HTMLAudioElement;
     public gameManager: DronesManagerService;
     private gameLoop: any;
     private lastTime = (new Date()).getTime();
     private deltaTime: number;
     private interval = 1000 / 30;
-    private audioPause: Boolean = false;
+    private audioPause: boolean = false;
+    private audioElement: HTMLAudioElement;
+    private audioService: AudioService;
 
-    constructor(public canvasElementName: HTMLCanvasElement, audioElementName: HTMLAudioElement) {
+    constructor(public canvasElementName: HTMLCanvasElement) {
         this.CanvasObject = canvasElementName.getContext('2d');
-        this.audioObject = audioElementName;
         this.gameManager = new DronesManagerService();
-
-        this.init();
+        this.audioElement = new Audio();
+        this.audioService = new AudioService();
     }
 
-    init(){
-
+    start(){
         document.addEventListener('keydown', (e:KeyboardEvent) => {
             this.gameManager.keyChange(e.keyCode, true);
         });
@@ -36,20 +36,20 @@ export class DronesCanvas {
             x: e.clientX,
             y: e.clientY
           };
-          console.log(`posx: ${pos.x}, posy: ${pos.y}`)
+          //console.log(`posx: ${pos.x}, posy: ${pos.y}`)
           //do all checks for things that I can click on
           if(pos.x < 30 && pos.x > 0 && pos.y < 50 && pos.y > 0){
             this.audioPause = !this.audioPause;
-            this.gameManager.audioControl(this.audioPause);
+            this.gameManager.audioControl(this.audioPause, this.audioService, this.audioElement);
           }
           if(pos.x < 60 && pos.x > 30 && pos.y < 50 && pos.y > 0){
-            //this.audioComponent.nextSong();
+            this.audioService.next(this.audioElement);
           }
         });
     
         const arr: number[] = this.getWindowSize();
-        this.CanvasObject.canvas.width = arr[0] - 50;
-        this.CanvasObject.canvas.height = arr[1] - 80;
+        this.CanvasObject.canvas.width = arr[0] - 15;
+        this.CanvasObject.canvas.height = arr[1] - 25;
     
         this.gameManager.GameOver = false;
         this.loop();

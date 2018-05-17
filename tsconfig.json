@@ -1,15 +1,14 @@
 {
     "compilerOptions": {
         "target": "es5",
-        "module": "system",
+        "module": "amd",
         "sourceMap": false,
         "outFile": "output/drones.js"
     },
     "include": [
-        "Drones/**/*"
+        "Drones/**/*.ts"
     ],
     "exclude": [
-        "node_modules",
-        "**/*.spec.ts"
+        "node_modules"
     ]
 }

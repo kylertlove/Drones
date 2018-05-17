@@ -1,5 +1,6 @@
 import { Projectile } from "./projectile";
 import { KeyDown } from "../services/key-status";
+import { ASSETS } from "../services/asset-manager";
 
 export class Enemy extends Projectile {
 
@@ -15,7 +16,7 @@ export class Enemy extends Projectile {
         this.Height = 30;
         this.age = Math.floor(Math.random() * 128);
         this.hasBeenShot = false;
-        this.sprite.src = "/assets/drone-images/alienship1.png";
+        this.sprite.src = ASSETS.PREPEND + "drone-images/alienship1.png";
     }
 
     //override projectile
@@ -31,7 +32,7 @@ export class Enemy extends Projectile {
 
     explode() {
         this.hasBeenShot = true;
-        this.sprite.src = "/assets/drone-images/explode2.png";
+        this.sprite.src = ASSETS.PREPEND + "drone-images/explode2.png";
         setTimeout(() => {         
             this.active = false;
         }, 250);

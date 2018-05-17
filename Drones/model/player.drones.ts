@@ -2,6 +2,7 @@ import { Entity } from './entity.drones';
 import { User } from './user.drones';
 import { KeyDown } from '../services/key-status';
 import { PlayerBullets } from "./playerBullets";
+import { ASSETS } from "../services/asset-manager";
 
 export class Player extends User {
 
@@ -17,7 +18,7 @@ export class Player extends User {
         this.hasSprayPowerUp = false;
         this.hasExplosionVelocity = false;
         this.hasRoFpowerUp = false;
-        this.sprite.src = "/assets/drone-images/playerShip1.png";
+        this.sprite.src = ASSETS.PREPEND + "drone-images/playerShip1.png";
     }
 
     update(canvas: CanvasRenderingContext2D, keyHandler: KeyDown, dT: number) {

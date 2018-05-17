@@ -1,6 +1,7 @@
 import { Player } from "./player.drones";
 import { Missile } from "./missile";
 import { Entity } from "./entity.drones";
+import { ASSETS } from "../services/asset-manager";
 
 
 export class Hud{
@@ -9,9 +10,9 @@ export class Hud{
     nextImageObj;
     constructor(){
       this.volumeImageObj = new Image(25, 25);
-      this.volumeImageObj.src = "/assets/drone-images/volume.png";
+      this.volumeImageObj.src = ASSETS.PREPEND + "drone-images/volume.png";
       this.nextImageObj = new Image(25, 25);
-      this.nextImageObj.src = "/assets/drone-images/volumeNext.jpg";
+      this.nextImageObj.src = ASSETS.PREPEND + "drone-images/volumeNext.jpg";
      }
 
   /** Draw a menu box onto canvas.  only function called during pause or gameover */

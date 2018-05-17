@@ -1,5 +1,6 @@
 import { Projectile } from "./projectile";
 import { KeyDown } from "../services/key-status";
+import { ASSETS } from "../services/asset-manager";
 
 export class PlayerBullets extends Projectile {
 
@@ -10,7 +11,7 @@ export class PlayerBullets extends Projectile {
         this.X = x;
         this.Y = y;
         this.Speed = speed;
-        this.sprite.src = "/assets/drone-images/bullet1.png";
+        this.sprite.src = ASSETS.PREPEND + "drone-images/bullet1.png";
     }
 
     powerUpCycle() {

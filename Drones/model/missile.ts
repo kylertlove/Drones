@@ -1,5 +1,6 @@
 import { User } from "./user.drones";
 import { KeyDown } from "../services/key-status";
+import { ASSETS } from "../services/asset-manager";
 
 export class Missile extends User {
 
@@ -8,8 +9,8 @@ export class Missile extends User {
     defaultExplosionVelocity: number = 100;
     explodingMissile: Boolean = false;
     needMissile: Boolean;
-    defaultSprite = "/assets/drone-images/missile1.png";
-    powerupSprite = "/assets/drone-images/missile1-powerup.png";
+    defaultSprite = ASSETS.PREPEND + "drone-images/missile1.png";
+    powerupSprite = ASSETS.PREPEND + "drone-images/missile1-powerup.png";
     explosionVelocity: number;
 
     constructor(hasExplosionVelocity: Boolean){
@@ -37,7 +38,7 @@ export class Missile extends User {
         this.explodingMissile = true;
         this.Width = 200;
         this.Height = 200;
-        this.sprite.src = "/assets/drone-images/explode3.png";
+        this.sprite.src = ASSETS.PREPEND + "drone-images/explode3.png";
         setTimeout(() => {         
             this.explodingMissile = false;
             this.needMissile = true;

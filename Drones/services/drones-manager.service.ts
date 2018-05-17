@@ -9,6 +9,7 @@ import { Boss } from "../model/boss.drones";
 import { EnemyBullet } from "../model/enemyBullets";
 import { Hud } from "../model/hud";
 import { AudioService } from '../services/audio.service';
+import { ASSETS } from './asset-manager';
 
 export class DronesManagerService {
 
@@ -362,12 +363,12 @@ export class DronesManagerService {
     this.playerMissile.explosionVelocity = this.playerMissile.defaultExplosionVelocity;
   }
 
-  audioControl(pause:Boolean){
+  audioControl(pause:boolean, audio: AudioService, audioElem:HTMLAudioElement){
     if(pause){
-      this.hud.pauseVolume("/assets/drone-images/volume-pause.png");
+      this.hud.pauseVolume(ASSETS.PREPEND + "drone-images/volume-pause.png");
     }else{
-      this.hud.pauseVolume("/assets/drone-images/volume.png");
+      this.hud.pauseVolume(ASSETS.PREPEND + "drone-images/volume.png");
     }
-    //this.audio.toggle(pause);
+    audio.toggle(pause, audioElem);
   }
 }

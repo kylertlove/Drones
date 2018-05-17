@@ -1,13 +1,14 @@
 import { User } from "./user.drones";
 import { KeyDown } from "../services/key-status";
 import { EnemyBullet } from "./enemyBullets";
+import { ASSETS } from "../services/asset-manager";
 
 export class Boss extends User {
 
     active: Boolean = false;
     explodingBoss: Boolean;
     bossVelocity: number = 80;
-    defaultSprite: string = "/assets/drone-images/boss1.png";
+    defaultSprite: string = ASSETS.PREPEND + "drone-images/boss1.png";
 
     constructor() {
         super('fff', 200, 100, 0, 300);
@@ -50,7 +51,7 @@ export class Boss extends User {
     destroy(canvas: CanvasRenderingContext2D) {
         this.active = false;
         this.explodingBoss = true;
-        this.sprite.src = "/assets/drone-images/explode3.png";
+        this.sprite.src = ASSETS.PREPEND + "drone-images/explode3.png";
         setTimeout(() => {         
             this.explodingBoss = false;
             this.sprite.src = this.defaultSprite;

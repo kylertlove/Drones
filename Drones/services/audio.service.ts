@@ -1,30 +1,37 @@
-import {BehaviorSubject} from "../../node_modules/rxjs/BehaviorSubject";
+import { ASSETS } from "./asset-manager";
+
+//import {BehaviorSubject} from "../../node_modules/rxjs/BehaviorSubject";
 
 export class AudioService {
 
-  isPaused = new BehaviorSubject<Boolean>(false);
   song: number = 0;
 
   playlist: string[] = [
-    "/assets/sounds/Blink.mp3",
-    "/assets/sounds/getLucky.mp3",
-    "/assets/sounds/trapqueen.mp3",
-    "/assets/sounds/offspring.mp3"
+    ASSETS.PREPEND + "sounds/Blink.mp3",
+    ASSETS.PREPEND + "sounds/getLucky.mp3",
+    ASSETS.PREPEND + "sounds/trapqueen.mp3",
+    ASSETS.PREPEND + "sounds/offspring.mp3"
   ]
 
   constructor() {
    }
 
    /** Toggle Audio Pause/play */
-   toggle(isPaused:boolean){
-     this.isPaused.next(isPaused);
+   toggle(isPaused:boolean, audioElem:HTMLAudioElement){
+     if(isPaused){
+      audioElem.pause();
+     }else{
+       audioElem.play();
+     }
    }
 
-   next(){
+   next(audioElementName: HTMLAudioElement){
     this.song++;
     if(this.song >= this.playlist.length){
       this.song = 0;
     }
-    return this.playlist[this.song];
+    audioElementName.pause();
+    audioElementName.src = this.playlist[this.song];
+    audioElementName.play();
    }
 }
