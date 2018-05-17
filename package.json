@@ -1,0 +1,13 @@
+{
+    "name": "drones",
+    "version": "1.0.0",
+    "description": "HTML5 Canvas game",
+    "scripts": {
+        "tsc": "tsc"
+    },
+    "author": "Kyler Love",
+    "license": "MIT",
+    "dependencies": {
+        "typescript": "^2.8.3"
+    }
+}
