@@ -356,6 +356,7 @@ define("model/missile", ["require", "exports", "model/user.drones", "services/as
             _this.explodingMissile = false;
             _this.defaultSprite = asset_manager_5.ASSETS.PREPEND + "drone-images/missile1.png";
             _this.powerupSprite = asset_manager_5.ASSETS.PREPEND + "drone-images/missile1-powerup.png";
+            _this.explodingSprite = asset_manager_5.ASSETS.PREPEND + "drone-images/explode3.png";
             _this.needMissile = false;
             _this.sprite.src = hasExplosionVelocity ? _this.powerupSprite : _this.defaultSprite;
             _this.explosionVelocity = hasExplosionVelocity ? 400 : _this.defaultExplosionVelocity;
@@ -379,7 +380,7 @@ define("model/missile", ["require", "exports", "model/user.drones", "services/as
             this.explodingMissile = true;
             this.Width = 200;
             this.Height = 200;
-            this.sprite.src = asset_manager_5.ASSETS.PREPEND + "drone-images/explode3.png";
+            this.sprite.src = this.explodingSprite;
             setTimeout(function () {
                 _this.explodingMissile = false;
                 _this.needMissile = true;
@@ -484,6 +485,8 @@ define("model/hud", ["require", "exports", "services/asset-manager"], function (
             canvas.fillStyle = "lime";
             canvas.textAlign = "center";
             canvas.fillText(word, (canvas.canvas.width / 2), (canvas.canvas.height / 2));
+            canvas.fillText("Difficulty", (canvas.canvas.width / 2), (canvas.canvas.height / 2.2));
+            canvas.fillText("Volume", (canvas.canvas.width / 2), (canvas.canvas.height / 2.4));
         };
         Hud.prototype.displayText = function (canvas, text) {
             canvas.font = "25px Jazz LET, fantasy";
@@ -680,7 +683,7 @@ define("services/drones-manager.service", ["require", "exports", "model/player.d
             //remove inactive bullets
             this.playerBullets = this.playerBullets.filter(function (bullet) { return bullet.active; });
             this.enemyBullets = this.enemyBullets.filter(function (eBullet) { return eBullet.active; });
-            if (!this.playerMissile.activeMissile && this.keyHandler.isFireZeMissiles()) {
+            if (!this.playerMissile.activeMissile && this.keyHandler.isFireZeMissiles() && !this.playerMissile.explodingMissile) {
                 this.playerMissile.activeMissile = true;
                 this.playerMissile.X = this.player.X;
                 this.playerMissile.Y = this.player.Y;
