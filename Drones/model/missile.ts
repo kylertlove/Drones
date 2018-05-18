@@ -11,6 +11,7 @@ export class Missile extends User {
     needMissile: Boolean;
     defaultSprite = ASSETS.PREPEND + "drone-images/missile1.png";
     powerupSprite = ASSETS.PREPEND + "drone-images/missile1-powerup.png";
+    explodingSprite = ASSETS.PREPEND + "drone-images/explode3.png";
     explosionVelocity: number;
 
     constructor(hasExplosionVelocity: Boolean){
@@ -38,7 +39,7 @@ export class Missile extends User {
         this.explodingMissile = true;
         this.Width = 200;
         this.Height = 200;
-        this.sprite.src = ASSETS.PREPEND + "drone-images/explode3.png";
+        this.sprite.src = this.explodingSprite;
         setTimeout(() => {         
             this.explodingMissile = false;
             this.needMissile = true;

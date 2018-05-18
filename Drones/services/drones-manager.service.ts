@@ -138,7 +138,7 @@ export class DronesManagerService {
     this.playerBullets = this.playerBullets.filter((bullet) => { return bullet.active });
     this.enemyBullets = this.enemyBullets.filter((eBullet) => { return eBullet.active });
 
-    if (!this.playerMissile.activeMissile && this.keyHandler.isFireZeMissiles()) {
+    if (!this.playerMissile.activeMissile && this.keyHandler.isFireZeMissiles() && !this.playerMissile.explodingMissile) {
       this.playerMissile.activeMissile = true;
       this.playerMissile.X = this.player.X;
       this.playerMissile.Y = this.player.Y;
