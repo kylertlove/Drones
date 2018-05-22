@@ -363,7 +363,7 @@ export class DronesManagerService {
     this.playerMissile.explosionVelocity = this.playerMissile.defaultExplosionVelocity;
   }
 
-  audioControl(pause:boolean, audio: AudioService, audioElem:HTMLAudioElement){
+  pauseControl(pause:boolean, audio: AudioService, audioElem:HTMLAudioElement){
     if(pause){
       this.hud.pauseVolume(ASSETS.PREPEND + "drone-images/volume-pause.png");
     }else{

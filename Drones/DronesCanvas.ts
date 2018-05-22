@@ -1,5 +1,6 @@
 import { DronesManagerService } from "./services/drones-manager.service";
 import { AudioService } from "./services/audio.service";
+import { CanvasButton, CANVAS_BUTTON_NAME } from "./model/CanvasMenuObjects";
 
 
 export class DronesCanvas {
@@ -13,12 +14,14 @@ export class DronesCanvas {
     private audioPause: boolean = false;
     private audioElement: HTMLAudioElement;
     private audioService: AudioService;
+    private canvasButtonList: CanvasButton[] = [];
 
     constructor(public canvasElementName: HTMLCanvasElement) {
         this.CanvasObject = canvasElementName.getContext('2d');
         this.gameManager = new DronesManagerService();
         this.audioElement = new Audio();
         this.audioService = new AudioService();
+        this.buildCanvasButtons();
     }
 
     start(){
@@ -36,15 +39,16 @@ export class DronesCanvas {
             x: e.clientX,
             y: e.clientY
           };
-          //console.log(`posx: ${pos.x}, posy: ${pos.y}`)
           //do all checks for things that I can click on
-          if(pos.x < 30 && pos.x > 0 && pos.y < 50 && pos.y > 0){
-            this.audioPause = !this.audioPause;
-            this.gameManager.audioControl(this.audioPause, this.audioService, this.audioElement);
-          }
-          if(pos.x < 60 && pos.x > 30 && pos.y < 50 && pos.y > 0){
-            this.audioService.next(this.audioElement);
-          }
+          //console.log(`Clicked: X: ${pos.x}, Y: ${pos.y}`)
+          this.canvasButtonList.forEach( (btn:CanvasButton) => {
+            if(btn.name === CANVAS_BUTTON_NAME.PLAY && btn.isWithinBounds(pos.x, pos.y)){
+              this.audioPause = !this.audioPause;
+              this.gameManager.pauseControl(this.audioPause, this.audioService, this.audioElement);
+            }else if(btn.name === CANVAS_BUTTON_NAME.NEXT && btn.isWithinBounds(pos.x, pos.y)){
+              this.audioService.next(this.audioElement);
+            }
+          });
         });
     
         const arr: number[] = this.getWindowSize();
@@ -126,4 +130,14 @@ export class DronesCanvas {
     this.gameManager.playerRoF = 0;
     this.canvasElementName.focus;
   }
+
+  /**
+   * Builds Buttons that are ALWAYS VISIBLE.  hud.ts builds buttons that are visible for specific reasons (pause, etc)
+   */
+  buildCanvasButtons(){
+    this.canvasButtonList.push(new CanvasButton(CANVAS_BUTTON_NAME.PLAY, 0, 0, 30, 50));
+    this.canvasButtonList.push(new CanvasButton(CANVAS_BUTTON_NAME.NEXT, 30, 0, 30, 50));
+  }
 }
+
+//(canvas.canvas.width / 2), (canvas.canvas.height / 2)

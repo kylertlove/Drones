@@ -468,12 +468,72 @@ define("model/boss.drones", ["require", "exports", "model/user.drones", "model/e
     }(user_drones_4.User));
     exports.Boss = Boss;
 });
-define("model/hud", ["require", "exports", "services/asset-manager"], function (require, exports, asset_manager_8) {
+define("model/CanvasMenuObjects", ["require", "exports"], function (require, exports) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+    /**
+     * Object for clickable elements on the canvas
+     */
+    var CanvasButton = /** @class */ (function () {
+        /**
+         *
+         * @param name
+         * @param x X Position
+         * @param y Y Position
+         * @param w Width
+         * @param h Height
+         */
+        function CanvasButton(name, x, y, w, h) {
+            this.name = name;
+            this.x = x;
+            this.y = y;
+            this.w = w;
+            this.h = h;
+        }
+        CanvasButton.prototype.isWithinBounds = function (posX, posY) {
+            return posX < this.x + this.w && posX > this.x &&
+                posY < this.y + this.h && posY > this.y;
+        };
+        return CanvasButton;
+    }());
+    exports.CanvasButton = CanvasButton;
+    /**
+     * Object for Text elements on the canvas
+     */
+    var CanvasText = /** @class */ (function () {
+        /**
+         *
+         * @param word String to show
+         * @param x X Position
+         * @param y Y Position
+         * @param color color of Text
+         * @param font Size and Font of text
+         */
+        function CanvasText(word, x, y, color, font) {
+            this.word = word;
+            this.x = x;
+            this.y = y;
+            this.color = color;
+            this.font = font;
+        }
+        return CanvasText;
+    }());
+    exports.CanvasText = CanvasText;
+    var CANVAS_BUTTON_NAME;
+    (function (CANVAS_BUTTON_NAME) {
+        CANVAS_BUTTON_NAME[CANVAS_BUTTON_NAME["PLAY"] = 0] = "PLAY";
+        CANVAS_BUTTON_NAME[CANVAS_BUTTON_NAME["NEXT"] = 1] = "NEXT";
+        CANVAS_BUTTON_NAME[CANVAS_BUTTON_NAME["VOLUME_UP"] = 2] = "VOLUME_UP";
+        CANVAS_BUTTON_NAME[CANVAS_BUTTON_NAME["VOLUME_DOWN"] = 3] = "VOLUME_DOWN";
+    })(CANVAS_BUTTON_NAME = exports.CANVAS_BUTTON_NAME || (exports.CANVAS_BUTTON_NAME = {}));
+});
+define("model/hud", ["require", "exports", "services/asset-manager", "model/CanvasMenuObjects"], function (require, exports, asset_manager_8, CanvasMenuObjects_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var Hud = /** @class */ (function () {
         function Hud() {
             this.showLevelText = "Level 1";
+            this.textColor = "lime";
             this.volumeImageObj = new Image(25, 25);
             this.volumeImageObj.src = asset_manager_8.ASSETS.PREPEND + "drone-images/volume.png";
             this.nextImageObj = new Image(25, 25);
@@ -481,27 +541,40 @@ define("model/hud", ["require", "exports", "services/asset-manager"], function (
         }
         /** Draw a menu box onto canvas.  only function called during pause or gameover */
         Hud.prototype.menuBox = function (canvas, word) {
-            canvas.font = "30px Arial";
-            canvas.fillStyle = "lime";
+            var menuHeader = new CanvasMenuObjects_1.CanvasText(word, (canvas.canvas.width / 2), (canvas.canvas.height / 3), this.textColor, "30px Arial");
+            canvas.font = menuHeader.font;
+            canvas.fillStyle = menuHeader.color;
             canvas.textAlign = "center";
-            canvas.fillText(word, (canvas.canvas.width / 2), (canvas.canvas.height / 2));
-            canvas.fillText("Difficulty", (canvas.canvas.width / 2), (canvas.canvas.height / 2.2));
-            canvas.fillText("Volume", (canvas.canvas.width / 2), (canvas.canvas.height / 2.4));
+            canvas.fillText(menuHeader.word, menuHeader.x, menuHeader.y);
+            if (word === 'Paused') {
+                var volumeHeader = new CanvasMenuObjects_1.CanvasText("Volume:", menuHeader.x, menuHeader.y + 35, this.textColor, "22px Arial");
+                canvas.font = volumeHeader.font;
+                canvas.fillStyle = volumeHeader.color;
+                canvas.textAlign = "center";
+                canvas.fillText(volumeHeader.word, volumeHeader.x, volumeHeader.y);
+                var volumeBox = new CanvasMenuObjects_1.CanvasButton(CanvasMenuObjects_1.CANVAS_BUTTON_NAME.VOLUME_DOWN, menuHeader.x + 30, menuHeader.y, 100, 25);
+                canvas.fillStyle = this.textColor;
+                canvas.fillRect(volumeBox.x, volumeBox.y, volumeBox.w, volumeBox.h);
+            }
         };
         Hud.prototype.displayText = function (canvas, text) {
-            canvas.font = "25px Jazz LET, fantasy";
+            var displayText = new CanvasMenuObjects_1.CanvasText(text, (canvas.canvas.width / 2), (canvas.canvas.height / 6), this.textColor, "25px Jazz LET, fantasy");
+            canvas.font = displayText.font;
+            canvas.fillStyle = displayText.color;
             canvas.textAlign = "center";
-            canvas.fillStyle = "lime";
-            canvas.fillText(text, (canvas.canvas.width / 2), (canvas.canvas.height / 6));
+            canvas.fillText(text, displayText.x, displayText.y);
         };
         Hud.prototype.playerStats = function (canvas, player, kills) {
-            canvas.font = "17px Jazz LET, fantasy";
-            canvas.fillStyle = "lime";
+            var health = new CanvasMenuObjects_1.CanvasText("Health: " + player.health.toString(), (canvas.canvas.width / 40), (canvas.canvas.height - (canvas.canvas.height / 14)), this.textColor, "17px Jazz LET, fantasy");
+            var KillsText = new CanvasMenuObjects_1.CanvasText("Kills: " + kills.toString(), (canvas.canvas.width / 40), (canvas.canvas.height - (canvas.canvas.height / 10)), this.textColor, "17px Jazz LET, fantasy");
+            var level = new CanvasMenuObjects_1.CanvasText(this.showLevelText, (canvas.canvas.width / 40), (canvas.canvas.height - (canvas.canvas.height / 7)), this.textColor, "17px Jazz LET, fantasy");
+            canvas.font = health.font;
+            canvas.fillStyle = this.textColor;
+            canvas.strokeStyle = this.textColor;
             canvas.textAlign = "left";
-            canvas.strokeStyle = "lime";
-            canvas.fillText('Health: ' + player.health.toString(), (canvas.canvas.width / 40), (canvas.canvas.height - (canvas.canvas.height / 14)));
-            canvas.fillText('Kills: ' + kills.toString(), (canvas.canvas.width / 40), (canvas.canvas.height - (canvas.canvas.height / 10)));
-            canvas.fillText(this.showLevelText, (canvas.canvas.width / 40), (canvas.canvas.height - (canvas.canvas.height / 7)));
+            canvas.fillText(health.word, health.x, health.y);
+            canvas.fillText(KillsText.word, KillsText.x, KillsText.y);
+            canvas.fillText(level.word, level.x, level.y);
         };
         Hud.prototype.volumeHud = function (canvas) {
             canvas.drawImage(this.volumeImageObj, 0, 0);
@@ -511,10 +584,11 @@ define("model/hud", ["require", "exports", "services/asset-manager"], function (
             this.volumeImageObj.src = src;
         };
         Hud.prototype.addCount = function (canvas, enemy) {
-            canvas.font = "15px Arial";
-            canvas.fillStyle = "lime";
-            canvas.strokeStyle = "lime";
-            canvas.fillText('+1', enemy.X, enemy.Y);
+            var hitCount = new CanvasMenuObjects_1.CanvasText("+1", enemy.X, enemy.Y, this.textColor, "15px Arial");
+            canvas.font = hitCount.font;
+            canvas.fillStyle = hitCount.color;
+            canvas.strokeStyle = hitCount.color;
+            canvas.fillText(hitCount.word, hitCount.x, hitCount.y);
         };
         return Hud;
     }());
@@ -527,6 +601,7 @@ define("services/audio.service", ["require", "exports", "services/asset-manager"
     var AudioService = /** @class */ (function () {
         function AudioService() {
             this.song = 0;
+            this.volume = .1;
             this.playlist = [
                 asset_manager_9.ASSETS.PREPEND + "sounds/Blink.mp3",
                 asset_manager_9.ASSETS.PREPEND + "sounds/getLucky.mp3",
@@ -540,6 +615,7 @@ define("services/audio.service", ["require", "exports", "services/asset-manager"
                 audioElem.pause();
             }
             else {
+                audioElem.volume = this.volume;
                 audioElem.play();
             }
         };
@@ -550,6 +626,7 @@ define("services/audio.service", ["require", "exports", "services/asset-manager"
             }
             audioElementName.pause();
             audioElementName.src = this.playlist[this.song];
+            audioElementName.volume = this.volume;
             audioElementName.play();
         };
         return AudioService;
@@ -908,7 +985,7 @@ define("services/drones-manager.service", ["require", "exports", "model/player.d
             this.player.losePowerUps();
             this.playerMissile.explosionVelocity = this.playerMissile.defaultExplosionVelocity;
         };
-        DronesManagerService.prototype.audioControl = function (pause, audio, audioElem) {
+        DronesManagerService.prototype.pauseControl = function (pause, audio, audioElem) {
             if (pause) {
                 this.hud.pauseVolume(asset_manager_10.ASSETS.PREPEND + "drone-images/volume-pause.png");
             }
@@ -921,7 +998,7 @@ define("services/drones-manager.service", ["require", "exports", "model/player.d
     }());
     exports.DronesManagerService = DronesManagerService;
 });
-define("DronesCanvas", ["require", "exports", "services/drones-manager.service", "services/audio.service"], function (require, exports, drones_manager_service_1, audio_service_1) {
+define("DronesCanvas", ["require", "exports", "services/drones-manager.service", "services/audio.service", "model/CanvasMenuObjects"], function (require, exports, drones_manager_service_1, audio_service_1, CanvasMenuObjects_2) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var DronesCanvas = /** @class */ (function () {
@@ -931,6 +1008,7 @@ define("DronesCanvas", ["require", "exports", "services/drones-manager.service",
             this.lastTime = (new Date()).getTime();
             this.interval = 1000 / 30;
             this.audioPause = false;
+            this.canvasButtonList = [];
             /**
              * The Game Loop.
              * requestAnimationFrame passing the callback as the function.
@@ -961,6 +1039,7 @@ define("DronesCanvas", ["require", "exports", "services/drones-manager.service",
             this.gameManager = new drones_manager_service_1.DronesManagerService();
             this.audioElement = new Audio();
             this.audioService = new audio_service_1.AudioService();
+            this.buildCanvasButtons();
         }
         DronesCanvas.prototype.start = function () {
             var _this = this;
@@ -977,15 +1056,17 @@ define("DronesCanvas", ["require", "exports", "services/drones-manager.service",
                     x: e.clientX,
                     y: e.clientY
                 };
-                //console.log(`posx: ${pos.x}, posy: ${pos.y}`)
                 //do all checks for things that I can click on
-                if (pos.x < 30 && pos.x > 0 && pos.y < 50 && pos.y > 0) {
-                    _this.audioPause = !_this.audioPause;
-                    _this.gameManager.audioControl(_this.audioPause, _this.audioService, _this.audioElement);
-                }
-                if (pos.x < 60 && pos.x > 30 && pos.y < 50 && pos.y > 0) {
-                    _this.audioService.next(_this.audioElement);
-                }
+                //console.log(`Clicked: X: ${pos.x}, Y: ${pos.y}`)
+                _this.canvasButtonList.forEach(function (btn) {
+                    if (btn.name === CanvasMenuObjects_2.CANVAS_BUTTON_NAME.PLAY && btn.isWithinBounds(pos.x, pos.y)) {
+                        _this.audioPause = !_this.audioPause;
+                        _this.gameManager.pauseControl(_this.audioPause, _this.audioService, _this.audioElement);
+                    }
+                    else if (btn.name === CanvasMenuObjects_2.CANVAS_BUTTON_NAME.NEXT && btn.isWithinBounds(pos.x, pos.y)) {
+                        _this.audioService.next(_this.audioElement);
+                    }
+                });
             });
             var arr = this.getWindowSize();
             this.CanvasObject.canvas.width = arr[0] - 15;
@@ -1037,7 +1118,15 @@ define("DronesCanvas", ["require", "exports", "services/drones-manager.service",
             this.gameManager.playerRoF = 0;
             this.canvasElementName.focus;
         };
+        /**
+         * Builds Buttons that are ALWAYS VISIBLE.  hud.ts builds buttons that are visible for specific reasons (pause, etc)
+         */
+        DronesCanvas.prototype.buildCanvasButtons = function () {
+            this.canvasButtonList.push(new CanvasMenuObjects_2.CanvasButton(CanvasMenuObjects_2.CANVAS_BUTTON_NAME.PLAY, 0, 0, 30, 50));
+            this.canvasButtonList.push(new CanvasMenuObjects_2.CanvasButton(CanvasMenuObjects_2.CANVAS_BUTTON_NAME.NEXT, 30, 0, 30, 50));
+        };
         return DronesCanvas;
     }());
     exports.DronesCanvas = DronesCanvas;
 });
+//(canvas.canvas.width / 2), (canvas.canvas.height / 2)

@@ -5,6 +5,7 @@ import { ASSETS } from "./asset-manager";
 export class AudioService {
 
   song: number = 0;
+  volume: number = .1;
 
   playlist: string[] = [
     ASSETS.PREPEND + "sounds/Blink.mp3",
@@ -21,6 +22,7 @@ export class AudioService {
      if(isPaused){
       audioElem.pause();
      }else{
+      audioElem.volume = this.volume;
        audioElem.play();
      }
    }
@@ -32,6 +34,7 @@ export class AudioService {
     }
     audioElementName.pause();
     audioElementName.src = this.playlist[this.song];
+    audioElementName.volume = this.volume;
     audioElementName.play();
    }
 }
