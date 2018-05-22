@@ -1,5 +1,7 @@
 # Drones
-TS Arcade style flying shooting game... forever a work in progress
+Arcade style flying shooting game... forever a work in progress
+
+Built in Typescript, and transpiled into es5 with amd modules and executed with requirejs
 
 
 #### To run a build:
