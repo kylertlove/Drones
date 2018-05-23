@@ -167,7 +167,7 @@ define("model/player.drones", ["require", "exports", "model/user.drones", "model
             var _this = _super.call(this, 'fff', 90, 40, 200, 200) || this;
             _this.playerVelocity = 250;
             _this.maxHealth = 60;
-            _this.health = 50;
+            _this.health = 1;
             _this.hasSprayPowerUp = false;
             _this.hasExplosionVelocity = false;
             _this.hasRoFpowerUp = false;
@@ -521,10 +521,12 @@ define("model/CanvasMenuObjects", ["require", "exports"], function (require, exp
     exports.CanvasText = CanvasText;
     var CANVAS_BUTTON_NAME;
     (function (CANVAS_BUTTON_NAME) {
-        CANVAS_BUTTON_NAME[CANVAS_BUTTON_NAME["PLAY"] = 0] = "PLAY";
-        CANVAS_BUTTON_NAME[CANVAS_BUTTON_NAME["NEXT"] = 1] = "NEXT";
-        CANVAS_BUTTON_NAME[CANVAS_BUTTON_NAME["VOLUME_UP"] = 2] = "VOLUME_UP";
-        CANVAS_BUTTON_NAME[CANVAS_BUTTON_NAME["VOLUME_DOWN"] = 3] = "VOLUME_DOWN";
+        CANVAS_BUTTON_NAME[CANVAS_BUTTON_NAME["GAME_PLAY"] = 0] = "GAME_PLAY";
+        CANVAS_BUTTON_NAME[CANVAS_BUTTON_NAME["AUDIO_PLAY"] = 1] = "AUDIO_PLAY";
+        CANVAS_BUTTON_NAME[CANVAS_BUTTON_NAME["NEXT"] = 2] = "NEXT";
+        CANVAS_BUTTON_NAME[CANVAS_BUTTON_NAME["VOLUME_UP"] = 3] = "VOLUME_UP";
+        CANVAS_BUTTON_NAME[CANVAS_BUTTON_NAME["VOLUME_DOWN"] = 4] = "VOLUME_DOWN";
+        CANVAS_BUTTON_NAME[CANVAS_BUTTON_NAME["RESTART"] = 5] = "RESTART";
     })(CANVAS_BUTTON_NAME = exports.CANVAS_BUTTON_NAME || (exports.CANVAS_BUTTON_NAME = {}));
 });
 define("model/hud", ["require", "exports", "services/asset-manager", "model/CanvasMenuObjects"], function (require, exports, asset_manager_8, CanvasMenuObjects_1) {
@@ -533,30 +535,14 @@ define("model/hud", ["require", "exports", "services/asset-manager", "model/Canv
     var Hud = /** @class */ (function () {
         function Hud() {
             this.showLevelText = "Level 1";
+            this.volOn = asset_manager_8.ASSETS.PREPEND + "drone-images/volume.png";
+            this.volPaused = asset_manager_8.ASSETS.PREPEND + "drone-images/volume-pause.png";
             this.textColor = "lime";
             this.volumeImageObj = new Image(25, 25);
-            this.volumeImageObj.src = asset_manager_8.ASSETS.PREPEND + "drone-images/volume.png";
+            this.volumeImageObj.src = this.volOn;
             this.nextImageObj = new Image(25, 25);
             this.nextImageObj.src = asset_manager_8.ASSETS.PREPEND + "drone-images/volumeNext.jpg";
         }
-        /** Draw a menu box onto canvas.  only function called during pause or gameover */
-        Hud.prototype.menuBox = function (canvas, word) {
-            var menuHeader = new CanvasMenuObjects_1.CanvasText(word, (canvas.canvas.width / 2), (canvas.canvas.height / 3), this.textColor, "30px Arial");
-            canvas.font = menuHeader.font;
-            canvas.fillStyle = menuHeader.color;
-            canvas.textAlign = "center";
-            canvas.fillText(menuHeader.word, menuHeader.x, menuHeader.y);
-            if (word === 'Paused') {
-                var volumeHeader = new CanvasMenuObjects_1.CanvasText("Volume:", menuHeader.x, menuHeader.y + 35, this.textColor, "22px Arial");
-                canvas.font = volumeHeader.font;
-                canvas.fillStyle = volumeHeader.color;
-                canvas.textAlign = "center";
-                canvas.fillText(volumeHeader.word, volumeHeader.x, volumeHeader.y);
-                var volumeBox = new CanvasMenuObjects_1.CanvasButton(CanvasMenuObjects_1.CANVAS_BUTTON_NAME.VOLUME_DOWN, menuHeader.x + 30, menuHeader.y, 100, 25);
-                canvas.fillStyle = this.textColor;
-                canvas.fillRect(volumeBox.x, volumeBox.y, volumeBox.w, volumeBox.h);
-            }
-        };
         Hud.prototype.displayText = function (canvas, text) {
             var displayText = new CanvasMenuObjects_1.CanvasText(text, (canvas.canvas.width / 2), (canvas.canvas.height / 6), this.textColor, "25px Jazz LET, fantasy");
             canvas.font = displayText.font;
@@ -564,6 +550,12 @@ define("model/hud", ["require", "exports", "services/asset-manager", "model/Canv
             canvas.textAlign = "center";
             canvas.fillText(text, displayText.x, displayText.y);
         };
+        /**
+         * Bottom left corner stats
+         * @param canvas
+         * @param player
+         * @param kills
+         */
         Hud.prototype.playerStats = function (canvas, player, kills) {
             var health = new CanvasMenuObjects_1.CanvasText("Health: " + player.health.toString(), (canvas.canvas.width / 40), (canvas.canvas.height - (canvas.canvas.height / 14)), this.textColor, "17px Jazz LET, fantasy");
             var KillsText = new CanvasMenuObjects_1.CanvasText("Kills: " + kills.toString(), (canvas.canvas.width / 40), (canvas.canvas.height - (canvas.canvas.height / 10)), this.textColor, "17px Jazz LET, fantasy");
@@ -580,8 +572,13 @@ define("model/hud", ["require", "exports", "services/asset-manager", "model/Canv
             canvas.drawImage(this.volumeImageObj, 0, 0);
             canvas.drawImage(this.nextImageObj, 20, 0);
         };
-        Hud.prototype.pauseVolume = function (src) {
-            this.volumeImageObj.src = src;
+        Hud.prototype.pauseVolume = function (paused) {
+            if (paused) {
+                this.volumeImageObj.src = this.volPaused;
+            }
+            else {
+                this.volumeImageObj.src = this.volOn;
+            }
         };
         Hud.prototype.addCount = function (canvas, enemy) {
             var hitCount = new CanvasMenuObjects_1.CanvasText("+1", enemy.X, enemy.Y, this.textColor, "15px Arial");
@@ -590,9 +587,54 @@ define("model/hud", ["require", "exports", "services/asset-manager", "model/Canv
             canvas.strokeStyle = hitCount.color;
             canvas.fillText(hitCount.word, hitCount.x, hitCount.y);
         };
+        Hud.prototype.splashScreen = function (canvas) {
+            var btnList = [];
+            var title = new CanvasMenuObjects_1.CanvasText("DRONES", (canvas.canvas.width / 2) - 50, (canvas.canvas.height / 2), this.textColor, "40px Arial");
+            canvas.font = title.font;
+            canvas.fillStyle = title.color;
+            canvas.textAlign = "left";
+            var startButton = new CanvasMenuObjects_1.CanvasButton(CanvasMenuObjects_1.CANVAS_BUTTON_NAME.GAME_PLAY, title.x - 20, title.y + 40, canvas.measureText(title.word).width + 40, 35);
+            canvas.fillText(title.word, title.x, title.y);
+            canvas.fillRect(startButton.x, startButton.y, startButton.w, startButton.h);
+            var startText = new CanvasMenuObjects_1.CanvasText("Start", startButton.x + (startButton.w / 3.5), startButton.y + startButton.h - 3, this.textColor, "15px Arial");
+            canvas.fillStyle = "black";
+            canvas.fillText(startText.word, startText.x, startText.y);
+            btnList.push(startButton);
+            return btnList;
+        };
+        Hud.prototype.pauseScreen = function (canvas) {
+            var btnList = [];
+            var menuHeader = new CanvasMenuObjects_1.CanvasText("Paused", (canvas.canvas.width / 2), (canvas.canvas.height / 2), this.textColor, "30px Arial");
+            canvas.font = menuHeader.font;
+            canvas.fillStyle = menuHeader.color;
+            canvas.textAlign = "center";
+            canvas.fillText(menuHeader.word, menuHeader.x, menuHeader.y);
+            return btnList;
+        };
+        Hud.prototype.gameOverScreen = function (canvas) {
+            var btnList = [];
+            var title = new CanvasMenuObjects_1.CanvasText("Game Over", (canvas.canvas.width / 2) - 50, (canvas.canvas.height / 2), this.textColor, "40px Arial");
+            canvas.font = title.font;
+            canvas.fillStyle = title.color;
+            canvas.textAlign = "left";
+            var restartButton = new CanvasMenuObjects_1.CanvasButton(CanvasMenuObjects_1.CANVAS_BUTTON_NAME.RESTART, title.x - 20, title.y + 40, canvas.measureText(title.word).width + 40, 35);
+            canvas.fillText(title.word, title.x, title.y);
+            canvas.fillRect(restartButton.x, restartButton.y, restartButton.w, restartButton.h);
+            var restartText = new CanvasMenuObjects_1.CanvasText("Restart", restartButton.x + (restartButton.w / 4), restartButton.y + restartButton.h - 3, this.textColor, "15px Arial");
+            canvas.fillStyle = "black";
+            canvas.fillText(restartText.word, restartText.x, restartText.y);
+            btnList.push(restartButton);
+            return btnList;
+        };
         return Hud;
     }());
     exports.Hud = Hud;
+    var SCREEN_BTNS;
+    (function (SCREEN_BTNS) {
+        SCREEN_BTNS[SCREEN_BTNS["SPLASH"] = 0] = "SPLASH";
+        SCREEN_BTNS[SCREEN_BTNS["PAUSE"] = 1] = "PAUSE";
+        SCREEN_BTNS[SCREEN_BTNS["GAME_OVER"] = 2] = "GAME_OVER";
+    })(SCREEN_BTNS = exports.SCREEN_BTNS || (exports.SCREEN_BTNS = {}));
 });
 define("services/audio.service", ["require", "exports", "services/asset-manager"], function (require, exports, asset_manager_9) {
     "use strict";
@@ -608,36 +650,43 @@ define("services/audio.service", ["require", "exports", "services/asset-manager"
                 asset_manager_9.ASSETS.PREPEND + "sounds/trapqueen.mp3",
                 asset_manager_9.ASSETS.PREPEND + "sounds/offspring.mp3"
             ];
+            this.audioElem = new Audio();
         }
         /** Toggle Audio Pause/play */
-        AudioService.prototype.toggle = function (isPaused, audioElem) {
+        AudioService.prototype.toggle = function (isPaused) {
             if (isPaused) {
-                audioElem.pause();
+                this.audioElem.pause();
             }
             else {
-                audioElem.volume = this.volume;
-                audioElem.play();
+                this.audioElem.volume = this.volume;
+                this.audioElem.play();
             }
         };
-        AudioService.prototype.next = function (audioElementName) {
+        AudioService.prototype.next = function () {
             this.song++;
             if (this.song >= this.playlist.length) {
                 this.song = 0;
             }
-            audioElementName.pause();
-            audioElementName.src = this.playlist[this.song];
-            audioElementName.volume = this.volume;
-            audioElementName.play();
+            this.audioElem.pause();
+            this.audioElem.src = this.playlist[this.song];
+            this.audioElem.volume = this.volume;
+            this.audioElem.play();
         };
         return AudioService;
     }());
     exports.AudioService = AudioService;
 });
-define("services/drones-manager.service", ["require", "exports", "model/player.drones", "services/key-status", "model/enemy.drones", "model/powerup.drones", "model/missile", "model/boss.drones", "model/hud", "services/asset-manager"], function (require, exports, player_drones_1, key_status_1, enemy_drones_1, powerup_drones_1, missile_1, boss_drones_1, hud_1, asset_manager_10) {
+define("services/drones-manager.service", ["require", "exports", "model/player.drones", "services/key-status", "model/enemy.drones", "model/powerup.drones", "model/missile", "model/boss.drones", "model/hud"], function (require, exports, player_drones_1, key_status_1, enemy_drones_1, powerup_drones_1, missile_1, boss_drones_1, hud_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var DronesManagerService = /** @class */ (function () {
         function DronesManagerService() {
+            this.hud = new hud_1.Hud();
+            this.player = new player_drones_1.Player();
+            this.keyHandler = new key_status_1.KeyDown();
+            this.powerUp = new powerup_drones_1.Powerup();
+            this.playerMissile = new missile_1.Missile(false);
+            this.boss = new boss_drones_1.Boss();
             this.dT = 0;
             this.pauseGame = false;
             this.pauseGameTime = true;
@@ -645,16 +694,9 @@ define("services/drones-manager.service", ["require", "exports", "model/player.d
             this.playerBullets = [];
             this.enemyFleet = [];
             this.enemyBullets = [];
-            //easy: .04, Medium: .07,hard: .13
-            this.GAME_DIFFICULTY = .04; // 20/200: .067
+            this.GAME_DIFFICULTY = .04; //TODO: make enum
             this.GameOver = false;
             this.KILLS = 0;
-            this.hud = new hud_1.Hud();
-            this.player = new player_drones_1.Player();
-            this.keyHandler = new key_status_1.KeyDown();
-            this.powerUp = new powerup_drones_1.Powerup();
-            this.playerMissile = new missile_1.Missile(false);
-            this.boss = new boss_drones_1.Boss();
         }
         /** Key change resolver */
         DronesManagerService.prototype.keyChange = function (keyCode, UporDown) {
@@ -703,6 +745,7 @@ define("services/drones-manager.service", ["require", "exports", "model/player.d
             });
             //draw the enemy drones
             this.enemyFleet.forEach(function (enemy) {
+                console.log(enemy.Speed);
                 enemy.draw(canvas);
                 if (enemy.hasBeenShot && enemy.active) {
                     _this.hud.addCount(canvas, enemy);
@@ -976,29 +1019,16 @@ define("services/drones-manager.service", ["require", "exports", "model/player.d
             }
             return rand;
         };
-        /** Draw a menu box onto canvas.  only function called during pause or gameover */
-        DronesManagerService.prototype.menuBox = function (canvas, word) {
-            this.hud.menuBox(canvas, word);
-        };
         /** When Player Collision happens remove all powerups */
         DronesManagerService.prototype.removePowerups = function () {
             this.player.losePowerUps();
             this.playerMissile.explosionVelocity = this.playerMissile.defaultExplosionVelocity;
         };
-        DronesManagerService.prototype.pauseControl = function (pause, audio, audioElem) {
-            if (pause) {
-                this.hud.pauseVolume(asset_manager_10.ASSETS.PREPEND + "drone-images/volume-pause.png");
-            }
-            else {
-                this.hud.pauseVolume(asset_manager_10.ASSETS.PREPEND + "drone-images/volume.png");
-            }
-            audio.toggle(pause, audioElem);
-        };
         return DronesManagerService;
     }());
     exports.DronesManagerService = DronesManagerService;
 });
-define("DronesCanvas", ["require", "exports", "services/drones-manager.service", "services/audio.service", "model/CanvasMenuObjects"], function (require, exports, drones_manager_service_1, audio_service_1, CanvasMenuObjects_2) {
+define("DronesCanvas", ["require", "exports", "services/drones-manager.service", "services/audio.service", "model/CanvasMenuObjects", "model/hud"], function (require, exports, drones_manager_service_1, audio_service_1, CanvasMenuObjects_2, hud_2) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var DronesCanvas = /** @class */ (function () {
@@ -1027,29 +1057,32 @@ define("DronesCanvas", ["require", "exports", "services/drones-manager.service",
                 }
                 else if (_this.gameManager.pauseGame) {
                     //paused game.  Draw menu box
-                    _this.gameManager.menuBox(_this.CanvasObject, "Paused");
+                    _this.buildCanvasButtons(hud_2.SCREEN_BTNS.PAUSE);
                 }
                 else if (_this.gameManager.GameOver) {
                     //game over. Draw menu box
-                    _this.gameManager.menuBox(_this.CanvasObject, "Game Over");
+                    _this.buildCanvasButtons(hud_2.SCREEN_BTNS.GAME_OVER);
                 }
                 _this.lastTime = currentTime - (_this.deltaTime % _this.interval);
             };
             this.CanvasObject = canvasElementName.getContext('2d');
             this.gameManager = new drones_manager_service_1.DronesManagerService();
-            this.audioElement = new Audio();
             this.audioService = new audio_service_1.AudioService();
-            this.buildCanvasButtons();
         }
-        DronesCanvas.prototype.start = function () {
+        DronesCanvas.prototype.init = function () {
             var _this = this;
+            window.document.body.style.backgroundColor = 'black';
+            var arr = this.getWindowSize();
+            this.CanvasObject.canvas.width = arr[0] - 15;
+            this.CanvasObject.canvas.height = arr[1] - 25;
+            this.hud = this.gameManager.hud;
+            this.buildCanvasButtons(hud_2.SCREEN_BTNS.SPLASH);
             document.addEventListener('keydown', function (e) {
                 _this.gameManager.keyChange(e.keyCode, true);
             });
             document.addEventListener('keyup', function (e) {
                 _this.gameManager.keyChange(e.keyCode, false);
             });
-            window.document.body.style.backgroundColor = 'black';
             /** Click event handler.  Use For canvas button handling */
             this.canvasElementName.addEventListener('click', function (e) {
                 var pos = {
@@ -1058,20 +1091,24 @@ define("DronesCanvas", ["require", "exports", "services/drones-manager.service",
                 };
                 //do all checks for things that I can click on
                 //console.log(`Clicked: X: ${pos.x}, Y: ${pos.y}`)
-                _this.canvasButtonList.forEach(function (btn) {
-                    if (btn.name === CanvasMenuObjects_2.CANVAS_BUTTON_NAME.PLAY && btn.isWithinBounds(pos.x, pos.y)) {
-                        _this.audioPause = !_this.audioPause;
-                        _this.gameManager.pauseControl(_this.audioPause, _this.audioService, _this.audioElement);
-                    }
-                    else if (btn.name === CanvasMenuObjects_2.CANVAS_BUTTON_NAME.NEXT && btn.isWithinBounds(pos.x, pos.y)) {
-                        _this.audioService.next(_this.audioElement);
-                    }
-                });
+                _this.runButtonChecks(pos);
             });
-            var arr = this.getWindowSize();
-            this.CanvasObject.canvas.width = arr[0] - 15;
-            this.CanvasObject.canvas.height = arr[1] - 25;
+        };
+        DronesCanvas.prototype.start = function () {
             this.gameManager.GameOver = false;
+            this.audioService.next();
+            this.loop();
+        };
+        DronesCanvas.prototype.reset = function () {
+            this.gameManager = null;
+            this.gameLoop = null;
+            this.gameManager = new drones_manager_service_1.DronesManagerService();
+            this.audioService.next();
+            this.lastTime = (new Date()).getTime();
+            this.deltaTime = 0;
+            this.interval = 1000 / 30;
+            this.canvasButtonList = [];
+            this.hud = this.gameManager.hud;
             this.loop();
         };
         /**
@@ -1100,7 +1137,11 @@ define("DronesCanvas", ["require", "exports", "services/drones-manager.service",
             }
             return [myWidth, myHeight];
         };
-        DronesCanvas.prototype.setDif = function (num) {
+        /**
+         * UNUSED RIGHT NOW
+         * @param num
+         */
+        DronesCanvas.prototype.setDifficulty = function (num) {
             switch (num) {
                 case 1:
                     this.gameManager.GAME_DIFFICULTY = .04;
@@ -1119,14 +1160,55 @@ define("DronesCanvas", ["require", "exports", "services/drones-manager.service",
             this.canvasElementName.focus;
         };
         /**
-         * Builds Buttons that are ALWAYS VISIBLE.  hud.ts builds buttons that are visible for specific reasons (pause, etc)
+         * Builds buttons
          */
-        DronesCanvas.prototype.buildCanvasButtons = function () {
-            this.canvasButtonList.push(new CanvasMenuObjects_2.CanvasButton(CanvasMenuObjects_2.CANVAS_BUTTON_NAME.PLAY, 0, 0, 30, 50));
+        DronesCanvas.prototype.buildCanvasButtons = function (screen) {
+            this.canvasButtonList = [];
+            switch (screen) {
+                case hud_2.SCREEN_BTNS.SPLASH:
+                    this.canvasButtonList = this.hud.splashScreen(this.CanvasObject);
+                    break;
+                case hud_2.SCREEN_BTNS.PAUSE:
+                    this.canvasButtonList = this.hud.pauseScreen(this.CanvasObject);
+                    break;
+                case hud_2.SCREEN_BTNS.GAME_OVER:
+                    this.canvasButtonList = this.hud.gameOverScreen(this.CanvasObject);
+                    break;
+            }
+            //buttons that are always visible
+            this.canvasButtonList.push(new CanvasMenuObjects_2.CanvasButton(CanvasMenuObjects_2.CANVAS_BUTTON_NAME.AUDIO_PLAY, 0, 0, 30, 50));
             this.canvasButtonList.push(new CanvasMenuObjects_2.CanvasButton(CanvasMenuObjects_2.CANVAS_BUTTON_NAME.NEXT, 30, 0, 30, 50));
+        };
+        DronesCanvas.prototype.runButtonChecks = function (pos) {
+            var _this = this;
+            this.canvasButtonList.forEach(function (btn) {
+                switch (btn.name) {
+                    case CanvasMenuObjects_2.CANVAS_BUTTON_NAME.AUDIO_PLAY:
+                        if (btn.isWithinBounds(pos.x, pos.y)) {
+                            _this.audioPause = !_this.audioPause;
+                            _this.audioService.toggle(_this.audioPause);
+                            _this.hud.pauseVolume(_this.audioPause);
+                        }
+                        break;
+                    case CanvasMenuObjects_2.CANVAS_BUTTON_NAME.NEXT:
+                        if (btn.isWithinBounds(pos.x, pos.y)) {
+                            _this.audioService.next();
+                        }
+                        break;
+                    case CanvasMenuObjects_2.CANVAS_BUTTON_NAME.GAME_PLAY:
+                        if (btn.isWithinBounds(pos.x, pos.y)) {
+                            _this.start();
+                        }
+                        break;
+                    case CanvasMenuObjects_2.CANVAS_BUTTON_NAME.RESTART:
+                        if (btn.isWithinBounds(pos.x, pos.y)) {
+                            _this.reset();
+                        }
+                        break;
+                }
+            });
         };
         return DronesCanvas;
     }());
     exports.DronesCanvas = DronesCanvas;
 });
-//(canvas.canvas.width / 2), (canvas.canvas.height / 2)

@@ -6,6 +6,7 @@ export class AudioService {
 
   song: number = 0;
   volume: number = .1;
+  audioElem: HTMLAudioElement;
 
   playlist: string[] = [
     ASSETS.PREPEND + "sounds/Blink.mp3",
@@ -15,26 +16,27 @@ export class AudioService {
   ]
 
   constructor() {
+    this.audioElem = new Audio();
    }
 
    /** Toggle Audio Pause/play */
-   toggle(isPaused:boolean, audioElem:HTMLAudioElement){
+   toggle(isPaused:boolean){
      if(isPaused){
-      audioElem.pause();
+      this.audioElem.pause();
      }else{
-      audioElem.volume = this.volume;
-       audioElem.play();
+      this.audioElem.volume = this.volume;
+      this.audioElem.play();
      }
    }
 
-   next(audioElementName: HTMLAudioElement){
+   next(){
     this.song++;
     if(this.song >= this.playlist.length){
       this.song = 0;
     }
-    audioElementName.pause();
-    audioElementName.src = this.playlist[this.song];
-    audioElementName.volume = this.volume;
-    audioElementName.play();
+    this.audioElem.pause();
+    this.audioElem.src = this.playlist[this.song];
+    this.audioElem.volume = this.volume;
+    this.audioElem.play();
    }
 }

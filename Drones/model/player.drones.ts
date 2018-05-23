@@ -14,7 +14,7 @@ export class Player extends User {
 
     constructor() {
         super('fff', 90, 40, 200, 200);
-        this.health = 50;
+        this.health = 1;
         this.hasSprayPowerUp = false;
         this.hasExplosionVelocity = false;
         this.hasRoFpowerUp = false;

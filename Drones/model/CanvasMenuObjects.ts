@@ -41,5 +41,5 @@ export class CanvasText {
 }
 
 export enum CANVAS_BUTTON_NAME {
-    PLAY, NEXT, VOLUME_UP, VOLUME_DOWN
+    GAME_PLAY, AUDIO_PLAY, NEXT, VOLUME_UP, VOLUME_DOWN, RESTART
 }

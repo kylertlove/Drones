@@ -13,23 +13,23 @@ import { ASSETS } from './asset-manager';
 
 export class DronesManagerService {
 
-  dT: number = 0;
-  pauseGame: Boolean = false;
-  pauseGameTime: Boolean = true;
+  dT: number;
+  pauseGame: Boolean;
+  pauseGameTime: Boolean;
   keyHandler: KeyDown;
   player: Player;
-  playerRoF: number = 0;
+  playerRoF: number;
   powerUp: Powerup;
   playerMissile: Missile;
-  playerBullets: PlayerBullets[] = [];
-  enemyFleet: Enemy[] = [];
+  playerBullets: PlayerBullets[];
+  enemyFleet: Enemy[];
   boss: Boss;
-  enemyBullets: EnemyBullet[] = [];
+  enemyBullets: EnemyBullet[];
   //easy: .04, Medium: .07,hard: .13
-  GAME_DIFFICULTY = .04; // 20/200: .067
-  GameOver: Boolean = false;
+  GAME_DIFFICULTY; // 20/200: .067
+  GameOver: Boolean;
   hud: Hud; 
-  KILLS = 0;
+  KILLS: number;
 
   constructor() {
     this.hud = new Hud();
@@ -38,6 +38,16 @@ export class DronesManagerService {
     this.powerUp = new Powerup();
     this.playerMissile = new Missile(false);
     this.boss = new Boss();
+    this.dT = 0;
+    this.pauseGame = false;
+    this.pauseGameTime = true;
+    this.playerRoF = 0;
+    this.playerBullets = [];
+    this.enemyFleet = [];
+    this.enemyBullets = [];
+    this.GAME_DIFFICULTY = .04; //TODO: make enum
+    this.GameOver = false;
+    this.KILLS = 0;
   }
 
   /** Key change resolver */
@@ -84,6 +94,7 @@ export class DronesManagerService {
     })
     //draw the enemy drones
     this.enemyFleet.forEach((enemy) => {
+      console.log(enemy.Speed)
       enemy.draw(canvas);
       if(enemy.hasBeenShot && enemy.active){
         this.hud.addCount(canvas, enemy);
@@ -352,23 +363,9 @@ export class DronesManagerService {
     return rand;
   }
 
-  /** Draw a menu box onto canvas.  only function called during pause or gameover */
-  menuBox(canvas: CanvasRenderingContext2D, word: string) {
-    this.hud.menuBox(canvas, word);
-  }
-
   /** When Player Collision happens remove all powerups */
   removePowerups(){
     this.player.losePowerUps();
     this.playerMissile.explosionVelocity = this.playerMissile.defaultExplosionVelocity;
-  }
-
-  pauseControl(pause:boolean, audio: AudioService, audioElem:HTMLAudioElement){
-    if(pause){
-      this.hud.pauseVolume(ASSETS.PREPEND + "drone-images/volume-pause.png");
-    }else{
-      this.hud.pauseVolume(ASSETS.PREPEND + "drone-images/volume.png");
-    }
-    audio.toggle(pause, audioElem);
   }
 }

@@ -12,51 +12,52 @@
 </body>
 <script>
     requirejs.config({
-    baseUrl: 'output',
-    paths: {
-        'DronesCanvas':'drones'
-    }
-});
+        baseUrl: 'output',
+        paths: {
+            'DronesCanvas': 'drones'
+        }
+    });
 
-requirejs(["DronesCanvas"], function(dc) {
-    console.log(dc);
-    var app = new dc.DronesCanvas(
-        document.getElementById('canvasElem')
-    );
-    app.start();
-});
+    requirejs(["DronesCanvas"], function(dc) {
+        var app = new dc.DronesCanvas(
+            document.getElementById('canvasElem')
+        );
+        app.init();
+    });
 </script>
 <style>
     /* Not needed but I like it */
+    
     canvas {
-    margin: 0;
-    padding: 0;
-    background: url('./assets/drone-images/sky.jpg');
-    background-size: cover;
-    position: relative;
-    font-family: Arial, Helvetica, sans-serif;
-    overflow: hidden;
-    background-repeat: repeat;
-    -webkit-animation: animate-background linear 90s infinite;
-    animation: animate-background linear 90s infinite;
-}
-
-@-webkit-keyframes animate-background {
-    from {
-        background-position: 0px 0px;
+        margin: 0;
+        padding: 0;
+        background: url('./assets/drone-images/sky.jpg');
+        background-size: cover;
+        position: relative;
+        font-family: Arial, Helvetica, sans-serif;
+        overflow: hidden;
+        background-repeat: repeat;
+        -webkit-animation: animate-background linear 90s infinite;
+        animation: animate-background linear 90s infinite;
     }
-    to {
-        background-position: -1000px 0px;
+    
+    @-webkit-keyframes animate-background {
+        from {
+            background-position: 0px 0px;
+        }
+        to {
+            background-position: -1000px 0px;
+        }
     }
-}
-
-@keyframes animate-background {
-    from {
-        background-position: 0px 0px;
+    
+    @keyframes animate-background {
+        from {
+            background-position: 0px 0px;
+        }
+        to {
+            background-position: -1000px 0px;
+        }
     }
-    to {
-        background-position: -1000px 0px;
-    }
-}
 </style>
+
 </html>
