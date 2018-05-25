@@ -50,7 +50,8 @@ export class Hud {
 
   volumeHud(canvas: CanvasRenderingContext2D) {
     canvas.drawImage(this.volumeImageObj, 0, 0);
-    canvas.drawImage(this.nextImageObj, 20, 0);
+    canvas.drawImage(this.nextImageObj, 20, 0); 
+    
   }
 
   pauseVolume(paused: boolean) {
