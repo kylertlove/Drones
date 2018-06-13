@@ -343,6 +343,9 @@ export class DronesManagerService {
     setTimeout(() => {
       this.pauseGame = !this.pauseGame;
       this.pauseGameTime = true;
+      if(!this.pauseGame){
+        this.hud.clearGUI();
+      }
     }, 150)
   }
 

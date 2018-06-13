@@ -1,7 +1,7 @@
 import { DronesManagerService } from "./services/drones-manager.service";
 import { AudioService } from "./services/audio.service";
 import { CanvasButton, CANVAS_BUTTON_NAME } from "./model/CanvasMenuObjects";
-import { SCREEN_BTNS, Hud } from "./model/hud";
+import { SCREEN_ACTIONS, Hud } from "./model/hud";
 
 
 export class DronesCanvas {
@@ -30,7 +30,7 @@ export class DronesCanvas {
     this.CanvasObject.canvas.height = arr[1] - 25;
 
     this.hud = this.gameManager.hud;
-    this.buildCanvasButtons(SCREEN_BTNS.SPLASH);
+    this.buildCanvasGUI(SCREEN_ACTIONS.SPLASH);
     document.addEventListener('keydown', (e: KeyboardEvent) => {
       this.gameManager.keyChange(e.keyCode, true);
     });
@@ -86,10 +86,10 @@ export class DronesCanvas {
       this.gameManager.draw(this.CanvasObject);
     } else if (this.gameManager.pauseGame) {
       //paused game.  Draw menu box
-      this.buildCanvasButtons(SCREEN_BTNS.PAUSE);
+      this.buildCanvasGUI(SCREEN_ACTIONS.PAUSE);
     } else if (this.gameManager.GameOver) {
       //game over. Draw menu box
-      this.buildCanvasButtons(SCREEN_BTNS.GAME_OVER);
+      this.buildCanvasGUI(SCREEN_ACTIONS.GAME_OVER);
     }
     this.lastTime = currentTime - (this.deltaTime % this.interval);
   }
@@ -147,17 +147,17 @@ export class DronesCanvas {
   /**
    * Builds buttons
    */
-  buildCanvasButtons(screen: SCREEN_BTNS) {
+  buildCanvasGUI(screen: SCREEN_ACTIONS) {
     this.canvasButtonList = [];
     switch (screen) {
-      case SCREEN_BTNS.SPLASH:
-        this.canvasButtonList = this.hud.splashScreen(this.CanvasObject);
+      case SCREEN_ACTIONS.SPLASH:
+        this.hud.splashScreen(this);
         break;
-      case SCREEN_BTNS.PAUSE:
-        this.canvasButtonList = this.hud.pauseScreen(this.CanvasObject);
+      case SCREEN_ACTIONS.PAUSE:
+        this.hud.pauseScreen();
         break;
-      case SCREEN_BTNS.GAME_OVER:
-        this.canvasButtonList = this.hud.gameOverScreen(this.CanvasObject);
+      case SCREEN_ACTIONS.GAME_OVER:
+        this.hud.gameOverScreen();
         break;
     }
 
@@ -179,16 +179,6 @@ export class DronesCanvas {
         case CANVAS_BUTTON_NAME.NEXT:
           if (btn.isWithinBounds(pos.x, pos.y)) {
             this.audioService.next();
-          }
-          break;
-        case CANVAS_BUTTON_NAME.GAME_PLAY:
-          if (btn.isWithinBounds(pos.x, pos.y)) {
-            this.start();
-          }
-          break;
-        case CANVAS_BUTTON_NAME.RESTART:
-          if (btn.isWithinBounds(pos.x, pos.y)) {
-            this.reset();
           }
           break;
       }

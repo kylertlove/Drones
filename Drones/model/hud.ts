@@ -3,20 +3,25 @@ import { Missile } from "./missile";
 import { Entity } from "./entity.drones";
 import { ASSETS } from "../services/asset-manager";
 import { CanvasButton, CanvasText, CANVAS_BUTTON_NAME } from "./CanvasMenuObjects";
+import { DronesCanvas } from "../DronesCanvas";
 
 
 export class Hud {
+
   showLevelText: string = "Level 1";
   volumeImageObj;
   volOn = ASSETS.PREPEND + "drone-images/volume.png"
   volPaused = ASSETS.PREPEND + "drone-images/volume-pause.png";
   nextImageObj;
   textColor: string = "lime";
+  guiBox: HTMLElement;
   constructor() {
     this.volumeImageObj = new Image(25, 25);
     this.volumeImageObj.src = this.volOn;
     this.nextImageObj = new Image(25, 25);
     this.nextImageObj.src = ASSETS.PREPEND + "drone-images/volumeNext.jpg";
+    this.createGUI();
+
   }
 
   displayText(canvas: CanvasRenderingContext2D, text: string) {
@@ -70,49 +75,86 @@ export class Hud {
     canvas.fillText(hitCount.word, hitCount.x, hitCount.y);
   }
 
-  splashScreen(canvas: CanvasRenderingContext2D) {
-    let btnList: CanvasButton[] = [];
-    let title = new CanvasText("DRONES", (canvas.canvas.width / 2) - 50, (canvas.canvas.height / 2), this.textColor, "40px Arial");
-    canvas.font = title.font;
-    canvas.fillStyle = title.color;
-    canvas.textAlign = "left";
-    let startButton = new CanvasButton(CANVAS_BUTTON_NAME.GAME_PLAY, title.x - 20, title.y + 40, canvas.measureText(title.word).width + 40, 35);
-    canvas.fillText(title.word, title.x, title.y);
-    canvas.fillRect(startButton.x, startButton.y, startButton.w, startButton.h);
-    let startText = new CanvasText("Start", startButton.x + (startButton.w / 3.5), startButton.y + startButton.h - 3, this.textColor, "15px Arial");
-    canvas.fillStyle = "black";
-    canvas.fillText(startText.word, startText.x, startText.y);
-    btnList.push(startButton);
-    return btnList;
+  /**
+   * Initial Screen
+   * @param DronesCanvas
+   */
+  splashScreen(Controller:DronesCanvas) {
+    this.clearGUI();
+    let title:HTMLLabelElement = document.createElement('LABEL') as HTMLLabelElement;
+    title.innerText = "DRONES";
+    title.setAttribute('style', 'color:lime;font:40px Arial;');
+    let startBtn:HTMLButtonElement = document.createElement('BUTTON') as HTMLButtonElement;
+    startBtn.innerText = "Start";
+    startBtn.setAttribute('style', 'color:lime;font:20px Arial;background-color:black;border:2px solid lime;width:15%;height:50px;transition:.3s;cursor:pointer;box-shadow:0 0 5px lime;');
+    startBtn.onclick = () => {
+      Controller.start();
+      this.clearGUI();
+    }
+    startBtn.onmouseover = () => {
+      startBtn.setAttribute('style', 'color:black;font:20px Arial;background-color:lime;border:2px solid lime;width:15%;height:50px;transition:.6s;cursor:pointer;box-shadow:0 0 15px lime;');
+    }
+    startBtn.onmouseleave = () => {
+      startBtn.setAttribute('style', 'color:lime;font:20px Arial;background-color:black;border:2px solid lime;width:15%;height:50px;transition:.3s;cursor:pointer;box-shadow:0 0 5px lime;');
+    }
+    let initLine = this.getNewLineElem(30);
+    this.guiBox.insertAdjacentElement("afterbegin", initLine);
+    initLine.insertAdjacentElement("afterend", title);
+    let newLine = this.getNewLineElem(15);
+    title.insertAdjacentElement("afterend", newLine);
+    newLine.insertAdjacentElement("afterend", startBtn);
   }
 
-  pauseScreen(canvas: CanvasRenderingContext2D) {
-    let btnList: CanvasButton[] = [];
-    let menuHeader = new CanvasText("Paused", (canvas.canvas.width / 2), (canvas.canvas.height / 2), this.textColor, "30px Arial");
-    canvas.font = menuHeader.font;
-    canvas.fillStyle = menuHeader.color;
-    canvas.textAlign = "center";
-    canvas.fillText(menuHeader.word, menuHeader.x, menuHeader.y);
-    return btnList;
+  /**
+   * Pause/settings Screen
+   */
+  pauseScreen() {
+    this.clearGUI();
+    let pauseText:HTMLLabelElement = document.createElement('LABEL') as HTMLLabelElement;
+    pauseText.innerText = "PAUSED";
+    pauseText.setAttribute('style', 'color:lime;font:40px Arial;');
+    this.guiBox.insertAdjacentElement("afterbegin", pauseText);
   }
 
-  gameOverScreen(canvas: CanvasRenderingContext2D){
-    let btnList: CanvasButton[] = [];
-    let title = new CanvasText("Game Over", (canvas.canvas.width / 2) - 50, (canvas.canvas.height / 2), this.textColor, "40px Arial");
-    canvas.font = title.font;
-    canvas.fillStyle = title.color;
-    canvas.textAlign = "left";
-    let restartButton = new CanvasButton(CANVAS_BUTTON_NAME.RESTART, title.x - 20, title.y + 40, canvas.measureText(title.word).width + 40, 35);
-    canvas.fillText(title.word, title.x, title.y);
-    canvas.fillRect(restartButton.x, restartButton.y, restartButton.w, restartButton.h);
-    let restartText = new CanvasText("Restart", restartButton.x + (restartButton.w / 4), restartButton.y + restartButton.h - 3, this.textColor, "15px Arial");
-    canvas.fillStyle = "black";
-    canvas.fillText(restartText.word, restartText.x, restartText.y);
-    btnList.push(restartButton);
-    return btnList;
+  /**
+   * Game Over Screen 
+   */
+  gameOverScreen(){
+    this.clearGUI();
+    let gameOverText:HTMLLabelElement = document.createElement('LABEL') as HTMLLabelElement;
+    gameOverText.innerText = "GAME OVER";
+    gameOverText.setAttribute('style', 'color:lime;font:40px Arial;');
+    this.guiBox.insertAdjacentElement("afterbegin", gameOverText);
+  }
+
+  /**
+   * Build GUI Box so I can use HTML for buttons, not canvas... canvas dom sucks
+   */
+  createGUI(): void {
+    let canvasElem = window.document.getElementById('canvasElem');
+    let guiOverlay = window.document.createElement("DIV");
+    guiOverlay.id = "gui";
+    guiOverlay.setAttribute('style', 'position:absolute;top:0;float:left; width:99%;height:99vh;text-align:center;z-index:5;');
+    canvasElem.insertAdjacentElement("afterend", guiOverlay);
+    this.guiBox = window.document.createElement('DIV');
+    this.guiBox.id = "guiBox";
+    this.guiBox.setAttribute('style', 'float:left;color:lime;margin-top:15%;height:50%;width:100%;text-align:center;');
+    guiOverlay.insertAdjacentElement("afterbegin", this.guiBox);
+  }
+
+  clearGUI(){
+    while (this.guiBox.firstChild) {
+      this.guiBox.removeChild(this.guiBox.firstChild);
+    }
+  }
+
+  getNewLineElem(height:number){
+    let newDiv = document.createElement('DIV');
+    newDiv.setAttribute('style', 'height:' + height + 'px;');
+    return newDiv;
   }
 }
 
-export enum SCREEN_BTNS {
+export enum SCREEN_ACTIONS {
   SPLASH, PAUSE, GAME_OVER
 }

@@ -167,7 +167,7 @@ define("model/player.drones", ["require", "exports", "model/user.drones", "model
             var _this = _super.call(this, 'fff', 90, 40, 200, 200) || this;
             _this.playerVelocity = 250;
             _this.maxHealth = 60;
-            _this.health = 1;
+            _this.health = 50;
             _this.hasSprayPowerUp = false;
             _this.hasExplosionVelocity = false;
             _this.hasRoFpowerUp = false;
@@ -542,6 +542,7 @@ define("model/hud", ["require", "exports", "services/asset-manager", "model/Canv
             this.volumeImageObj.src = this.volOn;
             this.nextImageObj = new Image(25, 25);
             this.nextImageObj.src = asset_manager_8.ASSETS.PREPEND + "drone-images/volumeNext.jpg";
+            this.createGUI();
         }
         Hud.prototype.displayText = function (canvas, text) {
             var displayText = new CanvasMenuObjects_1.CanvasText(text, (canvas.canvas.width / 2), (canvas.canvas.height / 6), this.textColor, "25px Jazz LET, fantasy");
@@ -587,54 +588,89 @@ define("model/hud", ["require", "exports", "services/asset-manager", "model/Canv
             canvas.strokeStyle = hitCount.color;
             canvas.fillText(hitCount.word, hitCount.x, hitCount.y);
         };
-        Hud.prototype.splashScreen = function (canvas) {
-            var btnList = [];
-            var title = new CanvasMenuObjects_1.CanvasText("DRONES", (canvas.canvas.width / 2) - 50, (canvas.canvas.height / 2), this.textColor, "40px Arial");
-            canvas.font = title.font;
-            canvas.fillStyle = title.color;
-            canvas.textAlign = "left";
-            var startButton = new CanvasMenuObjects_1.CanvasButton(CanvasMenuObjects_1.CANVAS_BUTTON_NAME.GAME_PLAY, title.x - 20, title.y + 40, canvas.measureText(title.word).width + 40, 35);
-            canvas.fillText(title.word, title.x, title.y);
-            canvas.fillRect(startButton.x, startButton.y, startButton.w, startButton.h);
-            var startText = new CanvasMenuObjects_1.CanvasText("Start", startButton.x + (startButton.w / 3.5), startButton.y + startButton.h - 3, this.textColor, "15px Arial");
-            canvas.fillStyle = "black";
-            canvas.fillText(startText.word, startText.x, startText.y);
-            btnList.push(startButton);
-            return btnList;
+        /**
+         * Initial Screen
+         * @param DronesCanvas
+         */
+        Hud.prototype.splashScreen = function (Controller) {
+            var _this = this;
+            this.clearGUI();
+            var title = document.createElement('LABEL');
+            title.innerText = "DRONES";
+            title.setAttribute('style', 'color:lime;font:40px Arial;');
+            var startBtn = document.createElement('BUTTON');
+            startBtn.innerText = "Start";
+            startBtn.setAttribute('style', 'color:lime;font:20px Arial;background-color:black;border:2px solid lime;width:15%;height:50px;transition:.3s;cursor:pointer;box-shadow:0 0 5px lime;');
+            startBtn.onclick = function () {
+                Controller.start();
+                _this.clearGUI();
+            };
+            startBtn.onmouseover = function () {
+                startBtn.setAttribute('style', 'color:black;font:20px Arial;background-color:lime;border:2px solid lime;width:15%;height:50px;transition:.6s;cursor:pointer;box-shadow:0 0 15px lime;');
+            };
+            startBtn.onmouseleave = function () {
+                startBtn.setAttribute('style', 'color:lime;font:20px Arial;background-color:black;border:2px solid lime;width:15%;height:50px;transition:.3s;cursor:pointer;box-shadow:0 0 5px lime;');
+            };
+            var initLine = this.getNewLineElem(30);
+            this.guiBox.insertAdjacentElement("afterbegin", initLine);
+            initLine.insertAdjacentElement("afterend", title);
+            var newLine = this.getNewLineElem(15);
+            title.insertAdjacentElement("afterend", newLine);
+            newLine.insertAdjacentElement("afterend", startBtn);
         };
-        Hud.prototype.pauseScreen = function (canvas) {
-            var btnList = [];
-            var menuHeader = new CanvasMenuObjects_1.CanvasText("Paused", (canvas.canvas.width / 2), (canvas.canvas.height / 2), this.textColor, "30px Arial");
-            canvas.font = menuHeader.font;
-            canvas.fillStyle = menuHeader.color;
-            canvas.textAlign = "center";
-            canvas.fillText(menuHeader.word, menuHeader.x, menuHeader.y);
-            return btnList;
+        /**
+         * Pause/settings Screen
+         */
+        Hud.prototype.pauseScreen = function () {
+            this.clearGUI();
+            var pauseText = document.createElement('LABEL');
+            pauseText.innerText = "PAUSED";
+            pauseText.setAttribute('style', 'color:lime;font:40px Arial;');
+            this.guiBox.insertAdjacentElement("afterbegin", pauseText);
         };
-        Hud.prototype.gameOverScreen = function (canvas) {
-            var btnList = [];
-            var title = new CanvasMenuObjects_1.CanvasText("Game Over", (canvas.canvas.width / 2) - 50, (canvas.canvas.height / 2), this.textColor, "40px Arial");
-            canvas.font = title.font;
-            canvas.fillStyle = title.color;
-            canvas.textAlign = "left";
-            var restartButton = new CanvasMenuObjects_1.CanvasButton(CanvasMenuObjects_1.CANVAS_BUTTON_NAME.RESTART, title.x - 20, title.y + 40, canvas.measureText(title.word).width + 40, 35);
-            canvas.fillText(title.word, title.x, title.y);
-            canvas.fillRect(restartButton.x, restartButton.y, restartButton.w, restartButton.h);
-            var restartText = new CanvasMenuObjects_1.CanvasText("Restart", restartButton.x + (restartButton.w / 4), restartButton.y + restartButton.h - 3, this.textColor, "15px Arial");
-            canvas.fillStyle = "black";
-            canvas.fillText(restartText.word, restartText.x, restartText.y);
-            btnList.push(restartButton);
-            return btnList;
+        /**
+         * Game Over Screen
+         */
+        Hud.prototype.gameOverScreen = function () {
+            this.clearGUI();
+            var gameOverText = document.createElement('LABEL');
+            gameOverText.innerText = "GAME OVER";
+            gameOverText.setAttribute('style', 'color:lime;font:40px Arial;');
+            this.guiBox.insertAdjacentElement("afterbegin", gameOverText);
+        };
+        /**
+         * Build GUI Box so I can use HTML for buttons, not canvas... canvas dom sucks
+         */
+        Hud.prototype.createGUI = function () {
+            var canvasElem = window.document.getElementById('canvasElem');
+            var guiOverlay = window.document.createElement("DIV");
+            guiOverlay.id = "gui";
+            guiOverlay.setAttribute('style', 'position:absolute;top:0;float:left; width:99%;height:99vh;text-align:center;z-index:5;');
+            canvasElem.insertAdjacentElement("afterend", guiOverlay);
+            this.guiBox = window.document.createElement('DIV');
+            this.guiBox.id = "guiBox";
+            this.guiBox.setAttribute('style', 'float:left;color:lime;margin-top:15%;height:50%;width:100%;text-align:center;');
+            guiOverlay.insertAdjacentElement("afterbegin", this.guiBox);
+        };
+        Hud.prototype.clearGUI = function () {
+            while (this.guiBox.firstChild) {
+                this.guiBox.removeChild(this.guiBox.firstChild);
+            }
+        };
+        Hud.prototype.getNewLineElem = function (height) {
+            var newDiv = document.createElement('DIV');
+            newDiv.setAttribute('style', 'height:' + height + 'px;');
+            return newDiv;
         };
         return Hud;
     }());
     exports.Hud = Hud;
-    var SCREEN_BTNS;
-    (function (SCREEN_BTNS) {
-        SCREEN_BTNS[SCREEN_BTNS["SPLASH"] = 0] = "SPLASH";
-        SCREEN_BTNS[SCREEN_BTNS["PAUSE"] = 1] = "PAUSE";
-        SCREEN_BTNS[SCREEN_BTNS["GAME_OVER"] = 2] = "GAME_OVER";
-    })(SCREEN_BTNS = exports.SCREEN_BTNS || (exports.SCREEN_BTNS = {}));
+    var SCREEN_ACTIONS;
+    (function (SCREEN_ACTIONS) {
+        SCREEN_ACTIONS[SCREEN_ACTIONS["SPLASH"] = 0] = "SPLASH";
+        SCREEN_ACTIONS[SCREEN_ACTIONS["PAUSE"] = 1] = "PAUSE";
+        SCREEN_ACTIONS[SCREEN_ACTIONS["GAME_OVER"] = 2] = "GAME_OVER";
+    })(SCREEN_ACTIONS = exports.SCREEN_ACTIONS || (exports.SCREEN_ACTIONS = {}));
 });
 define("services/audio.service", ["require", "exports", "services/asset-manager"], function (require, exports, asset_manager_9) {
     "use strict";
@@ -1001,6 +1037,9 @@ define("services/drones-manager.service", ["require", "exports", "model/player.d
             setTimeout(function () {
                 _this.pauseGame = !_this.pauseGame;
                 _this.pauseGameTime = true;
+                if (!_this.pauseGame) {
+                    _this.hud.clearGUI();
+                }
             }, 150);
         };
         DronesManagerService.prototype.getRandomHeight = function (canvas) {
@@ -1057,11 +1096,11 @@ define("DronesCanvas", ["require", "exports", "services/drones-manager.service",
                 }
                 else if (_this.gameManager.pauseGame) {
                     //paused game.  Draw menu box
-                    _this.buildCanvasButtons(hud_2.SCREEN_BTNS.PAUSE);
+                    _this.buildCanvasGUI(hud_2.SCREEN_ACTIONS.PAUSE);
                 }
                 else if (_this.gameManager.GameOver) {
                     //game over. Draw menu box
-                    _this.buildCanvasButtons(hud_2.SCREEN_BTNS.GAME_OVER);
+                    _this.buildCanvasGUI(hud_2.SCREEN_ACTIONS.GAME_OVER);
                 }
                 _this.lastTime = currentTime - (_this.deltaTime % _this.interval);
             };
@@ -1076,7 +1115,7 @@ define("DronesCanvas", ["require", "exports", "services/drones-manager.service",
             this.CanvasObject.canvas.width = arr[0] - 15;
             this.CanvasObject.canvas.height = arr[1] - 25;
             this.hud = this.gameManager.hud;
-            this.buildCanvasButtons(hud_2.SCREEN_BTNS.SPLASH);
+            this.buildCanvasGUI(hud_2.SCREEN_ACTIONS.SPLASH);
             document.addEventListener('keydown', function (e) {
                 _this.gameManager.keyChange(e.keyCode, true);
             });
@@ -1162,17 +1201,17 @@ define("DronesCanvas", ["require", "exports", "services/drones-manager.service",
         /**
          * Builds buttons
          */
-        DronesCanvas.prototype.buildCanvasButtons = function (screen) {
+        DronesCanvas.prototype.buildCanvasGUI = function (screen) {
             this.canvasButtonList = [];
             switch (screen) {
-                case hud_2.SCREEN_BTNS.SPLASH:
-                    this.canvasButtonList = this.hud.splashScreen(this.CanvasObject);
+                case hud_2.SCREEN_ACTIONS.SPLASH:
+                    this.hud.splashScreen(this);
                     break;
-                case hud_2.SCREEN_BTNS.PAUSE:
-                    this.canvasButtonList = this.hud.pauseScreen(this.CanvasObject);
+                case hud_2.SCREEN_ACTIONS.PAUSE:
+                    this.hud.pauseScreen();
                     break;
-                case hud_2.SCREEN_BTNS.GAME_OVER:
-                    this.canvasButtonList = this.hud.gameOverScreen(this.CanvasObject);
+                case hud_2.SCREEN_ACTIONS.GAME_OVER:
+                    this.hud.gameOverScreen();
                     break;
             }
             //buttons that are always visible
@@ -1193,16 +1232,6 @@ define("DronesCanvas", ["require", "exports", "services/drones-manager.service",
                     case CanvasMenuObjects_2.CANVAS_BUTTON_NAME.NEXT:
                         if (btn.isWithinBounds(pos.x, pos.y)) {
                             _this.audioService.next();
-                        }
-                        break;
-                    case CanvasMenuObjects_2.CANVAS_BUTTON_NAME.GAME_PLAY:
-                        if (btn.isWithinBounds(pos.x, pos.y)) {
-                            _this.start();
-                        }
-                        break;
-                    case CanvasMenuObjects_2.CANVAS_BUTTON_NAME.RESTART:
-                        if (btn.isWithinBounds(pos.x, pos.y)) {
-                            _this.reset();
                         }
                         break;
                 }
