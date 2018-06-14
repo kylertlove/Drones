@@ -17,6 +17,9 @@ export class AudioService {
 
   constructor() {
     this.audioElem = new Audio();
+    this.audioElem.onended = () => {
+      this.next();
+    };
    }
 
    /** Toggle Audio Pause/play */

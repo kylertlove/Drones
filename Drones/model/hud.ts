@@ -7,7 +7,6 @@ import { DronesCanvas } from "../DronesCanvas";
 
 
 export class Hud {
-
   showLevelText: string = "Level 1";
   volumeImageObj;
   volOn = ASSETS.PREPEND + "drone-images/volume.png"
@@ -21,7 +20,6 @@ export class Hud {
     this.nextImageObj = new Image(25, 25);
     this.nextImageObj.src = ASSETS.PREPEND + "drone-images/volumeNext.jpg";
     this.createGUI();
-
   }
 
   displayText(canvas: CanvasRenderingContext2D, text: string) {
@@ -42,7 +40,6 @@ export class Hud {
     let health = new CanvasText(`Health: ${player.health.toString()}`, (canvas.canvas.width / 40), (canvas.canvas.height - (canvas.canvas.height / 14)), this.textColor, "17px Jazz LET, fantasy");
     let KillsText = new CanvasText(`Kills: ${kills.toString()}`, (canvas.canvas.width / 40), (canvas.canvas.height - (canvas.canvas.height / 10)), this.textColor, "17px Jazz LET, fantasy");
     let level = new CanvasText(this.showLevelText, (canvas.canvas.width / 40), (canvas.canvas.height - (canvas.canvas.height / 7)), this.textColor, "17px Jazz LET, fantasy");
-    
     canvas.font = health.font;
     canvas.fillStyle = this.textColor;
     canvas.strokeStyle = this.textColor;
@@ -55,7 +52,6 @@ export class Hud {
 
   volumeHud(canvas: CanvasRenderingContext2D) {
     canvas.drawImage(this.volumeImageObj, 0, 0);
-    
     canvas.drawImage(this.nextImageObj, 20, 0);
   }
 
@@ -83,26 +79,32 @@ export class Hud {
     this.clearGUI();
     let title:HTMLLabelElement = document.createElement('LABEL') as HTMLLabelElement;
     title.innerText = "DRONES";
-    title.setAttribute('style', 'color:lime;font:40px Arial;');
+    title.setAttribute('style', 'color:lime;font:40px Verdana;font-weight: 700;');
     let startBtn:HTMLButtonElement = document.createElement('BUTTON') as HTMLButtonElement;
     startBtn.innerText = "Start";
-    startBtn.setAttribute('style', 'color:lime;font:20px Arial;background-color:black;border:2px solid lime;width:15%;height:50px;transition:.3s;cursor:pointer;box-shadow:0 0 5px lime;');
+    startBtn.setAttribute('style', 'color:lime;font:20px Verdana;font-weight: 700;background-color:black;border:2px solid lime;width:15%;height:50px;transition:.3s;cursor:pointer;box-shadow:0 0 15px lime;border-radius: 12px;');
     startBtn.onclick = () => {
       Controller.start();
       this.clearGUI();
     }
     startBtn.onmouseover = () => {
-      startBtn.setAttribute('style', 'color:black;font:20px Arial;background-color:lime;border:2px solid lime;width:15%;height:50px;transition:.6s;cursor:pointer;box-shadow:0 0 15px lime;');
+      startBtn.setAttribute('style', 'color:black;font:20px Verdana;font-weight: 700;background-color:lime;border:2px solid lime;width:15%;height:50px;transition:.6s;cursor:pointer;box-shadow:0 0 25px lime;border-radius: 12px;');
     }
     startBtn.onmouseleave = () => {
-      startBtn.setAttribute('style', 'color:lime;font:20px Arial;background-color:black;border:2px solid lime;width:15%;height:50px;transition:.3s;cursor:pointer;box-shadow:0 0 5px lime;');
+      startBtn.setAttribute('style', 'color:lime;font:20px Verdana;font-weight: 700;background-color:black;border:2px solid lime;width:15%;height:50px;transition:.3s;cursor:pointer;box-shadow:0 0 15px lime;border-radius: 12px;');
     }
-    let initLine = this.getNewLineElem(30);
+    let howToPlay:HTMLLabelElement = document.createElement('LABEL') as HTMLLabelElement;
+    howToPlay.setAttribute('style', 'color:lime;font:16px Verdana;position: absolute;bottom: 0;left: 32%;margin-bottom: 15%;');
+    howToPlay.innerText = "Arrows to move; Spacebar to shoot; left ctrl for missiles";
+    let initLine = this.getNewLineElem(5);
     this.guiBox.insertAdjacentElement("afterbegin", initLine);
     initLine.insertAdjacentElement("afterend", title);
-    let newLine = this.getNewLineElem(15);
+    let newLine = this.getNewLineElem(25);
     title.insertAdjacentElement("afterend", newLine);
     newLine.insertAdjacentElement("afterend", startBtn);
+    let thirdLine = this.getNewLineElem(10);
+    startBtn.insertAdjacentElement("afterend", thirdLine);
+    thirdLine.insertAdjacentElement("afterend", howToPlay);
   }
 
   /**
@@ -112,7 +114,7 @@ export class Hud {
     this.clearGUI();
     let pauseText:HTMLLabelElement = document.createElement('LABEL') as HTMLLabelElement;
     pauseText.innerText = "PAUSED";
-    pauseText.setAttribute('style', 'color:lime;font:40px Arial;');
+    pauseText.setAttribute('style', 'color:lime;font:40px Verdana;');
     this.guiBox.insertAdjacentElement("afterbegin", pauseText);
   }
 
@@ -123,7 +125,7 @@ export class Hud {
     this.clearGUI();
     let gameOverText:HTMLLabelElement = document.createElement('LABEL') as HTMLLabelElement;
     gameOverText.innerText = "GAME OVER";
-    gameOverText.setAttribute('style', 'color:lime;font:40px Arial;');
+    gameOverText.setAttribute('style', 'color:lime;font:40px Verdana;');
     this.guiBox.insertAdjacentElement("afterbegin", gameOverText);
   }
 

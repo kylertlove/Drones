@@ -34,6 +34,6 @@ export class User implements Entity {
     }
 
     update(canvas: CanvasRenderingContext2D, keyHandler: KeyDown, dT: number) {
-        console.log('updated from user')
+        //console.log('updated from user')
     }
 }

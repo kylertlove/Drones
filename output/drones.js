@@ -87,7 +87,7 @@ define("model/user.drones", ["require", "exports"], function (require, exports) 
             return false;
         };
         User.prototype.update = function (canvas, keyHandler, dT) {
-            console.log('updated from user');
+            //console.log('updated from user')
         };
         return User;
     }());
@@ -597,26 +597,32 @@ define("model/hud", ["require", "exports", "services/asset-manager", "model/Canv
             this.clearGUI();
             var title = document.createElement('LABEL');
             title.innerText = "DRONES";
-            title.setAttribute('style', 'color:lime;font:40px Arial;');
+            title.setAttribute('style', 'color:lime;font:40px Verdana;font-weight: 700;');
             var startBtn = document.createElement('BUTTON');
             startBtn.innerText = "Start";
-            startBtn.setAttribute('style', 'color:lime;font:20px Arial;background-color:black;border:2px solid lime;width:15%;height:50px;transition:.3s;cursor:pointer;box-shadow:0 0 5px lime;');
+            startBtn.setAttribute('style', 'color:lime;font:20px Verdana;font-weight: 700;background-color:black;border:2px solid lime;width:15%;height:50px;transition:.3s;cursor:pointer;box-shadow:0 0 15px lime;border-radius: 12px;');
             startBtn.onclick = function () {
                 Controller.start();
                 _this.clearGUI();
             };
             startBtn.onmouseover = function () {
-                startBtn.setAttribute('style', 'color:black;font:20px Arial;background-color:lime;border:2px solid lime;width:15%;height:50px;transition:.6s;cursor:pointer;box-shadow:0 0 15px lime;');
+                startBtn.setAttribute('style', 'color:black;font:20px Verdana;font-weight: 700;background-color:lime;border:2px solid lime;width:15%;height:50px;transition:.6s;cursor:pointer;box-shadow:0 0 25px lime;border-radius: 12px;');
             };
             startBtn.onmouseleave = function () {
-                startBtn.setAttribute('style', 'color:lime;font:20px Arial;background-color:black;border:2px solid lime;width:15%;height:50px;transition:.3s;cursor:pointer;box-shadow:0 0 5px lime;');
+                startBtn.setAttribute('style', 'color:lime;font:20px Verdana;font-weight: 700;background-color:black;border:2px solid lime;width:15%;height:50px;transition:.3s;cursor:pointer;box-shadow:0 0 15px lime;border-radius: 12px;');
             };
-            var initLine = this.getNewLineElem(30);
+            var howToPlay = document.createElement('LABEL');
+            howToPlay.setAttribute('style', 'color:lime;font:16px Verdana;position: absolute;bottom: 0;left: 32%;margin-bottom: 15%;');
+            howToPlay.innerText = "Arrows to move; Spacebar to shoot; left ctrl for missiles";
+            var initLine = this.getNewLineElem(5);
             this.guiBox.insertAdjacentElement("afterbegin", initLine);
             initLine.insertAdjacentElement("afterend", title);
-            var newLine = this.getNewLineElem(15);
+            var newLine = this.getNewLineElem(25);
             title.insertAdjacentElement("afterend", newLine);
             newLine.insertAdjacentElement("afterend", startBtn);
+            var thirdLine = this.getNewLineElem(10);
+            startBtn.insertAdjacentElement("afterend", thirdLine);
+            thirdLine.insertAdjacentElement("afterend", howToPlay);
         };
         /**
          * Pause/settings Screen
@@ -625,7 +631,7 @@ define("model/hud", ["require", "exports", "services/asset-manager", "model/Canv
             this.clearGUI();
             var pauseText = document.createElement('LABEL');
             pauseText.innerText = "PAUSED";
-            pauseText.setAttribute('style', 'color:lime;font:40px Arial;');
+            pauseText.setAttribute('style', 'color:lime;font:40px Verdana;');
             this.guiBox.insertAdjacentElement("afterbegin", pauseText);
         };
         /**
@@ -635,7 +641,7 @@ define("model/hud", ["require", "exports", "services/asset-manager", "model/Canv
             this.clearGUI();
             var gameOverText = document.createElement('LABEL');
             gameOverText.innerText = "GAME OVER";
-            gameOverText.setAttribute('style', 'color:lime;font:40px Arial;');
+            gameOverText.setAttribute('style', 'color:lime;font:40px Verdana;');
             this.guiBox.insertAdjacentElement("afterbegin", gameOverText);
         };
         /**
@@ -678,6 +684,7 @@ define("services/audio.service", ["require", "exports", "services/asset-manager"
     //import {BehaviorSubject} from "../../node_modules/rxjs/BehaviorSubject";
     var AudioService = /** @class */ (function () {
         function AudioService() {
+            var _this = this;
             this.song = 0;
             this.volume = .1;
             this.playlist = [
@@ -687,6 +694,9 @@ define("services/audio.service", ["require", "exports", "services/asset-manager"
                 asset_manager_9.ASSETS.PREPEND + "sounds/offspring.mp3"
             ];
             this.audioElem = new Audio();
+            this.audioElem.onended = function () {
+                _this.next();
+            };
         }
         /** Toggle Audio Pause/play */
         AudioService.prototype.toggle = function (isPaused) {
@@ -781,7 +791,6 @@ define("services/drones-manager.service", ["require", "exports", "model/player.d
             });
             //draw the enemy drones
             this.enemyFleet.forEach(function (enemy) {
-                console.log(enemy.Speed);
                 enemy.draw(canvas);
                 if (enemy.hasBeenShot && enemy.active) {
                     _this.hud.addCount(canvas, enemy);

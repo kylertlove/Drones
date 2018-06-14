@@ -94,7 +94,6 @@ export class DronesManagerService {
     })
     //draw the enemy drones
     this.enemyFleet.forEach((enemy) => {
-      console.log(enemy.Speed)
       enemy.draw(canvas);
       if(enemy.hasBeenShot && enemy.active){
         this.hud.addCount(canvas, enemy);
