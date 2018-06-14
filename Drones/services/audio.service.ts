@@ -9,7 +9,6 @@ export class AudioService {
   audioElem: HTMLAudioElement;
   missleElem: HTMLAudioElement;
   lazorElem: HTMLAudioElement;
-  fireMissle: string = ASSETS.PREPEND + "sounds/fireMissle.wav";
 
   playlist: string[] = [
     ASSETS.PREPEND + "sounds/PatrickLieberkind-1.wav",
@@ -51,7 +50,7 @@ export class AudioService {
 
    _noiseFireMissile(){
      this.missleElem.pause();
-     this.missleElem.src = this.fireMissle;
+     this.missleElem.src = ASSETS.PREPEND + "sounds/fireMissle.wav";
      this.missleElem.volume = .3;
      this.missleElem.play();
    }

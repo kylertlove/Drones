@@ -693,7 +693,6 @@ define("services/audio.service", ["require", "exports", "services/asset-manager"
             var _this = this;
             this.song = 0;
             this.musicVolume = .3;
-            this.fireMissle = asset_manager_9.ASSETS.PREPEND + "sounds/fireMissle.wav";
             this.playlist = [
                 asset_manager_9.ASSETS.PREPEND + "sounds/PatrickLieberkind-1.wav",
                 asset_manager_9.ASSETS.PREPEND + "sounds/PatrickLieberkind-2.wav",
@@ -730,7 +729,7 @@ define("services/audio.service", ["require", "exports", "services/asset-manager"
         };
         AudioService.prototype._noiseFireMissile = function () {
             this.missleElem.pause();
-            this.missleElem.src = this.fireMissle;
+            this.missleElem.src = asset_manager_9.ASSETS.PREPEND + "sounds/fireMissle.wav";
             this.missleElem.volume = .3;
             this.missleElem.play();
         };
