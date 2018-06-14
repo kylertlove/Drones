@@ -15,6 +15,7 @@ export class DronesManagerService {
 
   dT: number;
   pauseGame: Boolean;
+  soundService: AudioService;
   pauseGameTime: Boolean;
   keyHandler: KeyDown;
   player: Player;
@@ -31,13 +32,14 @@ export class DronesManagerService {
   hud: Hud; 
   KILLS: number;
 
-  constructor() {
+  constructor(audioService:AudioService) {
     this.hud = new Hud();
     this.player = new Player();
     this.keyHandler = new KeyDown();
     this.powerUp = new Powerup();
     this.playerMissile = new Missile(false);
     this.boss = new Boss();
+    this.soundService = audioService;
     this.dT = 0;
     this.pauseGame = false;
     this.pauseGameTime = true;
@@ -129,6 +131,7 @@ export class DronesManagerService {
     if (this.keyHandler.isShooting()) {
       if(this.playerRoF === 0){
         this.playerBullets = this.player.shoot(this.playerBullets);
+        this.soundService._noiseFireZeLazor();
       }
       if(!this.player.hasRoFpowerUp){
         this.playerRoF++;
@@ -152,6 +155,7 @@ export class DronesManagerService {
       this.playerMissile.activeMissile = true;
       this.playerMissile.X = this.player.X;
       this.playerMissile.Y = this.player.Y;
+      this.soundService._noiseFireMissile();
     }
     if (this.playerMissile.activeMissile) { this.playerMissile.update(canvas, null, this.dT) }
     if (this.powerUp.active) { this.powerUp.update(canvas, null, this.dT) }

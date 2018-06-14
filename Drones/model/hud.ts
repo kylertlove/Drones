@@ -82,19 +82,19 @@ export class Hud {
     title.setAttribute('style', 'color:lime;font:40px Verdana;font-weight: 700;');
     let startBtn:HTMLButtonElement = document.createElement('BUTTON') as HTMLButtonElement;
     startBtn.innerText = "Start";
-    startBtn.setAttribute('style', 'color:lime;font:20px Verdana;font-weight: 700;background-color:black;border:2px solid lime;width:15%;height:50px;transition:.3s;cursor:pointer;box-shadow:0 0 15px lime;border-radius: 12px;');
+    startBtn.setAttribute('style', this.getButtonStyle(false));
     startBtn.onclick = () => {
       Controller.start();
       this.clearGUI();
     }
     startBtn.onmouseover = () => {
-      startBtn.setAttribute('style', 'color:black;font:20px Verdana;font-weight: 700;background-color:lime;border:2px solid lime;width:15%;height:50px;transition:.6s;cursor:pointer;box-shadow:0 0 25px lime;border-radius: 12px;');
+      startBtn.setAttribute('style', this.getButtonStyle(true));
     }
     startBtn.onmouseleave = () => {
-      startBtn.setAttribute('style', 'color:lime;font:20px Verdana;font-weight: 700;background-color:black;border:2px solid lime;width:15%;height:50px;transition:.3s;cursor:pointer;box-shadow:0 0 15px lime;border-radius: 12px;');
+      startBtn.setAttribute('style', this.getButtonStyle(false));
     }
     let howToPlay:HTMLLabelElement = document.createElement('LABEL') as HTMLLabelElement;
-    howToPlay.setAttribute('style', 'color:lime;font:16px Verdana;position: absolute;bottom: 0;left: 32%;margin-bottom: 15%;');
+    howToPlay.setAttribute('style', 'color:lime;font:16px Verdana;bottom: 0;');
     howToPlay.innerText = "Arrows to move; Spacebar to shoot; left ctrl for missiles";
     let initLine = this.getNewLineElem(5);
     this.guiBox.insertAdjacentElement("afterbegin", initLine);
@@ -102,7 +102,7 @@ export class Hud {
     let newLine = this.getNewLineElem(25);
     title.insertAdjacentElement("afterend", newLine);
     newLine.insertAdjacentElement("afterend", startBtn);
-    let thirdLine = this.getNewLineElem(10);
+    let thirdLine = this.getNewLineElem(150);
     startBtn.insertAdjacentElement("afterend", thirdLine);
     thirdLine.insertAdjacentElement("afterend", howToPlay);
   }
@@ -154,6 +154,13 @@ export class Hud {
     let newDiv = document.createElement('DIV');
     newDiv.setAttribute('style', 'height:' + height + 'px;');
     return newDiv;
+  }
+
+  getButtonStyle(isHovering:boolean){
+    if(isHovering){
+      return 'color:black;font:20px Verdana;font-weight: 700;background-color:lime;border:2px solid lime;width:15%;height:50px;transition:.6s;cursor:pointer;box-shadow:0 0 25px lime;border-radius: 12px;';
+    }
+    return 'color:lime;font:20px Verdana;font-weight: 700;background-color:black;border:2px solid lime;width:15%;height:50px;transition:.3s;cursor:pointer;box-shadow:0 0 15px lime;border-radius: 12px;';
   }
 }
 

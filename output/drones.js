@@ -600,19 +600,19 @@ define("model/hud", ["require", "exports", "services/asset-manager", "model/Canv
             title.setAttribute('style', 'color:lime;font:40px Verdana;font-weight: 700;');
             var startBtn = document.createElement('BUTTON');
             startBtn.innerText = "Start";
-            startBtn.setAttribute('style', 'color:lime;font:20px Verdana;font-weight: 700;background-color:black;border:2px solid lime;width:15%;height:50px;transition:.3s;cursor:pointer;box-shadow:0 0 15px lime;border-radius: 12px;');
+            startBtn.setAttribute('style', this.getButtonStyle(false));
             startBtn.onclick = function () {
                 Controller.start();
                 _this.clearGUI();
             };
             startBtn.onmouseover = function () {
-                startBtn.setAttribute('style', 'color:black;font:20px Verdana;font-weight: 700;background-color:lime;border:2px solid lime;width:15%;height:50px;transition:.6s;cursor:pointer;box-shadow:0 0 25px lime;border-radius: 12px;');
+                startBtn.setAttribute('style', _this.getButtonStyle(true));
             };
             startBtn.onmouseleave = function () {
-                startBtn.setAttribute('style', 'color:lime;font:20px Verdana;font-weight: 700;background-color:black;border:2px solid lime;width:15%;height:50px;transition:.3s;cursor:pointer;box-shadow:0 0 15px lime;border-radius: 12px;');
+                startBtn.setAttribute('style', _this.getButtonStyle(false));
             };
             var howToPlay = document.createElement('LABEL');
-            howToPlay.setAttribute('style', 'color:lime;font:16px Verdana;position: absolute;bottom: 0;left: 32%;margin-bottom: 15%;');
+            howToPlay.setAttribute('style', 'color:lime;font:16px Verdana;bottom: 0;');
             howToPlay.innerText = "Arrows to move; Spacebar to shoot; left ctrl for missiles";
             var initLine = this.getNewLineElem(5);
             this.guiBox.insertAdjacentElement("afterbegin", initLine);
@@ -620,7 +620,7 @@ define("model/hud", ["require", "exports", "services/asset-manager", "model/Canv
             var newLine = this.getNewLineElem(25);
             title.insertAdjacentElement("afterend", newLine);
             newLine.insertAdjacentElement("afterend", startBtn);
-            var thirdLine = this.getNewLineElem(10);
+            var thirdLine = this.getNewLineElem(150);
             startBtn.insertAdjacentElement("afterend", thirdLine);
             thirdLine.insertAdjacentElement("afterend", howToPlay);
         };
@@ -668,6 +668,12 @@ define("model/hud", ["require", "exports", "services/asset-manager", "model/Canv
             newDiv.setAttribute('style', 'height:' + height + 'px;');
             return newDiv;
         };
+        Hud.prototype.getButtonStyle = function (isHovering) {
+            if (isHovering) {
+                return 'color:black;font:20px Verdana;font-weight: 700;background-color:lime;border:2px solid lime;width:15%;height:50px;transition:.6s;cursor:pointer;box-shadow:0 0 25px lime;border-radius: 12px;';
+            }
+            return 'color:lime;font:20px Verdana;font-weight: 700;background-color:black;border:2px solid lime;width:15%;height:50px;transition:.3s;cursor:pointer;box-shadow:0 0 15px lime;border-radius: 12px;';
+        };
         return Hud;
     }());
     exports.Hud = Hud;
@@ -686,16 +692,20 @@ define("services/audio.service", ["require", "exports", "services/asset-manager"
         function AudioService() {
             var _this = this;
             this.song = 0;
-            this.volume = .1;
+            this.musicVolume = .3;
+            this.fireMissle = asset_manager_9.ASSETS.PREPEND + "sounds/fireMissle.wav";
             this.playlist = [
-                asset_manager_9.ASSETS.PREPEND + "sounds/Blink.mp3",
-                asset_manager_9.ASSETS.PREPEND + "sounds/getLucky.mp3",
-                asset_manager_9.ASSETS.PREPEND + "sounds/trapqueen.mp3",
-                asset_manager_9.ASSETS.PREPEND + "sounds/offspring.mp3"
+                asset_manager_9.ASSETS.PREPEND + "sounds/PatrickLieberkind-1.wav",
+                asset_manager_9.ASSETS.PREPEND + "sounds/PatrickLieberkind-2.wav",
+                asset_manager_9.ASSETS.PREPEND + "sounds/PatrickLieberkind-3.wav"
             ];
             this.audioElem = new Audio();
+            this.missleElem = new Audio();
+            this.lazorElem = new Audio();
             this.audioElem.onended = function () {
-                _this.next();
+                setTimeout(function () {
+                    _this.next();
+                }, 10000);
             };
         }
         /** Toggle Audio Pause/play */
@@ -704,7 +714,7 @@ define("services/audio.service", ["require", "exports", "services/asset-manager"
                 this.audioElem.pause();
             }
             else {
-                this.audioElem.volume = this.volume;
+                this.audioElem.volume = this.musicVolume;
                 this.audioElem.play();
             }
         };
@@ -715,8 +725,20 @@ define("services/audio.service", ["require", "exports", "services/asset-manager"
             }
             this.audioElem.pause();
             this.audioElem.src = this.playlist[this.song];
-            this.audioElem.volume = this.volume;
+            this.audioElem.volume = this.musicVolume;
             this.audioElem.play();
+        };
+        AudioService.prototype._noiseFireMissile = function () {
+            this.missleElem.pause();
+            this.missleElem.src = this.fireMissle;
+            this.missleElem.volume = .3;
+            this.missleElem.play();
+        };
+        AudioService.prototype._noiseFireZeLazor = function () {
+            this.lazorElem.pause();
+            this.lazorElem.src = asset_manager_9.ASSETS.PREPEND + "sounds/laser.wav";
+            this.lazorElem.volume = .02;
+            this.lazorElem.play();
         };
         return AudioService;
     }());
@@ -726,13 +748,14 @@ define("services/drones-manager.service", ["require", "exports", "model/player.d
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var DronesManagerService = /** @class */ (function () {
-        function DronesManagerService() {
+        function DronesManagerService(audioService) {
             this.hud = new hud_1.Hud();
             this.player = new player_drones_1.Player();
             this.keyHandler = new key_status_1.KeyDown();
             this.powerUp = new powerup_drones_1.Powerup();
             this.playerMissile = new missile_1.Missile(false);
             this.boss = new boss_drones_1.Boss();
+            this.soundService = audioService;
             this.dT = 0;
             this.pauseGame = false;
             this.pauseGameTime = true;
@@ -827,6 +850,7 @@ define("services/drones-manager.service", ["require", "exports", "model/player.d
             if (this.keyHandler.isShooting()) {
                 if (this.playerRoF === 0) {
                     this.playerBullets = this.player.shoot(this.playerBullets);
+                    this.soundService._noiseFireZeLazor();
                 }
                 if (!this.player.hasRoFpowerUp) {
                     this.playerRoF++;
@@ -852,6 +876,7 @@ define("services/drones-manager.service", ["require", "exports", "model/player.d
                 this.playerMissile.activeMissile = true;
                 this.playerMissile.X = this.player.X;
                 this.playerMissile.Y = this.player.Y;
+                this.soundService._noiseFireMissile();
             }
             if (this.playerMissile.activeMissile) {
                 this.playerMissile.update(canvas, null, this.dT);
@@ -1114,8 +1139,8 @@ define("DronesCanvas", ["require", "exports", "services/drones-manager.service",
                 _this.lastTime = currentTime - (_this.deltaTime % _this.interval);
             };
             this.CanvasObject = canvasElementName.getContext('2d');
-            this.gameManager = new drones_manager_service_1.DronesManagerService();
             this.audioService = new audio_service_1.AudioService();
+            this.gameManager = new drones_manager_service_1.DronesManagerService(this.audioService);
         }
         DronesCanvas.prototype.init = function () {
             var _this = this;
@@ -1150,7 +1175,7 @@ define("DronesCanvas", ["require", "exports", "services/drones-manager.service",
         DronesCanvas.prototype.reset = function () {
             this.gameManager = null;
             this.gameLoop = null;
-            this.gameManager = new drones_manager_service_1.DronesManagerService();
+            this.gameManager = new drones_manager_service_1.DronesManagerService(this.audioService);
             this.audioService.next();
             this.lastTime = (new Date()).getTime();
             this.deltaTime = 0;

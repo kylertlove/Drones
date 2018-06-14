@@ -5,20 +5,26 @@ import { ASSETS } from "./asset-manager";
 export class AudioService {
 
   song: number = 0;
-  volume: number = .1;
+  musicVolume: number = .3;
   audioElem: HTMLAudioElement;
+  missleElem: HTMLAudioElement;
+  lazorElem: HTMLAudioElement;
+  fireMissle: string = ASSETS.PREPEND + "sounds/fireMissle.wav";
 
   playlist: string[] = [
-    ASSETS.PREPEND + "sounds/Blink.mp3",
-    ASSETS.PREPEND + "sounds/getLucky.mp3",
-    ASSETS.PREPEND + "sounds/trapqueen.mp3",
-    ASSETS.PREPEND + "sounds/offspring.mp3"
+    ASSETS.PREPEND + "sounds/PatrickLieberkind-1.wav",
+    ASSETS.PREPEND + "sounds/PatrickLieberkind-2.wav",
+    ASSETS.PREPEND + "sounds/PatrickLieberkind-3.wav"
   ]
 
   constructor() {
     this.audioElem = new Audio();
+    this.missleElem = new Audio();
+    this.lazorElem = new Audio();
     this.audioElem.onended = () => {
-      this.next();
+      setTimeout(() => {
+        this.next();
+      }, 10000)
     };
    }
 
@@ -27,7 +33,7 @@ export class AudioService {
      if(isPaused){
       this.audioElem.pause();
      }else{
-      this.audioElem.volume = this.volume;
+      this.audioElem.volume = this.musicVolume;
       this.audioElem.play();
      }
    }
@@ -39,7 +45,21 @@ export class AudioService {
     }
     this.audioElem.pause();
     this.audioElem.src = this.playlist[this.song];
-    this.audioElem.volume = this.volume;
+    this.audioElem.volume = this.musicVolume;
     this.audioElem.play();
+   }
+
+   _noiseFireMissile(){
+     this.missleElem.pause();
+     this.missleElem.src = this.fireMissle;
+     this.missleElem.volume = .3;
+     this.missleElem.play();
+   }
+
+   _noiseFireZeLazor(){
+    this.lazorElem.pause();
+    this.lazorElem.src = ASSETS.PREPEND + "sounds/laser.wav";
+    this.lazorElem.volume = .02;
+     this.lazorElem.play();
    }
 }
