@@ -46,6 +46,11 @@ export class DronesCanvas {
         }
       }
     });
+    window.addEventListener('resize', () => {
+      const arr: number[] = this.getWindowSize();
+      this.CanvasObject.canvas.width = arr[0] - 15;
+      this.CanvasObject.canvas.height = arr[1] - 25;
+    });
     /** Click event handler.  Use For canvas button handling */
     this.canvasElementName.addEventListener('click', (e) => {
       const pos = {

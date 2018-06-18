@@ -1211,6 +1211,11 @@ define("DronesCanvas", ["require", "exports", "services/drones-manager.service",
                     }
                 }
             });
+            window.addEventListener('resize', function () {
+                var arr = _this.getWindowSize();
+                _this.CanvasObject.canvas.width = arr[0] - 15;
+                _this.CanvasObject.canvas.height = arr[1] - 25;
+            });
             /** Click event handler.  Use For canvas button handling */
             this.canvasElementName.addEventListener('click', function (e) {
                 var pos = {
