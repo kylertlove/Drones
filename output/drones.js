@@ -53,11 +53,11 @@ define("services/key-status", ["require", "exports"], function (require, exports
     }());
     exports.KeyDown = KeyDown;
 });
-define("model/entity.drones", ["require", "exports"], function (require, exports) {
+define("model/entity", ["require", "exports"], function (require, exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
 });
-define("model/user.drones", ["require", "exports"], function (require, exports) {
+define("model/user", ["require", "exports"], function (require, exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var User = /** @class */ (function () {
@@ -158,20 +158,24 @@ define("model/playerBullets", ["require", "exports", "model/projectile", "servic
     }(projectile_1.Projectile));
     exports.PlayerBullets = PlayerBullets;
 });
-define("model/player.drones", ["require", "exports", "model/user.drones", "model/playerBullets", "services/asset-manager"], function (require, exports, user_drones_1, playerBullets_1, asset_manager_2) {
+define("model/player", ["require", "exports", "model/user", "model/playerBullets", "services/asset-manager"], function (require, exports, user_1, playerBullets_1, asset_manager_2) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var Player = /** @class */ (function (_super) {
         __extends(Player, _super);
         function Player() {
             var _this = _super.call(this, 'fff', 90, 40, 200, 200) || this;
+            _this.shieldSpriteNum = 1;
+            _this.shieldTimer = 0;
             _this.playerVelocity = 250;
             _this.maxHealth = 60;
+            _this.baseSprite = asset_manager_2.ASSETS.PREPEND + "drone-images/playerShip1.png";
             _this.health = 50;
             _this.hasSprayPowerUp = false;
+            _this.hasShield = false;
             _this.hasExplosionVelocity = false;
             _this.hasRoFpowerUp = false;
-            _this.sprite.src = asset_manager_2.ASSETS.PREPEND + "drone-images/playerShip1.png";
+            _this.sprite.src = _this.baseSprite;
             return _this;
         }
         Player.prototype.update = function (canvas, keyHandler, dT) {
@@ -187,6 +191,13 @@ define("model/player.drones", ["require", "exports", "model/user.drones", "model
             if (keyHandler.isRight()) {
                 this.X += this.X > canvas.canvas.width - 20 ? 0 : this.playerVelocity * dT;
             }
+            //remove shields after 1000 ticks
+            if (this.hasShield && this.shieldTimer > 1000) {
+                clearInterval(this.loopShieldSprites);
+                this.hasShield = false;
+                this.sprite.src = this.baseSprite;
+                this.shieldTimer = 0;
+            }
         };
         Player.prototype.midpoint = function () {
             return {
@@ -201,12 +212,14 @@ define("model/player.drones", ["require", "exports", "model/user.drones", "model
         };
         /** Override explosion function */
         Player.prototype.explode = function () {
-            this.hasSprayPowerUp = false;
-            this.health--;
-            if (this.health <= 0) {
-                return true;
+            if (!this.hasShield) {
+                this.hasSprayPowerUp = false;
+                this.health--;
+                if (this.health <= 0) {
+                    return true;
+                }
+                return false;
             }
-            return false;
         };
         /** Call to add Health to the player */
         Player.prototype.addHealth = function (amount) {
@@ -215,17 +228,34 @@ define("model/player.drones", ["require", "exports", "model/user.drones", "model
                 this.health = this.maxHealth;
             }
         };
+        /** Activate Shield Boost */
+        Player.prototype.activateShield = function () {
+            var _this = this;
+            this.hasShield = true;
+            this.loopShieldSprites = setInterval(function () {
+                _this.shieldSpriteNum++;
+                _this.shieldTimer++;
+                console.log("Shield Timer: " + _this.shieldTimer);
+                if (_this.shieldSpriteNum === 6) {
+                    _this.shieldSpriteNum = 1;
+                }
+                _this.sprite.src = asset_manager_2.ASSETS.PREPEND + "drone-images/playerShip-shield-" + _this.shieldSpriteNum + ".png";
+            }, 80);
+        };
         /** Lose all powerups */
         Player.prototype.losePowerUps = function () {
             this.hasSprayPowerUp = false;
             this.hasExplosionVelocity = false;
             this.hasRoFpowerUp = false;
         };
+        Player.prototype.draw = function (canvas) {
+            canvas.drawImage(this.sprite, this.X, this.Y, this.Width, this.Height);
+        };
         return Player;
-    }(user_drones_1.User));
+    }(user_1.User));
     exports.Player = Player;
 });
-define("model/enemy.drones", ["require", "exports", "model/projectile", "services/asset-manager"], function (require, exports, projectile_2, asset_manager_3) {
+define("model/enemy-drones", ["require", "exports", "model/projectile", "services/asset-manager"], function (require, exports, projectile_2, asset_manager_3) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var Enemy = /** @class */ (function (_super) {
@@ -266,7 +296,7 @@ define("model/enemy.drones", ["require", "exports", "model/projectile", "service
     }(projectile_2.Projectile));
     exports.Enemy = Enemy;
 });
-define("model/powerup.drones", ["require", "exports", "model/user.drones", "services/asset-manager"], function (require, exports, user_drones_2, asset_manager_4) {
+define("model/powerups", ["require", "exports", "model/user", "services/asset-manager"], function (require, exports, user_2, asset_manager_4) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var Powerup = /** @class */ (function (_super) {
@@ -292,36 +322,42 @@ define("model/powerup.drones", ["require", "exports", "model/user.drones", "serv
                 this.Y >= 0 && this.Y <= canvas.canvas.height;
         };
         Powerup.prototype.getNewType = function () {
-            var rand = Math.random() * 10;
-            if (rand >= 0 && rand < 3) {
+            var rand = Math.random() * 100;
+            if (rand >= 0 && rand < 20) {
                 this.sprite.src = asset_manager_4.ASSETS.PREPEND + "drone-images/powerup-spray.png";
                 this.type = PowerUpType.Spray;
             }
-            else if (rand >= 3 && rand < 5) {
+            else if (rand >= 20 && rand < 40) {
                 this.sprite.src = asset_manager_4.ASSETS.PREPEND + "drone-images/powerup-health.png";
                 this.type = PowerUpType.Health;
             }
-            else if (rand >= 5 && rand < 7) {
+            else if (rand >= 40 && rand < 60) {
                 this.sprite.src = asset_manager_4.ASSETS.PREPEND + "drone-images/powerup-explosionVelocity.png";
                 this.type = PowerUpType.explosionVelocity;
             }
-            else if (rand >= 7) {
+            else if (rand >= 60 && rand < 80) {
+                this.sprite.src = asset_manager_4.ASSETS.PREPEND + "drone-images/powerup-shield.png";
+                this.type = PowerUpType.Shield;
+            }
+            else if (rand >= 80) {
                 this.sprite.src = asset_manager_4.ASSETS.PREPEND + "drone-images/powerup-rOf.png";
                 this.type = PowerUpType.RoF;
             }
         };
         Powerup.prototype.getFlashText = function () {
-            if (this.showType === PowerUpType.Spray) {
-                return "Main Weapon Upgrade!";
-            }
-            else if (this.showType === PowerUpType.Health) {
-                return "+10 Health!";
-            }
-            else if (this.showType === PowerUpType.explosionVelocity) {
-                return "Increase Missile Damage";
-            }
-            else if (this.showType === PowerUpType.RoF) {
-                return "Rate of Fire Increase";
+            switch (this.showType) {
+                case PowerUpType.Spray:
+                    return "Main Weapon Upgrade!";
+                case PowerUpType.Health:
+                    return "+10 Health!";
+                case PowerUpType.explosionVelocity:
+                    return "Increase Missile Damage";
+                case PowerUpType.RoF:
+                    return "Rate of Fire Increase";
+                case PowerUpType.Shield:
+                    return "Shields!";
+                default:
+                    return "";
             }
         };
         Powerup.prototype.flashInfo = function (type) {
@@ -333,7 +369,7 @@ define("model/powerup.drones", ["require", "exports", "model/user.drones", "serv
             }, 2000);
         };
         return Powerup;
-    }(user_drones_2.User));
+    }(user_2.User));
     exports.Powerup = Powerup;
     var PowerUpType;
     (function (PowerUpType) {
@@ -341,9 +377,10 @@ define("model/powerup.drones", ["require", "exports", "model/user.drones", "serv
         PowerUpType[PowerUpType["Health"] = 1] = "Health";
         PowerUpType[PowerUpType["explosionVelocity"] = 2] = "explosionVelocity";
         PowerUpType[PowerUpType["RoF"] = 3] = "RoF";
+        PowerUpType[PowerUpType["Shield"] = 4] = "Shield";
     })(PowerUpType = exports.PowerUpType || (exports.PowerUpType = {}));
 });
-define("model/missile", ["require", "exports", "model/user.drones", "services/asset-manager"], function (require, exports, user_drones_3, asset_manager_5) {
+define("model/missile", ["require", "exports", "model/user", "services/asset-manager"], function (require, exports, user_3, asset_manager_5) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var Missile = /** @class */ (function (_super) {
@@ -388,7 +425,7 @@ define("model/missile", ["require", "exports", "model/user.drones", "services/as
             }, 200);
         };
         return Missile;
-    }(user_drones_3.User));
+    }(user_3.User));
     exports.Missile = Missile;
 });
 define("model/enemyBullets", ["require", "exports", "model/projectile", "services/asset-manager"], function (require, exports, projectile_3, asset_manager_6) {
@@ -413,7 +450,7 @@ define("model/enemyBullets", ["require", "exports", "model/projectile", "service
     }(projectile_3.Projectile));
     exports.EnemyBullet = EnemyBullet;
 });
-define("model/boss.drones", ["require", "exports", "model/user.drones", "model/enemyBullets", "services/asset-manager"], function (require, exports, user_drones_4, enemyBullets_1, asset_manager_7) {
+define("model/boss.drones", ["require", "exports", "model/user", "model/enemyBullets", "services/asset-manager"], function (require, exports, user_4, enemyBullets_1, asset_manager_7) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var Boss = /** @class */ (function (_super) {
@@ -465,7 +502,7 @@ define("model/boss.drones", ["require", "exports", "model/user.drones", "model/e
             }, 300);
         };
         return Boss;
-    }(user_drones_4.User));
+    }(user_4.User));
     exports.Boss = Boss;
 });
 define("model/CanvasMenuObjects", ["require", "exports"], function (require, exports) {
@@ -743,15 +780,15 @@ define("services/audio.service", ["require", "exports", "services/asset-manager"
     }());
     exports.AudioService = AudioService;
 });
-define("services/drones-manager.service", ["require", "exports", "model/player.drones", "services/key-status", "model/enemy.drones", "model/powerup.drones", "model/missile", "model/boss.drones", "model/hud"], function (require, exports, player_drones_1, key_status_1, enemy_drones_1, powerup_drones_1, missile_1, boss_drones_1, hud_1) {
+define("services/drones-manager.service", ["require", "exports", "model/player", "services/key-status", "model/enemy-drones", "model/powerups", "model/missile", "model/boss.drones", "model/hud"], function (require, exports, player_1, key_status_1, enemy_drones_1, powerups_1, missile_1, boss_drones_1, hud_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var DronesManagerService = /** @class */ (function () {
         function DronesManagerService(audioService) {
             this.hud = new hud_1.Hud();
-            this.player = new player_drones_1.Player();
+            this.player = new player_1.Player();
             this.keyHandler = new key_status_1.KeyDown();
-            this.powerUp = new powerup_drones_1.Powerup();
+            this.powerUp = new powerups_1.Powerup();
             this.playerMissile = new missile_1.Missile(false);
             this.boss = new boss_drones_1.Boss();
             this.soundService = audioService;
@@ -957,9 +994,11 @@ define("services/drones-manager.service", ["require", "exports", "model/player.d
             this.enemyFleet.forEach(function (enemy) {
                 if (!enemy.hasBeenShot) {
                     if (_this.collides(enemy, _this.player)) {
-                        _this.GameOver = _this.player.explode();
                         enemy.explode();
-                        _this.removePowerups();
+                        if (!_this.player.hasShield) {
+                            _this.removePowerups();
+                            _this.GameOver = _this.player.explode();
+                        }
                     }
                     if (_this.playerMissile.activeMissile && _this.collides(_this.playerMissile, enemy)) {
                         _this.KILLS++;
@@ -976,18 +1015,23 @@ define("services/drones-manager.service", ["require", "exports", "model/player.d
             });
             //player - powerups
             if (this.powerUp.active && this.collides(this.player, this.powerUp)) {
-                if (this.powerUp.type === powerup_drones_1.PowerUpType.Spray) {
-                    this.player.hasSprayPowerUp = true;
-                }
-                else if (this.powerUp.type === powerup_drones_1.PowerUpType.Health) {
-                    this.player.addHealth(10);
-                }
-                else if (this.powerUp.type === powerup_drones_1.PowerUpType.explosionVelocity) {
-                    this.player.hasExplosionVelocity = true;
-                    this.playerMissile.explosionVelocity = 400;
-                }
-                else if (this.powerUp.type === powerup_drones_1.PowerUpType.RoF) {
-                    this.player.hasRoFpowerUp = true;
+                switch (this.powerUp.type) {
+                    case powerups_1.PowerUpType.Spray:
+                        this.player.hasSprayPowerUp = true;
+                        break;
+                    case powerups_1.PowerUpType.Health:
+                        this.player.addHealth(10);
+                        break;
+                    case powerups_1.PowerUpType.explosionVelocity:
+                        this.player.hasExplosionVelocity = true;
+                        this.playerMissile.explosionVelocity = 400;
+                        break;
+                    case powerups_1.PowerUpType.RoF:
+                        this.player.hasRoFpowerUp = true;
+                        break;
+                    case powerups_1.PowerUpType.Shield:
+                        this.player.activateShield();
+                        break;
                 }
                 this.powerUp.flashInfo(this.powerUp.type);
                 //reset powerup
@@ -1026,9 +1070,10 @@ define("services/drones-manager.service", ["require", "exports", "model/player.d
             this.enemyBullets.forEach(function (bullet) {
                 if (_this.collides(bullet, _this.player)) {
                     bullet.active = false;
-                    _this.player.health--;
-                    _this.removePowerups();
-                    _this.GameOver = _this.player.explode();
+                    if (!_this.player.hasShield) {
+                        _this.removePowerups();
+                        _this.GameOver = _this.player.explode();
+                    }
                 }
             });
             if (this.playerMissile.needMissile) {

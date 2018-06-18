@@ -1,4 +1,4 @@
-import { Entity } from './entity.drones';
+import { Entity } from './entity';
 import { KeyDown } from '../services/key-status';
 
 export class User implements Entity {

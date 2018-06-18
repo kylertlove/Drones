@@ -1,4 +1,4 @@
-import { User } from "./user.drones";
+import { User } from "./user";
 import { KeyDown } from "../services/key-status";
 import { ASSETS } from "../services/asset-manager";
 

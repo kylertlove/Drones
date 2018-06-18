@@ -1,9 +1,9 @@
-import { Player } from '../model/player.drones';
+import { Player } from '../model/player';
 import { KeyDown } from '../services/key-status';
 import { PlayerBullets } from "../model/playerBullets";
-import { Enemy } from "../model/enemy.drones";
-import { Entity } from "../model/entity.drones";
-import { Powerup, PowerUpType } from "../model/powerup.drones";
+import { Enemy } from "../model/enemy-drones";
+import { Entity } from "../model/entity";
+import { Powerup, PowerUpType } from "../model/powerups";
 import { Missile } from "../model/missile";
 import { Boss } from "../model/boss.drones";
 import { EnemyBullet } from "../model/enemyBullets";
@@ -29,10 +29,10 @@ export class DronesManagerService {
   //easy: .04, Medium: .07,hard: .13
   GAME_DIFFICULTY; // 20/200: .067
   GameOver: Boolean;
-  hud: Hud; 
+  hud: Hud;
   KILLS: number;
 
-  constructor(audioService:AudioService) {
+  constructor(audioService: AudioService) {
     this.hud = new Hud();
     this.player = new Player();
     this.keyHandler = new KeyDown();
@@ -85,7 +85,7 @@ export class DronesManagerService {
     this.player.draw(canvas);
     //draw powerup
     if (this.powerUp.active) { this.powerUp.draw(canvas) }
-    if (this.powerUp.showText) {this.hud.displayText(canvas, this.powerUp.getFlashText())}
+    if (this.powerUp.showText) { this.hud.displayText(canvas, this.powerUp.getFlashText()) }
     //draw missile
     if (this.playerMissile.activeMissile || this.playerMissile.explodingMissile) {
       this.playerMissile.draw(canvas)
@@ -97,7 +97,7 @@ export class DronesManagerService {
     //draw the enemy drones
     this.enemyFleet.forEach((enemy) => {
       enemy.draw(canvas);
-      if(enemy.hasBeenShot && enemy.active){
+      if (enemy.hasBeenShot && enemy.active) {
         this.hud.addCount(canvas, enemy);
       }
     })
@@ -129,22 +129,22 @@ export class DronesManagerService {
   updateProjectileLocations(canvas: CanvasRenderingContext2D) {
     //add bullets to game board
     if (this.keyHandler.isShooting()) {
-      if(this.playerRoF === 0){
+      if (this.playerRoF === 0) {
         this.playerBullets = this.player.shoot(this.playerBullets);
         this.soundService._noiseFireZeLazor();
       }
-      if(!this.player.hasRoFpowerUp){
+      if (!this.player.hasRoFpowerUp) {
         this.playerRoF++;
-        if(this.playerRoF === 5){this.playerRoF = 0;}
-      }else{
+        if (this.playerRoF === 5) { this.playerRoF = 0; }
+      } else {
         this.playerRoF = 0;
       }
     }
     //update bullet positions
     this.playerBullets.forEach((bullet) => {
       bullet.update(canvas, null, this.dT);
-      if (this.player.hasSprayPowerUp) { 
-        bullet.powerUpCycle() 
+      if (this.player.hasSprayPowerUp) {
+        bullet.powerUpCycle()
       }
     });
     //remove inactive bullets
@@ -237,9 +237,11 @@ export class DronesManagerService {
     this.enemyFleet.forEach((enemy) => {
       if (!enemy.hasBeenShot) {
         if (this.collides(enemy, this.player)) {
-          this.GameOver = this.player.explode();
           enemy.explode();
-          this.removePowerups();
+          if(!this.player.hasShield){
+            this.removePowerups();
+            this.GameOver = this.player.explode();
+          }
         }
         if (this.playerMissile.activeMissile && this.collides(this.playerMissile, enemy)) {
           this.KILLS++;
@@ -256,15 +258,23 @@ export class DronesManagerService {
     });
     //player - powerups
     if (this.powerUp.active && this.collides(this.player, this.powerUp)) {
-      if (this.powerUp.type === PowerUpType.Spray) {
-        this.player.hasSprayPowerUp = true;
-      }else if (this.powerUp.type === PowerUpType.Health) {
-        this.player.addHealth(10);
-      }else if(this.powerUp.type === PowerUpType.explosionVelocity){
-        this.player.hasExplosionVelocity = true;
-        this.playerMissile.explosionVelocity = 400;
-      }else if(this.powerUp.type === PowerUpType.RoF){
-        this.player.hasRoFpowerUp = true;
+      switch (this.powerUp.type) {
+        case PowerUpType.Spray:
+          this.player.hasSprayPowerUp = true;
+          break;
+        case PowerUpType.Health:
+          this.player.addHealth(10);
+          break;
+        case PowerUpType.explosionVelocity:
+          this.player.hasExplosionVelocity = true;
+          this.playerMissile.explosionVelocity = 400;
+          break;
+        case PowerUpType.RoF:
+          this.player.hasRoFpowerUp = true;
+          break;
+        case PowerUpType.Shield:
+          this.player.activateShield();
+          break;
       }
       this.powerUp.flashInfo(this.powerUp.type);
       //reset powerup
@@ -299,20 +309,21 @@ export class DronesManagerService {
     this.enemyBullets.forEach((bullet) => {
       if (this.collides(bullet, this.player)) {
         bullet.active = false;
-        this.player.health--;
-        this.removePowerups();
-        this.GameOver = this.player.explode();
+        if(!this.player.hasShield){
+          this.removePowerups();
+          this.GameOver = this.player.explode();
+        }
       }
     });
     if (this.playerMissile.needMissile) {
       this.playerMissile = new Missile(this.player.hasExplosionVelocity);
     }
 
-    if(this.KILLS > 100 && this.GAME_DIFFICULTY !== .07){
+    if (this.KILLS > 100 && this.GAME_DIFFICULTY !== .07) {
       this.GAME_DIFFICULTY = .07;
       this.hud.showLevelText = "Level 2";
     }
-    if(this.KILLS > 500 && this.GAME_DIFFICULTY !== .13){
+    if (this.KILLS > 500 && this.GAME_DIFFICULTY !== .13) {
       this.GAME_DIFFICULTY = .13;
       this.hud.showLevelText = "Level 3";
     }
@@ -346,7 +357,7 @@ export class DronesManagerService {
     setTimeout(() => {
       this.pauseGame = !this.pauseGame;
       this.pauseGameTime = true;
-      if(!this.pauseGame){
+      if (!this.pauseGame) {
         this.hud.clearGUI();
       }
     }, 150)
@@ -363,14 +374,14 @@ export class DronesManagerService {
     if (rand > canvas.canvas.height) {
       rand -= (rand - canvas.canvas.height);
     }
-    if(rand > canvas.canvas.height - 50){
+    if (rand > canvas.canvas.height - 50) {
       rand = canvas.canvas.height - 100;
     }
     return rand;
   }
 
   /** When Player Collision happens remove all powerups */
-  removePowerups(){
+  removePowerups() {
     this.player.losePowerUps();
     this.playerMissile.explosionVelocity = this.playerMissile.defaultExplosionVelocity;
   }

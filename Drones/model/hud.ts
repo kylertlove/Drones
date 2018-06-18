@@ -1,6 +1,6 @@
-import { Player } from "./player.drones";
+import { Player } from "./player";
 import { Missile } from "./missile";
-import { Entity } from "./entity.drones";
+import { Entity } from "./entity";
 import { ASSETS } from "../services/asset-manager";
 import { CanvasButton, CanvasText, CANVAS_BUTTON_NAME } from "./CanvasMenuObjects";
 import { DronesCanvas } from "../DronesCanvas";
