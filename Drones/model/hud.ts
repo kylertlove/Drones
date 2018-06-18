@@ -81,7 +81,8 @@ export class Hud {
     title.innerText = "DRONES";
     title.setAttribute('style', 'color:lime;font:40px Verdana;font-weight: 700;');
     let startBtn:HTMLButtonElement = document.createElement('BUTTON') as HTMLButtonElement;
-    startBtn.innerText = "Start";
+    startBtn.innerText = "START";
+    startBtn.id = "startBtn";
     startBtn.setAttribute('style', this.getButtonStyle(false));
     startBtn.onclick = () => {
       Controller.start();
@@ -110,7 +111,7 @@ export class Hud {
   /**
    * Pause/settings Screen
    */
-  pauseScreen() {
+  pauseScreen(Controller:DronesCanvas) {
     this.clearGUI();
     let pauseText:HTMLLabelElement = document.createElement('LABEL') as HTMLLabelElement;
     pauseText.innerText = "PAUSED";
@@ -121,12 +122,29 @@ export class Hud {
   /**
    * Game Over Screen 
    */
-  gameOverScreen(){
+  gameOverScreen(Controller:DronesCanvas){
     this.clearGUI();
     let gameOverText:HTMLLabelElement = document.createElement('LABEL') as HTMLLabelElement;
     gameOverText.innerText = "GAME OVER";
     gameOverText.setAttribute('style', 'color:lime;font:40px Verdana;');
+    let resetBtn:HTMLButtonElement = document.createElement('BUTTON') as HTMLButtonElement;
+    resetBtn.innerText = "RESET";
+    resetBtn.id = "resetBtn";
+    resetBtn.setAttribute('style', this.getButtonStyle(false));
+    resetBtn.onclick = () => {
+      this.clearGUI();
+      Controller.reset();
+    }
+    resetBtn.onmouseover = () => {
+      resetBtn.setAttribute('style', this.getButtonStyle(true));
+    }
+    resetBtn.onmouseleave = () => {
+      resetBtn.setAttribute('style', this.getButtonStyle(false));
+    }
     this.guiBox.insertAdjacentElement("afterbegin", gameOverText);
+    let thirdLine = this.getNewLineElem(25);
+    gameOverText.insertAdjacentElement("afterend", thirdLine);
+    thirdLine.insertAdjacentElement("afterend", resetBtn);
   }
 
   /**

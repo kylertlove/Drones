@@ -9,14 +9,12 @@ import { Boss } from "../model/boss.drones";
 import { EnemyBullet } from "../model/enemyBullets";
 import { Hud } from "../model/hud";
 import { AudioService } from '../services/audio.service';
-import { ASSETS } from './asset-manager';
 
 export class DronesManagerService {
 
   dT: number;
   pauseGame: Boolean;
   soundService: AudioService;
-  pauseGameTime: Boolean;
   keyHandler: KeyDown;
   player: Player;
   playerRoF: number;
@@ -42,7 +40,6 @@ export class DronesManagerService {
     this.soundService = new AudioService();
     this.dT = 0;
     this.pauseGame = false;
-    this.pauseGameTime = true;
     this.playerRoF = 0;
     this.playerBullets = [];
     this.enemyFleet = [];
@@ -54,11 +51,8 @@ export class DronesManagerService {
 
   /** Key change resolver */
   keyChange(keyCode, UporDown) {
-    if (keyCode === 13) {
-      if (this.pauseGameTime) {
-        this.timeout();
-        this.pauseGameTime = false;
-      }
+    if (keyCode === 13 && !UporDown) {
+      this.pauseGame = !this.pauseGame;
     }
     this.keyHandler.keyChange(keyCode, UporDown);
   }
@@ -348,19 +342,6 @@ export class DronesManagerService {
       a.X + a.Width > (b.X - rad) &&
       a.Y < (b.Y + rad) + b.Width &&
       a.Y + a.Height > (b.Y - rad);
-  }
-
-  /** Function that provides a timeout for pausing game.
-  * This is needed to keep the keydown event from calling continuously
-  */
-  timeout() {
-    setTimeout(() => {
-      this.pauseGame = !this.pauseGame;
-      this.pauseGameTime = true;
-      if (!this.pauseGame) {
-        this.hud.clearGUI();
-      }
-    }, 150)
   }
 
   getRandomHeight(canvas: CanvasRenderingContext2D) {

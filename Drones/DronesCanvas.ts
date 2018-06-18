@@ -9,6 +9,7 @@ export class DronesCanvas {
   public CanvasObject: CanvasRenderingContext2D;
   public gameManager: DronesManagerService;
   private gameLoop: any;
+  private currentTime = (new Date()).getTime();
   private lastTime = (new Date()).getTime();
   private deltaTime: number;
   private interval = 1000 / 30;
@@ -36,6 +37,14 @@ export class DronesCanvas {
     });
     document.addEventListener('keyup', (e: KeyboardEvent) => {
       this.gameManager.keyChange(e.keyCode, false);
+      if(e.keyCode === 13) {
+        if(this.gameManager.pauseGame){
+          this.buildCanvasGUI(SCREEN_ACTIONS.PAUSE);
+        } else {
+          this.hud.clearGUI();
+          this.loop();
+        }
+      }
     });
     /** Click event handler.  Use For canvas button handling */
     this.canvasElementName.addEventListener('click', (e) => {
@@ -43,9 +52,6 @@ export class DronesCanvas {
         x: e.clientX,
         y: e.clientY
       };
-      //do all checks for things that I can click on
-      //console.log(`Clicked: X: ${pos.x}, Y: ${pos.y}`)
-      this.runButtonChecks(pos);
     });
   }
 
@@ -58,7 +64,7 @@ export class DronesCanvas {
   reset(){
     window.cancelAnimationFrame(this.gameLoop);
     this.gameManager = new DronesManagerService();
-    this.init();
+    this.buildCanvasGUI(SCREEN_ACTIONS.SPLASH);
   }
 
   /**
@@ -68,25 +74,23 @@ export class DronesCanvas {
    * (How long does the loop take)
    */
   loop = () => {
-    this.gameLoop = window.requestAnimationFrame(this.loop);
-    let currentTime = (new Date()).getTime();
-    this.deltaTime = (currentTime - this.lastTime) / 1000;
-
-    if (!this.gameManager.pauseGame && !this.gameManager.GameOver) {
+    if (!this.gameManager.GameOver && !this.gameManager.pauseGame) {
+      this.gameLoop = window.requestAnimationFrame(this.loop);
+      let currentTime = (new Date()).getTime();
+      this.deltaTime = (currentTime - this.lastTime) / 1000;
+      if(this.deltaTime > .2) {
+        this.deltaTime = .018;
+      }
       //normal game loop, Clear -> update -> draw -> repeat
       this.CanvasObject.clearRect(0, 0, this.CanvasObject.canvas.width, this.CanvasObject.canvas.height);
       this.gameManager.update(this.CanvasObject, this.deltaTime);
       this.gameManager.draw(this.CanvasObject);
-    } else if (this.gameManager.pauseGame) {
-      //paused game.  Draw menu box
-      this.buildCanvasGUI(SCREEN_ACTIONS.PAUSE);
+      this.lastTime = currentTime - (this.deltaTime % this.interval);
     } else if (this.gameManager.GameOver) {
       //game over. Draw menu box
       this.buildCanvasGUI(SCREEN_ACTIONS.GAME_OVER);
     }
-    this.lastTime = currentTime - (this.deltaTime % this.interval);
   }
-
 
   /**
    * Function called to get Window Size of page.  
@@ -147,10 +151,10 @@ export class DronesCanvas {
         this.hud.splashScreen(this);
         break;
       case SCREEN_ACTIONS.PAUSE:
-        this.hud.pauseScreen();
+        this.hud.pauseScreen(this);
         break;
       case SCREEN_ACTIONS.GAME_OVER:
-        this.hud.gameOverScreen();
+        this.hud.gameOverScreen(this);
         break;
     }
 

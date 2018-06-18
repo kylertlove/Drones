@@ -636,7 +636,8 @@ define("model/hud", ["require", "exports", "services/asset-manager", "model/Canv
             title.innerText = "DRONES";
             title.setAttribute('style', 'color:lime;font:40px Verdana;font-weight: 700;');
             var startBtn = document.createElement('BUTTON');
-            startBtn.innerText = "Start";
+            startBtn.innerText = "START";
+            startBtn.id = "startBtn";
             startBtn.setAttribute('style', this.getButtonStyle(false));
             startBtn.onclick = function () {
                 Controller.start();
@@ -664,7 +665,7 @@ define("model/hud", ["require", "exports", "services/asset-manager", "model/Canv
         /**
          * Pause/settings Screen
          */
-        Hud.prototype.pauseScreen = function () {
+        Hud.prototype.pauseScreen = function (Controller) {
             this.clearGUI();
             var pauseText = document.createElement('LABEL');
             pauseText.innerText = "PAUSED";
@@ -674,12 +675,30 @@ define("model/hud", ["require", "exports", "services/asset-manager", "model/Canv
         /**
          * Game Over Screen
          */
-        Hud.prototype.gameOverScreen = function () {
+        Hud.prototype.gameOverScreen = function (Controller) {
+            var _this = this;
             this.clearGUI();
             var gameOverText = document.createElement('LABEL');
             gameOverText.innerText = "GAME OVER";
             gameOverText.setAttribute('style', 'color:lime;font:40px Verdana;');
+            var resetBtn = document.createElement('BUTTON');
+            resetBtn.innerText = "RESET";
+            resetBtn.id = "resetBtn";
+            resetBtn.setAttribute('style', this.getButtonStyle(false));
+            resetBtn.onclick = function () {
+                _this.clearGUI();
+                Controller.reset();
+            };
+            resetBtn.onmouseover = function () {
+                resetBtn.setAttribute('style', _this.getButtonStyle(true));
+            };
+            resetBtn.onmouseleave = function () {
+                resetBtn.setAttribute('style', _this.getButtonStyle(false));
+            };
             this.guiBox.insertAdjacentElement("afterbegin", gameOverText);
+            var thirdLine = this.getNewLineElem(25);
+            gameOverText.insertAdjacentElement("afterend", thirdLine);
+            thirdLine.insertAdjacentElement("afterend", resetBtn);
         };
         /**
          * Build GUI Box so I can use HTML for buttons, not canvas... canvas dom sucks
@@ -794,7 +813,6 @@ define("services/drones-manager.service", ["require", "exports", "model/player",
             this.soundService = new audio_service_1.AudioService();
             this.dT = 0;
             this.pauseGame = false;
-            this.pauseGameTime = true;
             this.playerRoF = 0;
             this.playerBullets = [];
             this.enemyFleet = [];
@@ -805,11 +823,8 @@ define("services/drones-manager.service", ["require", "exports", "model/player",
         }
         /** Key change resolver */
         DronesManagerService.prototype.keyChange = function (keyCode, UporDown) {
-            if (keyCode === 13) {
-                if (this.pauseGameTime) {
-                    this.timeout();
-                    this.pauseGameTime = false;
-                }
+            if (keyCode === 13 && !UporDown) {
+                this.pauseGame = !this.pauseGame;
             }
             this.keyHandler.keyChange(keyCode, UporDown);
         };
@@ -1107,19 +1122,6 @@ define("services/drones-manager.service", ["require", "exports", "model/player",
                 a.Y < (b.Y + rad) + b.Width &&
                 a.Y + a.Height > (b.Y - rad);
         };
-        /** Function that provides a timeout for pausing game.
-        * This is needed to keep the keydown event from calling continuously
-        */
-        DronesManagerService.prototype.timeout = function () {
-            var _this = this;
-            setTimeout(function () {
-                _this.pauseGame = !_this.pauseGame;
-                _this.pauseGameTime = true;
-                if (!_this.pauseGame) {
-                    _this.hud.clearGUI();
-                }
-            }, 150);
-        };
         DronesManagerService.prototype.getRandomHeight = function (canvas) {
             var rand = Math.floor(Math.random() * 1000) + 1;
             if (rand < 10) {
@@ -1152,6 +1154,7 @@ define("DronesCanvas", ["require", "exports", "services/drones-manager.service",
         function DronesCanvas(canvasElementName) {
             var _this = this;
             this.canvasElementName = canvasElementName;
+            this.currentTime = (new Date()).getTime();
             this.lastTime = (new Date()).getTime();
             this.interval = 1000 / 30;
             this.audioPause = false;
@@ -1163,24 +1166,23 @@ define("DronesCanvas", ["require", "exports", "services/drones-manager.service",
              * (How long does the loop take)
              */
             this.loop = function () {
-                _this.gameLoop = window.requestAnimationFrame(_this.loop);
-                var currentTime = (new Date()).getTime();
-                _this.deltaTime = (currentTime - _this.lastTime) / 1000;
-                if (!_this.gameManager.pauseGame && !_this.gameManager.GameOver) {
+                if (!_this.gameManager.GameOver && !_this.gameManager.pauseGame) {
+                    _this.gameLoop = window.requestAnimationFrame(_this.loop);
+                    var currentTime = (new Date()).getTime();
+                    _this.deltaTime = (currentTime - _this.lastTime) / 1000;
+                    if (_this.deltaTime > .2) {
+                        _this.deltaTime = .018;
+                    }
                     //normal game loop, Clear -> update -> draw -> repeat
                     _this.CanvasObject.clearRect(0, 0, _this.CanvasObject.canvas.width, _this.CanvasObject.canvas.height);
                     _this.gameManager.update(_this.CanvasObject, _this.deltaTime);
                     _this.gameManager.draw(_this.CanvasObject);
-                }
-                else if (_this.gameManager.pauseGame) {
-                    //paused game.  Draw menu box
-                    _this.buildCanvasGUI(hud_2.SCREEN_ACTIONS.PAUSE);
+                    _this.lastTime = currentTime - (_this.deltaTime % _this.interval);
                 }
                 else if (_this.gameManager.GameOver) {
                     //game over. Draw menu box
                     _this.buildCanvasGUI(hud_2.SCREEN_ACTIONS.GAME_OVER);
                 }
-                _this.lastTime = currentTime - (_this.deltaTime % _this.interval);
             };
             this.CanvasObject = canvasElementName.getContext('2d');
             this.gameManager = new drones_manager_service_1.DronesManagerService();
@@ -1199,6 +1201,15 @@ define("DronesCanvas", ["require", "exports", "services/drones-manager.service",
             });
             document.addEventListener('keyup', function (e) {
                 _this.gameManager.keyChange(e.keyCode, false);
+                if (e.keyCode === 13) {
+                    if (_this.gameManager.pauseGame) {
+                        _this.buildCanvasGUI(hud_2.SCREEN_ACTIONS.PAUSE);
+                    }
+                    else {
+                        _this.hud.clearGUI();
+                        _this.loop();
+                    }
+                }
             });
             /** Click event handler.  Use For canvas button handling */
             this.canvasElementName.addEventListener('click', function (e) {
@@ -1206,9 +1217,6 @@ define("DronesCanvas", ["require", "exports", "services/drones-manager.service",
                     x: e.clientX,
                     y: e.clientY
                 };
-                //do all checks for things that I can click on
-                //console.log(`Clicked: X: ${pos.x}, Y: ${pos.y}`)
-                _this.runButtonChecks(pos);
             });
         };
         DronesCanvas.prototype.start = function () {
@@ -1219,7 +1227,7 @@ define("DronesCanvas", ["require", "exports", "services/drones-manager.service",
         DronesCanvas.prototype.reset = function () {
             window.cancelAnimationFrame(this.gameLoop);
             this.gameManager = new drones_manager_service_1.DronesManagerService();
-            this.init();
+            this.buildCanvasGUI(hud_2.SCREEN_ACTIONS.SPLASH);
         };
         /**
          * Function called to get Window Size of page.
@@ -1279,10 +1287,10 @@ define("DronesCanvas", ["require", "exports", "services/drones-manager.service",
                     this.hud.splashScreen(this);
                     break;
                 case hud_2.SCREEN_ACTIONS.PAUSE:
-                    this.hud.pauseScreen();
+                    this.hud.pauseScreen(this);
                     break;
                 case hud_2.SCREEN_ACTIONS.GAME_OVER:
-                    this.hud.gameOverScreen();
+                    this.hud.gameOverScreen(this);
                     break;
             }
             //buttons that are always visible
