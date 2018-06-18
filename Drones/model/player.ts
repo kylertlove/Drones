@@ -46,7 +46,6 @@ export class Player extends User {
             clearInterval(this.loopShieldSprites);
             this.hasShield = false;
             this.sprite.src = this.baseSprite;
-            this.shieldTimer = 0;
           }
     }
 
@@ -86,6 +85,8 @@ export class Player extends User {
 
     /** Activate Shield Boost */
     activateShield() {
+        clearInterval(this.loopShieldSprites);
+        this.shieldTimer = 0;
         this.hasShield = true;
         this.loopShieldSprites = setInterval( () => {
             this.shieldSpriteNum++;

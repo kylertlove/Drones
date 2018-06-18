@@ -196,7 +196,6 @@ define("model/player", ["require", "exports", "model/user", "model/playerBullets
                 clearInterval(this.loopShieldSprites);
                 this.hasShield = false;
                 this.sprite.src = this.baseSprite;
-                this.shieldTimer = 0;
             }
         };
         Player.prototype.midpoint = function () {
@@ -231,6 +230,8 @@ define("model/player", ["require", "exports", "model/user", "model/playerBullets
         /** Activate Shield Boost */
         Player.prototype.activateShield = function () {
             var _this = this;
+            clearInterval(this.loopShieldSprites);
+            this.shieldTimer = 0;
             this.hasShield = true;
             this.loopShieldSprites = setInterval(function () {
                 _this.shieldSpriteNum++;
@@ -1216,16 +1217,9 @@ define("DronesCanvas", ["require", "exports", "services/drones-manager.service",
             this.loop();
         };
         DronesCanvas.prototype.reset = function () {
-            this.gameManager = null;
-            this.gameLoop = null;
+            window.cancelAnimationFrame(this.gameLoop);
             this.gameManager = new drones_manager_service_1.DronesManagerService();
-            this.audioService.next();
-            this.lastTime = (new Date()).getTime();
-            this.deltaTime = 0;
-            this.interval = 1000 / 30;
-            this.canvasButtonList = [];
-            this.hud = this.gameManager.hud;
-            this.loop();
+            this.init();
         };
         /**
          * Function called to get Window Size of page.

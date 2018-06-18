@@ -56,16 +56,9 @@ export class DronesCanvas {
   }
 
   reset(){
-    this.gameManager = null;
-    this.gameLoop = null;
+    window.cancelAnimationFrame(this.gameLoop);
     this.gameManager = new DronesManagerService();
-    this.audioService.next();
-    this.lastTime = (new Date()).getTime();
-    this.deltaTime = 0;
-    this.interval = 1000 / 30;
-    this.canvasButtonList = [];
-    this.hud = this.gameManager.hud;
-    this.loop();
+    this.init();
   }
 
   /**
