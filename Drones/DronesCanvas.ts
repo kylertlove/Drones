@@ -19,8 +19,8 @@ export class DronesCanvas {
 
   constructor(public canvasElementName: HTMLCanvasElement) {
     this.CanvasObject = canvasElementName.getContext('2d');
-    this.audioService = new AudioService();
-    this.gameManager = new DronesManagerService(this.audioService);
+    this.gameManager = new DronesManagerService();
+    this.audioService = this.gameManager.soundService;
   }
 
   init() {
@@ -58,7 +58,7 @@ export class DronesCanvas {
   reset(){
     this.gameManager = null;
     this.gameLoop = null;
-    this.gameManager = new DronesManagerService(this.audioService);
+    this.gameManager = new DronesManagerService();
     this.audioService.next();
     this.lastTime = (new Date()).getTime();
     this.deltaTime = 0;

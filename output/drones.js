@@ -192,7 +192,7 @@ define("model/player", ["require", "exports", "model/user", "model/playerBullets
                 this.X += this.X > canvas.canvas.width - 20 ? 0 : this.playerVelocity * dT;
             }
             //remove shields after 1000 ticks
-            if (this.hasShield && this.shieldTimer > 1000) {
+            if (this.hasShield && this.shieldTimer > 500) {
                 clearInterval(this.loopShieldSprites);
                 this.hasShield = false;
                 this.sprite.src = this.baseSprite;
@@ -235,7 +235,6 @@ define("model/player", ["require", "exports", "model/user", "model/playerBullets
             this.loopShieldSprites = setInterval(function () {
                 _this.shieldSpriteNum++;
                 _this.shieldTimer++;
-                console.log("Shield Timer: " + _this.shieldTimer);
                 if (_this.shieldSpriteNum === 6) {
                     _this.shieldSpriteNum = 1;
                 }
@@ -780,18 +779,18 @@ define("services/audio.service", ["require", "exports", "services/asset-manager"
     }());
     exports.AudioService = AudioService;
 });
-define("services/drones-manager.service", ["require", "exports", "model/player", "services/key-status", "model/enemy-drones", "model/powerups", "model/missile", "model/boss.drones", "model/hud"], function (require, exports, player_1, key_status_1, enemy_drones_1, powerups_1, missile_1, boss_drones_1, hud_1) {
+define("services/drones-manager.service", ["require", "exports", "model/player", "services/key-status", "model/enemy-drones", "model/powerups", "model/missile", "model/boss.drones", "model/hud", "services/audio.service"], function (require, exports, player_1, key_status_1, enemy_drones_1, powerups_1, missile_1, boss_drones_1, hud_1, audio_service_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var DronesManagerService = /** @class */ (function () {
-        function DronesManagerService(audioService) {
+        function DronesManagerService() {
             this.hud = new hud_1.Hud();
             this.player = new player_1.Player();
             this.keyHandler = new key_status_1.KeyDown();
             this.powerUp = new powerups_1.Powerup();
             this.playerMissile = new missile_1.Missile(false);
             this.boss = new boss_drones_1.Boss();
-            this.soundService = audioService;
+            this.soundService = new audio_service_1.AudioService();
             this.dT = 0;
             this.pauseGame = false;
             this.pauseGameTime = true;
@@ -1145,7 +1144,7 @@ define("services/drones-manager.service", ["require", "exports", "model/player",
     }());
     exports.DronesManagerService = DronesManagerService;
 });
-define("DronesCanvas", ["require", "exports", "services/drones-manager.service", "services/audio.service", "model/CanvasMenuObjects", "model/hud"], function (require, exports, drones_manager_service_1, audio_service_1, CanvasMenuObjects_2, hud_2) {
+define("DronesCanvas", ["require", "exports", "services/drones-manager.service", "model/CanvasMenuObjects", "model/hud"], function (require, exports, drones_manager_service_1, CanvasMenuObjects_2, hud_2) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var DronesCanvas = /** @class */ (function () {
@@ -1183,8 +1182,8 @@ define("DronesCanvas", ["require", "exports", "services/drones-manager.service",
                 _this.lastTime = currentTime - (_this.deltaTime % _this.interval);
             };
             this.CanvasObject = canvasElementName.getContext('2d');
-            this.audioService = new audio_service_1.AudioService();
-            this.gameManager = new drones_manager_service_1.DronesManagerService(this.audioService);
+            this.gameManager = new drones_manager_service_1.DronesManagerService();
+            this.audioService = this.gameManager.soundService;
         }
         DronesCanvas.prototype.init = function () {
             var _this = this;
@@ -1219,7 +1218,7 @@ define("DronesCanvas", ["require", "exports", "services/drones-manager.service",
         DronesCanvas.prototype.reset = function () {
             this.gameManager = null;
             this.gameLoop = null;
-            this.gameManager = new drones_manager_service_1.DronesManagerService(this.audioService);
+            this.gameManager = new drones_manager_service_1.DronesManagerService();
             this.audioService.next();
             this.lastTime = (new Date()).getTime();
             this.deltaTime = 0;

@@ -32,14 +32,14 @@ export class DronesManagerService {
   hud: Hud;
   KILLS: number;
 
-  constructor(audioService: AudioService) {
+  constructor() {
     this.hud = new Hud();
     this.player = new Player();
     this.keyHandler = new KeyDown();
     this.powerUp = new Powerup();
     this.playerMissile = new Missile(false);
     this.boss = new Boss();
-    this.soundService = audioService;
+    this.soundService = new AudioService();
     this.dT = 0;
     this.pauseGame = false;
     this.pauseGameTime = true;
