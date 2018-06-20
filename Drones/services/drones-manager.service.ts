@@ -205,7 +205,7 @@ export class DronesManagerService {
     }
     //generate boss 
     if (!this.boss.active) {
-      if (this.KILLS % 273 === 0) {
+      if (this.KILLS % 273 === 0 && this.KILLS !== 0) {
         this.boss.active = true;
         this.boss.health = 500;
         this.boss.X = canvas.canvas.width - 300;

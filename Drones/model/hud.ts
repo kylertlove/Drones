@@ -53,13 +53,14 @@ export class Hud {
    */
   drawShieldTimer(canvas: CanvasRenderingContext2D, shieldTimer: number){
     let displayWidth = 250;
-    let shieldBox = new CanvasShape((canvas.canvas.width / 2) - 125, (canvas.canvas.height - 100), displayWidth, 25);
+    let shieldBox = new CanvasShape((canvas.canvas.width / 2) - 125, (canvas.canvas.height - 50), displayWidth, 16);
     canvas.fillStyle = this.textColor;
+    canvas.lineWidth = 2;
     canvas.strokeRect(shieldBox.x, shieldBox.y, shieldBox.w, shieldBox.h);
     let fillAmount = shieldTimer / 500;
     fillAmount = fillAmount * displayWidth;
     fillAmount = displayWidth - fillAmount;
-    let shieldFill = new CanvasShape((canvas.canvas.width / 2) - 125, (canvas.canvas.height - 100), fillAmount, 25);
+    let shieldFill = new CanvasShape((canvas.canvas.width / 2) - 125, (canvas.canvas.height - 50), fillAmount, 16);
     canvas.fillStyle = this.textColor;
     canvas.fillRect(shieldFill.x, shieldFill.y, shieldFill.w, shieldFill.h);
   }

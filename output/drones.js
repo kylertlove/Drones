@@ -322,27 +322,27 @@ define("model/powerups", ["require", "exports", "model/user", "services/asset-ma
                 this.Y >= 0 && this.Y <= canvas.canvas.height;
         };
         Powerup.prototype.getNewType = function () {
-            var rand = Math.random() * 100;
-            if (rand >= 0 && rand < 20) {
-                this.sprite.src = asset_manager_4.ASSETS.PREPEND + "drone-images/powerup-spray.png";
-                this.type = PowerUpType.Spray;
-            }
-            else if (rand >= 20 && rand < 40) {
-                this.sprite.src = asset_manager_4.ASSETS.PREPEND + "drone-images/powerup-health.png";
-                this.type = PowerUpType.Health;
-            }
-            else if (rand >= 40 && rand < 60) {
-                this.sprite.src = asset_manager_4.ASSETS.PREPEND + "drone-images/powerup-explosionVelocity.png";
-                this.type = PowerUpType.explosionVelocity;
-            }
-            else if (rand >= 60 && rand < 80) {
-                this.sprite.src = asset_manager_4.ASSETS.PREPEND + "drone-images/powerup-shield.png";
-                this.type = PowerUpType.Shield;
-            }
-            else if (rand >= 80) {
-                this.sprite.src = asset_manager_4.ASSETS.PREPEND + "drone-images/powerup-rOf.png";
-                this.type = PowerUpType.RoF;
-            }
+            //testing shield
+            this.sprite.src = asset_manager_4.ASSETS.PREPEND + "drone-images/powerup-shield.png";
+            this.type = PowerUpType.Shield;
+            // let rand = Math.random() * 100;
+            // if (rand >= 0 && rand < 20) {
+            //     this.sprite.src = ASSETS.PREPEND + "drone-images/powerup-spray.png";
+            //     this.type = PowerUpType.Spray;
+            // } else if (rand >= 20 && rand < 40) {
+            //     this.sprite.src = ASSETS.PREPEND + "drone-images/powerup-health.png";
+            //     this.type = PowerUpType.Health;
+            // } else if (rand >= 40 && rand < 60) {
+            //     this.sprite.src = ASSETS.PREPEND + "drone-images/powerup-explosionVelocity.png";
+            //     this.type = PowerUpType.explosionVelocity;
+            // } else if (rand >= 60 && rand < 80) {
+            //     this.sprite.src = ASSETS.PREPEND + "drone-images/powerup-shield.png";
+            //     this.type = PowerUpType.Shield;
+            // } 
+            // else if (rand >= 80) {
+            //     this.sprite.src = ASSETS.PREPEND + "drone-images/powerup-rOf.png";
+            //     this.type = PowerUpType.RoF;
+            // }
         };
         Powerup.prototype.getFlashText = function () {
             switch (this.showType) {
@@ -597,13 +597,14 @@ define("model/hud", ["require", "exports", "services/asset-manager", "model/Canv
          */
         Hud.prototype.drawShieldTimer = function (canvas, shieldTimer) {
             var displayWidth = 250;
-            var shieldBox = new CanvasMenuObjects_1.CanvasShape((canvas.canvas.width / 2) - 125, (canvas.canvas.height - 100), displayWidth, 25);
+            var shieldBox = new CanvasMenuObjects_1.CanvasShape((canvas.canvas.width / 2) - 125, (canvas.canvas.height - 50), displayWidth, 16);
             canvas.fillStyle = this.textColor;
+            canvas.lineWidth = 2;
             canvas.strokeRect(shieldBox.x, shieldBox.y, shieldBox.w, shieldBox.h);
             var fillAmount = shieldTimer / 500;
             fillAmount = fillAmount * displayWidth;
             fillAmount = displayWidth - fillAmount;
-            var shieldFill = new CanvasMenuObjects_1.CanvasShape((canvas.canvas.width / 2) - 125, (canvas.canvas.height - 100), fillAmount, 25);
+            var shieldFill = new CanvasMenuObjects_1.CanvasShape((canvas.canvas.width / 2) - 125, (canvas.canvas.height - 50), fillAmount, 16);
             canvas.fillStyle = this.textColor;
             canvas.fillRect(shieldFill.x, shieldFill.y, shieldFill.w, shieldFill.h);
         };
@@ -984,7 +985,7 @@ define("services/drones-manager.service", ["require", "exports", "model/player",
             }
             //generate boss 
             if (!this.boss.active) {
-                if (this.KILLS % 273 === 0) {
+                if (this.KILLS % 273 === 0 && this.KILLS !== 0) {
                     this.boss.active = true;
                     this.boss.health = 500;
                     this.boss.X = canvas.canvas.width - 300;
