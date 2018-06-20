@@ -1,8 +1,7 @@
 import { Player } from "./player";
-import { Missile } from "./missile";
 import { Entity } from "./entity";
 import { ASSETS } from "../services/asset-manager";
-import { CanvasButton, CanvasText, CANVAS_BUTTON_NAME } from "./CanvasMenuObjects";
+import { CanvasShape, CanvasText } from "./CanvasMenuObjects";
 import { DronesCanvas } from "../DronesCanvas";
 
 
@@ -47,6 +46,22 @@ export class Hud {
     canvas.fillText(health.word, health.x, health.y);
     canvas.fillText(KillsText.word, KillsText.x, KillsText.y);
     canvas.fillText(level.word, level.x, level.y);
+  }
+
+  /**
+   * Draw Shield 
+   */
+  drawShieldTimer(canvas: CanvasRenderingContext2D, shieldTimer: number){
+    let displayWidth = 250;
+    let shieldBox = new CanvasShape((canvas.canvas.width / 2) - 125, (canvas.canvas.height - 100), displayWidth, 25);
+    canvas.fillStyle = this.textColor;
+    canvas.strokeRect(shieldBox.x, shieldBox.y, shieldBox.w, shieldBox.h);
+    let fillAmount = shieldTimer / 500;
+    fillAmount = fillAmount * displayWidth;
+    fillAmount = displayWidth - fillAmount;
+    let shieldFill = new CanvasShape((canvas.canvas.width / 2) - 125, (canvas.canvas.height - 100), fillAmount, 25);
+    canvas.fillStyle = this.textColor;
+    canvas.fillRect(shieldFill.x, shieldFill.y, shieldFill.w, shieldFill.h);
   }
 
 

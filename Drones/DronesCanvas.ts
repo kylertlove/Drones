@@ -1,6 +1,6 @@
 import { DronesManagerService } from "./services/drones-manager.service";
 import { AudioService } from "./services/audio.service";
-import { CanvasButton, CANVAS_BUTTON_NAME } from "./model/CanvasMenuObjects";
+import { CanvasShape } from "./model/CanvasMenuObjects";
 import { SCREEN_ACTIONS, Hud } from "./model/hud";
 
 
@@ -15,7 +15,7 @@ export class DronesCanvas {
   private interval = 1000 / 30;
   private audioPause: boolean = false;
   private audioService: AudioService;
-  private canvasButtonList: CanvasButton[] = [];
+  private canvasButtonList: CanvasShape[] = [];
   private hud: Hud;
 
   constructor(public canvasElementName: HTMLCanvasElement) {
@@ -164,26 +164,26 @@ export class DronesCanvas {
     }
 
     //buttons that are always visible
-    this.canvasButtonList.push(new CanvasButton(CANVAS_BUTTON_NAME.AUDIO_PLAY, 0, 0, 30, 50));
-    this.canvasButtonList.push(new CanvasButton(CANVAS_BUTTON_NAME.NEXT, 30, 0, 30, 50));
+    // this.canvasButtonList.push(new CanvasButton(CANVAS_BUTTON_NAME.AUDIO_PLAY, 0, 0, 30, 50));
+    // this.canvasButtonList.push(new CanvasButton(CANVAS_BUTTON_NAME.NEXT, 30, 0, 30, 50));
   }
 
-  runButtonChecks(pos) {
-    this.canvasButtonList.forEach((btn: CanvasButton) => {
-      switch (btn.name) {
-        case CANVAS_BUTTON_NAME.AUDIO_PLAY:
-          if (btn.isWithinBounds(pos.x, pos.y)) {
-            this.audioPause = !this.audioPause;
-            this.audioService.toggle(this.audioPause);
-            this.hud.pauseVolume(this.audioPause);
-          }
-          break;
-        case CANVAS_BUTTON_NAME.NEXT:
-          if (btn.isWithinBounds(pos.x, pos.y)) {
-            this.audioService.next();
-          }
-          break;
-      }
-    });
-  }
+  // runButtonChecks(pos) {
+  //   this.canvasButtonList.forEach((btn: CanvasButton) => {
+  //     switch (btn.name) {
+  //       case CANVAS_BUTTON_NAME.AUDIO_PLAY:
+  //         if (btn.isWithinBounds(pos.x, pos.y)) {
+  //           this.audioPause = !this.audioPause;
+  //           this.audioService.toggle(this.audioPause);
+  //           this.hud.pauseVolume(this.audioPause);
+  //         }
+  //         break;
+  //       case CANVAS_BUTTON_NAME.NEXT:
+  //         if (btn.isWithinBounds(pos.x, pos.y)) {
+  //           this.audioService.next();
+  //         }
+  //         break;
+  //     }
+  //   });
+  //}
 }

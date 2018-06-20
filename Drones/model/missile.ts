@@ -25,7 +25,7 @@ export class Missile extends User {
         if (this.inBounds(canvas)) {
             this.X += this.missileVelocity * dT;
         } else {
-            this.activeMissile = false
+            this.activeMissile = false;
         }
     }
 

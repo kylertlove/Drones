@@ -511,7 +511,7 @@ define("model/CanvasMenuObjects", ["require", "exports"], function (require, exp
     /**
      * Object for clickable elements on the canvas
      */
-    var CanvasButton = /** @class */ (function () {
+    var CanvasShape = /** @class */ (function () {
         /**
          *
          * @param name
@@ -520,20 +520,15 @@ define("model/CanvasMenuObjects", ["require", "exports"], function (require, exp
          * @param w Width
          * @param h Height
          */
-        function CanvasButton(name, x, y, w, h) {
-            this.name = name;
+        function CanvasShape(x, y, w, h) {
             this.x = x;
             this.y = y;
             this.w = w;
             this.h = h;
         }
-        CanvasButton.prototype.isWithinBounds = function (posX, posY) {
-            return posX < this.x + this.w && posX > this.x &&
-                posY < this.y + this.h && posY > this.y;
-        };
-        return CanvasButton;
+        return CanvasShape;
     }());
-    exports.CanvasButton = CanvasButton;
+    exports.CanvasShape = CanvasShape;
     /**
      * Object for Text elements on the canvas
      */
@@ -556,15 +551,6 @@ define("model/CanvasMenuObjects", ["require", "exports"], function (require, exp
         return CanvasText;
     }());
     exports.CanvasText = CanvasText;
-    var CANVAS_BUTTON_NAME;
-    (function (CANVAS_BUTTON_NAME) {
-        CANVAS_BUTTON_NAME[CANVAS_BUTTON_NAME["GAME_PLAY"] = 0] = "GAME_PLAY";
-        CANVAS_BUTTON_NAME[CANVAS_BUTTON_NAME["AUDIO_PLAY"] = 1] = "AUDIO_PLAY";
-        CANVAS_BUTTON_NAME[CANVAS_BUTTON_NAME["NEXT"] = 2] = "NEXT";
-        CANVAS_BUTTON_NAME[CANVAS_BUTTON_NAME["VOLUME_UP"] = 3] = "VOLUME_UP";
-        CANVAS_BUTTON_NAME[CANVAS_BUTTON_NAME["VOLUME_DOWN"] = 4] = "VOLUME_DOWN";
-        CANVAS_BUTTON_NAME[CANVAS_BUTTON_NAME["RESTART"] = 5] = "RESTART";
-    })(CANVAS_BUTTON_NAME = exports.CANVAS_BUTTON_NAME || (exports.CANVAS_BUTTON_NAME = {}));
 });
 define("model/hud", ["require", "exports", "services/asset-manager", "model/CanvasMenuObjects"], function (require, exports, asset_manager_8, CanvasMenuObjects_1) {
     "use strict";
@@ -605,6 +591,21 @@ define("model/hud", ["require", "exports", "services/asset-manager", "model/Canv
             canvas.fillText(health.word, health.x, health.y);
             canvas.fillText(KillsText.word, KillsText.x, KillsText.y);
             canvas.fillText(level.word, level.x, level.y);
+        };
+        /**
+         * Draw Shield
+         */
+        Hud.prototype.drawShieldTimer = function (canvas, shieldTimer) {
+            var displayWidth = 250;
+            var shieldBox = new CanvasMenuObjects_1.CanvasShape((canvas.canvas.width / 2) - 125, (canvas.canvas.height - 100), displayWidth, 25);
+            canvas.fillStyle = this.textColor;
+            canvas.strokeRect(shieldBox.x, shieldBox.y, shieldBox.w, shieldBox.h);
+            var fillAmount = shieldTimer / 500;
+            fillAmount = fillAmount * displayWidth;
+            fillAmount = displayWidth - fillAmount;
+            var shieldFill = new CanvasMenuObjects_1.CanvasShape((canvas.canvas.width / 2) - 125, (canvas.canvas.height - 100), fillAmount, 25);
+            canvas.fillStyle = this.textColor;
+            canvas.fillRect(shieldFill.x, shieldFill.y, shieldFill.w, shieldFill.h);
         };
         Hud.prototype.volumeHud = function (canvas) {
             canvas.drawImage(this.volumeImageObj, 0, 0);
@@ -882,6 +883,9 @@ define("services/drones-manager.service", ["require", "exports", "model/player",
             //draw HUD
             this.hud.playerStats(canvas, this.player, this.KILLS);
             this.hud.volumeHud(canvas);
+            if (this.player.hasShield) {
+                this.hud.drawShieldTimer(canvas, this.player.shieldTimer);
+            }
         };
         /**
          * Update the Location of the player
@@ -1147,7 +1151,7 @@ define("services/drones-manager.service", ["require", "exports", "model/player",
     }());
     exports.DronesManagerService = DronesManagerService;
 });
-define("DronesCanvas", ["require", "exports", "services/drones-manager.service", "model/CanvasMenuObjects", "model/hud"], function (require, exports, drones_manager_service_1, CanvasMenuObjects_2, hud_2) {
+define("DronesCanvas", ["require", "exports", "services/drones-manager.service", "model/hud"], function (require, exports, drones_manager_service_1, hud_2) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var DronesCanvas = /** @class */ (function () {
@@ -1299,27 +1303,8 @@ define("DronesCanvas", ["require", "exports", "services/drones-manager.service",
                     break;
             }
             //buttons that are always visible
-            this.canvasButtonList.push(new CanvasMenuObjects_2.CanvasButton(CanvasMenuObjects_2.CANVAS_BUTTON_NAME.AUDIO_PLAY, 0, 0, 30, 50));
-            this.canvasButtonList.push(new CanvasMenuObjects_2.CanvasButton(CanvasMenuObjects_2.CANVAS_BUTTON_NAME.NEXT, 30, 0, 30, 50));
-        };
-        DronesCanvas.prototype.runButtonChecks = function (pos) {
-            var _this = this;
-            this.canvasButtonList.forEach(function (btn) {
-                switch (btn.name) {
-                    case CanvasMenuObjects_2.CANVAS_BUTTON_NAME.AUDIO_PLAY:
-                        if (btn.isWithinBounds(pos.x, pos.y)) {
-                            _this.audioPause = !_this.audioPause;
-                            _this.audioService.toggle(_this.audioPause);
-                            _this.hud.pauseVolume(_this.audioPause);
-                        }
-                        break;
-                    case CanvasMenuObjects_2.CANVAS_BUTTON_NAME.NEXT:
-                        if (btn.isWithinBounds(pos.x, pos.y)) {
-                            _this.audioService.next();
-                        }
-                        break;
-                }
-            });
+            // this.canvasButtonList.push(new CanvasButton(CANVAS_BUTTON_NAME.AUDIO_PLAY, 0, 0, 30, 50));
+            // this.canvasButtonList.push(new CanvasButton(CANVAS_BUTTON_NAME.NEXT, 30, 0, 30, 50));
         };
         return DronesCanvas;
     }());
