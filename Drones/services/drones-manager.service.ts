@@ -106,7 +106,7 @@ export class DronesManagerService {
     this.hud.playerStats(canvas, this.player, this.KILLS);
     this.hud.volumeHud(canvas);
     if(this.player.hasShield){
-      this.hud.drawShieldTimer(canvas, this.player.shieldTimer);
+      this.hud.drawShieldTick(canvas, this.player.shieldTick);
     }
   }
 
@@ -237,8 +237,8 @@ export class DronesManagerService {
           enemy.explode();
           if(!this.player.hasShield){
             this.removePowerups();
-            this.GameOver = this.player.explode();
           }
+          this.GameOver = this.player.explode();
         }
         if (this.playerMissile.activeMissile && this.collides(this.playerMissile, enemy)) {
           this.KILLS++;
@@ -308,8 +308,8 @@ export class DronesManagerService {
         bullet.active = false;
         if(!this.player.hasShield){
           this.removePowerups();
-          this.GameOver = this.player.explode();
         }
+        this.GameOver = this.player.explode();
       }
     });
     if (this.playerMissile.needMissile) {

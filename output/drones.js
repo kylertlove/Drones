@@ -166,7 +166,7 @@ define("model/player", ["require", "exports", "model/user", "model/playerBullets
         function Player() {
             var _this = _super.call(this, 'fff', 90, 40, 200, 200) || this;
             _this.shieldSpriteNum = 1;
-            _this.shieldTimer = 0;
+            _this.shieldTick = 10;
             _this.playerVelocity = 250;
             _this.maxHealth = 60;
             _this.baseSprite = asset_manager_2.ASSETS.PREPEND + "drone-images/playerShip1.png";
@@ -192,7 +192,7 @@ define("model/player", ["require", "exports", "model/user", "model/playerBullets
                 this.X += this.X > canvas.canvas.width - 20 ? 0 : this.playerVelocity * dT;
             }
             //remove shields after 1000 ticks
-            if (this.hasShield && this.shieldTimer > 500) {
+            if (this.hasShield && this.shieldTick <= 0) {
                 clearInterval(this.loopShieldSprites);
                 this.hasShield = false;
                 this.sprite.src = this.baseSprite;
@@ -219,6 +219,9 @@ define("model/player", ["require", "exports", "model/user", "model/playerBullets
                 }
                 return false;
             }
+            else {
+                this.shieldTick--;
+            }
         };
         /** Call to add Health to the player */
         Player.prototype.addHealth = function (amount) {
@@ -231,11 +234,10 @@ define("model/player", ["require", "exports", "model/user", "model/playerBullets
         Player.prototype.activateShield = function () {
             var _this = this;
             clearInterval(this.loopShieldSprites);
-            this.shieldTimer = 0;
+            this.shieldTick = 10;
             this.hasShield = true;
             this.loopShieldSprites = setInterval(function () {
                 _this.shieldSpriteNum++;
-                _this.shieldTimer++;
                 if (_this.shieldSpriteNum === 6) {
                     _this.shieldSpriteNum = 1;
                 }
@@ -323,26 +325,29 @@ define("model/powerups", ["require", "exports", "model/user", "services/asset-ma
         };
         Powerup.prototype.getNewType = function () {
             //testing shield
-            this.sprite.src = asset_manager_4.ASSETS.PREPEND + "drone-images/powerup-shield.png";
-            this.type = PowerUpType.Shield;
-            // let rand = Math.random() * 100;
-            // if (rand >= 0 && rand < 20) {
-            //     this.sprite.src = ASSETS.PREPEND + "drone-images/powerup-spray.png";
-            //     this.type = PowerUpType.Spray;
-            // } else if (rand >= 20 && rand < 40) {
-            //     this.sprite.src = ASSETS.PREPEND + "drone-images/powerup-health.png";
-            //     this.type = PowerUpType.Health;
-            // } else if (rand >= 40 && rand < 60) {
-            //     this.sprite.src = ASSETS.PREPEND + "drone-images/powerup-explosionVelocity.png";
-            //     this.type = PowerUpType.explosionVelocity;
-            // } else if (rand >= 60 && rand < 80) {
-            //     this.sprite.src = ASSETS.PREPEND + "drone-images/powerup-shield.png";
-            //     this.type = PowerUpType.Shield;
-            // } 
-            // else if (rand >= 80) {
-            //     this.sprite.src = ASSETS.PREPEND + "drone-images/powerup-rOf.png";
-            //     this.type = PowerUpType.RoF;
-            // }
+            // this.sprite.src = ASSETS.PREPEND + "drone-images/powerup-shield.png";
+            // this.type = PowerUpType.Shield;
+            var rand = Math.random() * 100;
+            if (rand >= 0 && rand < 20) {
+                this.sprite.src = asset_manager_4.ASSETS.PREPEND + "drone-images/powerup-spray.png";
+                this.type = PowerUpType.Spray;
+            }
+            else if (rand >= 20 && rand < 40) {
+                this.sprite.src = asset_manager_4.ASSETS.PREPEND + "drone-images/powerup-health.png";
+                this.type = PowerUpType.Health;
+            }
+            else if (rand >= 40 && rand < 60) {
+                this.sprite.src = asset_manager_4.ASSETS.PREPEND + "drone-images/powerup-explosionVelocity.png";
+                this.type = PowerUpType.explosionVelocity;
+            }
+            else if (rand >= 60 && rand < 80) {
+                this.sprite.src = asset_manager_4.ASSETS.PREPEND + "drone-images/powerup-shield.png";
+                this.type = PowerUpType.Shield;
+            }
+            else if (rand >= 80) {
+                this.sprite.src = asset_manager_4.ASSETS.PREPEND + "drone-images/powerup-rOf.png";
+                this.type = PowerUpType.RoF;
+            }
         };
         Powerup.prototype.getFlashText = function () {
             switch (this.showType) {
@@ -595,17 +600,17 @@ define("model/hud", ["require", "exports", "services/asset-manager", "model/Canv
         /**
          * Draw Shield
          */
-        Hud.prototype.drawShieldTimer = function (canvas, shieldTimer) {
+        Hud.prototype.drawShieldTick = function (canvas, shieldTick) {
             var displayWidth = 250;
             var shieldBox = new CanvasMenuObjects_1.CanvasShape((canvas.canvas.width / 2) - 125, (canvas.canvas.height - 50), displayWidth, 16);
             canvas.fillStyle = this.textColor;
             canvas.lineWidth = 2;
             canvas.strokeRect(shieldBox.x, shieldBox.y, shieldBox.w, shieldBox.h);
-            var fillAmount = shieldTimer / 500;
+            var fillAmount = shieldTick / 10;
             fillAmount = fillAmount * displayWidth;
-            fillAmount = displayWidth - fillAmount;
+            //fillAmount = displayWidth - fillAmount;
             var shieldFill = new CanvasMenuObjects_1.CanvasShape((canvas.canvas.width / 2) - 125, (canvas.canvas.height - 50), fillAmount, 16);
-            canvas.fillStyle = this.textColor;
+            canvas.fillStyle = 'rgba(0,225,0,0.5)';
             canvas.fillRect(shieldFill.x, shieldFill.y, shieldFill.w, shieldFill.h);
         };
         Hud.prototype.volumeHud = function (canvas) {
@@ -885,7 +890,7 @@ define("services/drones-manager.service", ["require", "exports", "model/player",
             this.hud.playerStats(canvas, this.player, this.KILLS);
             this.hud.volumeHud(canvas);
             if (this.player.hasShield) {
-                this.hud.drawShieldTimer(canvas, this.player.shieldTimer);
+                this.hud.drawShieldTick(canvas, this.player.shieldTick);
             }
         };
         /**
@@ -1017,8 +1022,8 @@ define("services/drones-manager.service", ["require", "exports", "model/player",
                         enemy.explode();
                         if (!_this.player.hasShield) {
                             _this.removePowerups();
-                            _this.GameOver = _this.player.explode();
                         }
+                        _this.GameOver = _this.player.explode();
                     }
                     if (_this.playerMissile.activeMissile && _this.collides(_this.playerMissile, enemy)) {
                         _this.KILLS++;
@@ -1092,8 +1097,8 @@ define("services/drones-manager.service", ["require", "exports", "model/player",
                     bullet.active = false;
                     if (!_this.player.hasShield) {
                         _this.removePowerups();
-                        _this.GameOver = _this.player.explode();
                     }
+                    _this.GameOver = _this.player.explode();
                 }
             });
             if (this.playerMissile.needMissile) {

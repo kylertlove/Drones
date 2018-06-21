@@ -9,7 +9,7 @@ export class Player extends User {
     hasSprayPowerUp: Boolean;
     hasShield:Boolean;
     shieldSpriteNum:number = 1;
-    shieldTimer:number = 0;
+    shieldTick:number = 10;
     hasExplosionVelocity: Boolean;
     hasRoFpowerUp: Boolean;
     playerVelocity: number = 250;
@@ -42,7 +42,7 @@ export class Player extends User {
           }
 
           //remove shields after 1000 ticks
-          if(this.hasShield && this.shieldTimer > 500) {
+          if(this.hasShield && this.shieldTick <= 0) {
             clearInterval(this.loopShieldSprites);
             this.hasShield = false;
             this.sprite.src = this.baseSprite;
@@ -73,6 +73,8 @@ export class Player extends User {
                 return true;
             }
             return false;
+        } else {
+            this.shieldTick--;
         }
     }
     /** Call to add Health to the player */
@@ -86,11 +88,10 @@ export class Player extends User {
     /** Activate Shield Boost */
     activateShield() {
         clearInterval(this.loopShieldSprites);
-        this.shieldTimer = 0;
+        this.shieldTick = 10;
         this.hasShield = true;
         this.loopShieldSprites = setInterval( () => {
             this.shieldSpriteNum++;
-            this.shieldTimer++;
             if(this.shieldSpriteNum === 6){
                 this.shieldSpriteNum = 1;
             }
