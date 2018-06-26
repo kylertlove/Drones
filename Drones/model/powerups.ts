@@ -30,9 +30,6 @@ export class Powerup extends User {
     }
 
     getNewType() {
-        //testing shield
-        // this.sprite.src = ASSETS.PREPEND + "drone-images/powerup-shield.png";
-        // this.type = PowerUpType.Shield;
 
         let rand = Math.random() * 100;
         if (rand >= 0 && rand < 20) {
@@ -52,6 +49,10 @@ export class Powerup extends User {
             this.sprite.src = ASSETS.PREPEND + "drone-images/powerup-rOf.png";
             this.type = PowerUpType.RoF;
         }
+
+        //testing shield
+        // this.sprite.src = ASSETS.PREPEND + "drone-images/powerup-shield.png";
+        // this.type = PowerUpType.Shield;
     }
 
     getFlashText() {

@@ -147,7 +147,7 @@ define("model/playerBullets", ["require", "exports", "model/projectile", "servic
             _this.X = x;
             _this.Y = y;
             _this.Speed = speed;
-            _this.sprite.src = asset_manager_1.ASSETS.PREPEND + "drone-images/bullet1.png";
+            _this.sprite.src = asset_manager_1.ASSETS.PREPEND + "drone-images/player-bullet.png";
             return _this;
         }
         PlayerBullets.prototype.powerUpCycle = function () {
@@ -164,12 +164,15 @@ define("model/player", ["require", "exports", "model/user", "model/playerBullets
     var Player = /** @class */ (function (_super) {
         __extends(Player, _super);
         function Player() {
-            var _this = _super.call(this, 'fff', 90, 40, 200, 200) || this;
-            _this.shieldSpriteNum = 1;
+            var _this = _super.call(this, 'fff', 117, 53, 200, 200) || this;
             _this.shieldTick = 10;
             _this.playerVelocity = 250;
             _this.maxHealth = 60;
-            _this.baseSprite = asset_manager_2.ASSETS.PREPEND + "drone-images/playerShip1.png";
+            _this.baseSprite = asset_manager_2.ASSETS.PREPEND + "drone-images/playerShip.png";
+            _this.shieldSprite = asset_manager_2.ASSETS.PREPEND + "drone-images/playerShip-shield-loop.png";
+            _this.shieldSpriteNum = 0;
+            _this.shieldInstanceLocation = [0, 117, 234, 351, 468]; //starting X value location of each image to show
+            _this.shieldPointer = 0;
             _this.health = 50;
             _this.hasSprayPowerUp = false;
             _this.hasShield = false;
@@ -191,7 +194,7 @@ define("model/player", ["require", "exports", "model/user", "model/playerBullets
             if (keyHandler.isRight()) {
                 this.X += this.X > canvas.canvas.width - 20 ? 0 : this.playerVelocity * dT;
             }
-            //remove shields after 1000 ticks
+            //remove shields when tick is gone
             if (this.hasShield && this.shieldTick <= 0) {
                 clearInterval(this.loopShieldSprites);
                 this.hasShield = false;
@@ -234,14 +237,15 @@ define("model/player", ["require", "exports", "model/user", "model/playerBullets
         Player.prototype.activateShield = function () {
             var _this = this;
             clearInterval(this.loopShieldSprites);
+            this.sprite.src = this.shieldSprite;
             this.shieldTick = 10;
             this.hasShield = true;
             this.loopShieldSprites = setInterval(function () {
-                _this.shieldSpriteNum++;
-                if (_this.shieldSpriteNum === 6) {
-                    _this.shieldSpriteNum = 1;
+                if (_this.shieldPointer === _this.shieldInstanceLocation.length - 1) {
+                    _this.shieldPointer = 0;
                 }
-                _this.sprite.src = asset_manager_2.ASSETS.PREPEND + "drone-images/playerShip-shield-" + _this.shieldSpriteNum + ".png";
+                _this.shieldSpriteNum = _this.shieldInstanceLocation[_this.shieldPointer];
+                _this.shieldPointer++;
             }, 80);
         };
         /** Lose all powerups */
@@ -251,7 +255,12 @@ define("model/player", ["require", "exports", "model/user", "model/playerBullets
             this.hasRoFpowerUp = false;
         };
         Player.prototype.draw = function (canvas) {
-            canvas.drawImage(this.sprite, this.X, this.Y, this.Width, this.Height);
+            if (!this.hasShield) {
+                canvas.drawImage(this.sprite, this.X, this.Y, this.Width, this.Height);
+            }
+            else {
+                canvas.drawImage(this.sprite, this.shieldSpriteNum, 0, this.Width, this.Height, this.X, this.Y, this.Width, this.Height);
+            }
         };
         return Player;
     }(user_1.User));
@@ -271,7 +280,7 @@ define("model/enemy-drones", ["require", "exports", "model/projectile", "service
             _this.Height = 30;
             _this.age = Math.floor(Math.random() * 128);
             _this.hasBeenShot = false;
-            _this.sprite.src = asset_manager_3.ASSETS.PREPEND + "drone-images/alienship1.png";
+            _this.sprite.src = asset_manager_3.ASSETS.PREPEND + "drone-images/alienship.png";
             return _this;
         }
         //override projectile
@@ -288,7 +297,7 @@ define("model/enemy-drones", ["require", "exports", "model/projectile", "service
         Enemy.prototype.explode = function () {
             var _this = this;
             this.hasBeenShot = true;
-            this.sprite.src = asset_manager_3.ASSETS.PREPEND + "drone-images/explode2.png";
+            this.sprite.src = asset_manager_3.ASSETS.PREPEND + "drone-images/explode-red.png";
             setTimeout(function () {
                 _this.active = false;
             }, 250);
@@ -324,9 +333,6 @@ define("model/powerups", ["require", "exports", "model/user", "services/asset-ma
                 this.Y >= 0 && this.Y <= canvas.canvas.height;
         };
         Powerup.prototype.getNewType = function () {
-            //testing shield
-            // this.sprite.src = ASSETS.PREPEND + "drone-images/powerup-shield.png";
-            // this.type = PowerUpType.Shield;
             var rand = Math.random() * 100;
             if (rand >= 0 && rand < 20) {
                 this.sprite.src = asset_manager_4.ASSETS.PREPEND + "drone-images/powerup-spray.png";
@@ -348,6 +354,9 @@ define("model/powerups", ["require", "exports", "model/user", "services/asset-ma
                 this.sprite.src = asset_manager_4.ASSETS.PREPEND + "drone-images/powerup-rOf.png";
                 this.type = PowerUpType.RoF;
             }
+            //testing shield
+            // this.sprite.src = ASSETS.PREPEND + "drone-images/powerup-shield.png";
+            // this.type = PowerUpType.Shield;
         };
         Powerup.prototype.getFlashText = function () {
             switch (this.showType) {
@@ -396,9 +405,9 @@ define("model/missile", ["require", "exports", "model/user", "services/asset-man
             _this.missileVelocity = 450;
             _this.defaultExplosionVelocity = 100;
             _this.explodingMissile = false;
-            _this.defaultSprite = asset_manager_5.ASSETS.PREPEND + "drone-images/missile1.png";
-            _this.powerupSprite = asset_manager_5.ASSETS.PREPEND + "drone-images/missile1-powerup.png";
-            _this.explodingSprite = asset_manager_5.ASSETS.PREPEND + "drone-images/explode3.png";
+            _this.defaultSprite = asset_manager_5.ASSETS.PREPEND + "drone-images/missile-weak.png";
+            _this.powerupSprite = asset_manager_5.ASSETS.PREPEND + "drone-images/missile-powerup.png";
+            _this.explodingSprite = asset_manager_5.ASSETS.PREPEND + "drone-images/explode-red.png";
             _this.needMissile = false;
             _this.sprite.src = hasExplosionVelocity ? _this.powerupSprite : _this.defaultSprite;
             _this.explosionVelocity = hasExplosionVelocity ? 400 : _this.defaultExplosionVelocity;
@@ -444,7 +453,7 @@ define("model/enemyBullets", ["require", "exports", "model/projectile", "service
             _this.X = x;
             _this.Y = y;
             _this.Speed = speed;
-            _this.sprite.src = asset_manager_6.ASSETS.PREPEND + "drone-images/bossBullet1.png";
+            _this.sprite.src = asset_manager_6.ASSETS.PREPEND + "drone-images/bossBullet.png";
             return _this;
         }
         EnemyBullet.prototype.powerUpCycle = function () {
@@ -464,7 +473,7 @@ define("model/boss.drones", ["require", "exports", "model/user", "model/enemyBul
             var _this = _super.call(this, 'fff', 200, 100, 0, 300) || this;
             _this.active = false;
             _this.bossVelocity = 80;
-            _this.defaultSprite = asset_manager_7.ASSETS.PREPEND + "drone-images/boss1.png";
+            _this.defaultSprite = asset_manager_7.ASSETS.PREPEND + "drone-images/boss.png";
             _this.health = 100;
             _this.sprite.src = _this.defaultSprite;
             return _this;
@@ -500,7 +509,7 @@ define("model/boss.drones", ["require", "exports", "model/user", "model/enemyBul
             var _this = this;
             this.active = false;
             this.explodingBoss = true;
-            this.sprite.src = asset_manager_7.ASSETS.PREPEND + "drone-images/explode3.png";
+            this.sprite.src = asset_manager_7.ASSETS.PREPEND + "drone-images/explode-yellow.png";
             setTimeout(function () {
                 _this.explodingBoss = false;
                 _this.sprite.src = _this.defaultSprite;

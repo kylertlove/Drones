@@ -8,7 +8,7 @@ export class Boss extends User {
     active: Boolean = false;
     explodingBoss: Boolean;
     bossVelocity: number = 80;
-    defaultSprite: string = ASSETS.PREPEND + "drone-images/boss1.png";
+    defaultSprite: string = ASSETS.PREPEND + "drone-images/boss.png";
 
     constructor() {
         super('fff', 200, 100, 0, 300);
@@ -51,7 +51,7 @@ export class Boss extends User {
     destroy(canvas: CanvasRenderingContext2D) {
         this.active = false;
         this.explodingBoss = true;
-        this.sprite.src = ASSETS.PREPEND + "drone-images/explode3.png";
+        this.sprite.src = ASSETS.PREPEND + "drone-images/explode-yellow.png";
         setTimeout(() => {         
             this.explodingBoss = false;
             this.sprite.src = this.defaultSprite;

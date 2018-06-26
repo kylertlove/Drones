@@ -11,7 +11,7 @@ export class EnemyBullet extends Projectile {
         this.X = x;
         this.Y = y;
         this.Speed = speed;
-        this.sprite.src = ASSETS.PREPEND + "drone-images/bossBullet1.png";
+        this.sprite.src = ASSETS.PREPEND + "drone-images/bossBullet.png";
     }
 
     powerUpCycle() {

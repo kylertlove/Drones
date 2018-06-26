@@ -1,4 +1,3 @@
-import { Entity } from './entity';
 import { User } from './user';
 import { KeyDown } from '../services/key-status';
 import { PlayerBullets } from "./playerBullets";
@@ -8,17 +7,20 @@ export class Player extends User {
 
     hasSprayPowerUp: Boolean;
     hasShield:Boolean;
-    shieldSpriteNum:number = 1;
     shieldTick:number = 10;
     hasExplosionVelocity: Boolean;
     hasRoFpowerUp: Boolean;
     playerVelocity: number = 250;
     maxHealth: number = 60;
-    loopShieldSprites: any;
-    baseSprite = ASSETS.PREPEND + "drone-images/playerShip1.png";
+    baseSprite = ASSETS.PREPEND + "drone-images/playerShip.png";
+    shieldSprite = ASSETS.PREPEND + "drone-images/playerShip-shield-loop.png";
+    loopShieldSprites:any;
+    shieldSpriteNum:number = 0;
+    shieldInstanceLocation = [0,117,234,351,468]; //starting X value location of each image to show
+    shieldPointer = 0;
 
     constructor() {
-        super('fff', 90, 40, 200, 200);
+        super('fff', 117, 53, 200, 200);
         this.health = 50;
         this.hasSprayPowerUp = false;
         this.hasShield = false;
@@ -41,7 +43,7 @@ export class Player extends User {
             this.X += this.X > canvas.canvas.width - 20 ? 0 : this.playerVelocity * dT;
           }
 
-          //remove shields after 1000 ticks
+          //remove shields when tick is gone
           if(this.hasShield && this.shieldTick <= 0) {
             clearInterval(this.loopShieldSprites);
             this.hasShield = false;
@@ -77,6 +79,7 @@ export class Player extends User {
             this.shieldTick--;
         }
     }
+    
     /** Call to add Health to the player */
     addHealth(amount: number){
         this.health += amount;
@@ -88,14 +91,15 @@ export class Player extends User {
     /** Activate Shield Boost */
     activateShield() {
         clearInterval(this.loopShieldSprites);
+        this.sprite.src = this.shieldSprite;
         this.shieldTick = 10;
         this.hasShield = true;
         this.loopShieldSprites = setInterval( () => {
-            this.shieldSpriteNum++;
-            if(this.shieldSpriteNum === 6){
-                this.shieldSpriteNum = 1;
+            if(this.shieldPointer === this.shieldInstanceLocation.length - 1){
+                this.shieldPointer = 0;
             }
-            this.sprite.src = `${ASSETS.PREPEND}drone-images/playerShip-shield-${this.shieldSpriteNum}.png`;
+            this.shieldSpriteNum = this.shieldInstanceLocation[this.shieldPointer];
+            this.shieldPointer++;
         }, 80);
     }
 
@@ -107,6 +111,10 @@ export class Player extends User {
     }
 
     draw(canvas: CanvasRenderingContext2D) {
-        canvas.drawImage(this.sprite, this.X, this.Y, this.Width, this.Height);
+        if(!this.hasShield){
+            canvas.drawImage(this.sprite, this.X, this.Y, this.Width, this.Height);
+        } else {
+            canvas.drawImage(this.sprite, this.shieldSpriteNum, 0, this.Width, this.Height, this.X, this.Y, this.Width, this.Height);
+        }
     }
 }

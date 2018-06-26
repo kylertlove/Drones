@@ -9,9 +9,9 @@ export class Missile extends User {
     defaultExplosionVelocity: number = 100;
     explodingMissile: Boolean = false;
     needMissile: Boolean;
-    defaultSprite = ASSETS.PREPEND + "drone-images/missile1.png";
-    powerupSprite = ASSETS.PREPEND + "drone-images/missile1-powerup.png";
-    explodingSprite = ASSETS.PREPEND + "drone-images/explode3.png";
+    defaultSprite = ASSETS.PREPEND + "drone-images/missile-weak.png";
+    powerupSprite = ASSETS.PREPEND + "drone-images/missile-powerup.png";
+    explodingSprite = ASSETS.PREPEND + "drone-images/explode-red.png";
     explosionVelocity: number;
 
     constructor(hasExplosionVelocity: Boolean){

@@ -11,7 +11,7 @@ export class PlayerBullets extends Projectile {
         this.X = x;
         this.Y = y;
         this.Speed = speed;
-        this.sprite.src = ASSETS.PREPEND + "drone-images/bullet1.png";
+        this.sprite.src = ASSETS.PREPEND + "drone-images/player-bullet.png";
     }
 
     powerUpCycle() {

@@ -16,7 +16,7 @@ export class Enemy extends Projectile {
         this.Height = 30;
         this.age = Math.floor(Math.random() * 128);
         this.hasBeenShot = false;
-        this.sprite.src = ASSETS.PREPEND + "drone-images/alienship1.png";
+        this.sprite.src = ASSETS.PREPEND + "drone-images/alienship.png";
     }
 
     //override projectile
@@ -32,7 +32,7 @@ export class Enemy extends Projectile {
 
     explode() {
         this.hasBeenShot = true;
-        this.sprite.src = ASSETS.PREPEND + "drone-images/explode2.png";
+        this.sprite.src = ASSETS.PREPEND + "drone-images/explode-red.png";
         setTimeout(() => {         
             this.active = false;
         }, 250);
