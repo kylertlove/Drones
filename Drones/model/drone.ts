@@ -1,8 +1,8 @@
 import { Projectile } from "./projectile";
 import { KeyDown } from "../services/key-status";
-import { ASSETS } from "../services/asset-manager";
+import { ASSETS } from "../services/enum-manager";
 
-export class Enemy extends Projectile {
+export class Drone extends Projectile {
 
     age: number;
     hasBeenShot: Boolean;

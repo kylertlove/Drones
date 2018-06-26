@@ -1,6 +1,6 @@
 import { User } from "./user";
 import { KeyDown } from "../services/key-status";
-import { ASSETS } from "../services/asset-manager";
+import { ASSETS } from "../services/enum-manager";
 
 export class Missile extends User {
 

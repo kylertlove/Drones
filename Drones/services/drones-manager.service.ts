@@ -1,14 +1,15 @@
 import { Player } from '../model/player';
 import { KeyDown } from '../services/key-status';
 import { PlayerBullets } from "../model/playerBullets";
-import { Enemy } from "../model/enemy-drones";
+import { Drone } from "../model/drone";
 import { Entity } from "../model/entity";
-import { Powerup, PowerUpType } from "../model/powerups";
+import { Powerup } from "../model/powerups";
 import { Missile } from "../model/missile";
 import { Boss } from "../model/boss.drones";
 import { EnemyBullet } from "../model/enemyBullets";
 import { Hud } from "../model/hud";
-import { AudioService } from '../services/audio.service';
+import { AudioService } from 'audio.service';
+import { PowerUpType, DifficultyLevel } from 'enum-manager';
 
 export class DronesManagerService {
 
@@ -21,11 +22,10 @@ export class DronesManagerService {
   powerUp: Powerup;
   playerMissile: Missile;
   playerBullets: PlayerBullets[];
-  enemyFleet: Enemy[];
+  enemyFleet: Drone[];
   boss: Boss;
   enemyBullets: EnemyBullet[];
-  //easy: .04, Medium: .07,hard: .13
-  GAME_DIFFICULTY; // 20/200: .067
+  GAME_DIFFICULTY; 
   GameOver: Boolean;
   hud: Hud;
   KILLS: number;
@@ -44,7 +44,7 @@ export class DronesManagerService {
     this.playerBullets = [];
     this.enemyFleet = [];
     this.enemyBullets = [];
-    this.GAME_DIFFICULTY = .04; //TODO: make enum
+    this.GAME_DIFFICULTY = DifficultyLevel.WUT;
     this.GameOver = false;
     this.KILLS = 0;
   }
@@ -166,7 +166,7 @@ export class DronesManagerService {
     //add enemies
     if (Math.random() < this.GAME_DIFFICULTY + .02) {
       this.enemyFleet.push(
-        new Enemy(200, canvas.canvas.width - 30,
+        new Drone(200, canvas.canvas.width - 30,
           (canvas.canvas.width / 12 + Math.random() * canvas.canvas.width / 3))
       );
     }
@@ -207,7 +207,7 @@ export class DronesManagerService {
     if (!this.boss.active) {
       if (this.KILLS % 273 === 0 && this.KILLS !== 0) {
         this.boss.active = true;
-        this.boss.health = 500;
+        this.boss.health = 300 + (1000 * this.GAME_DIFFICULTY);
         this.boss.X = canvas.canvas.width - 300;
         this.boss.Y = canvas.canvas.height / 2;
       }
@@ -314,15 +314,6 @@ export class DronesManagerService {
     });
     if (this.playerMissile.needMissile) {
       this.playerMissile = new Missile(this.player.hasExplosionVelocity);
-    }
-
-    if (this.KILLS > 100 && this.GAME_DIFFICULTY !== .07) {
-      this.GAME_DIFFICULTY = .07;
-      this.hud.showLevelText = "Level 2";
-    }
-    if (this.KILLS > 500 && this.GAME_DIFFICULTY !== .13) {
-      this.GAME_DIFFICULTY = .13;
-      this.hud.showLevelText = "Level 3";
     }
   }
 

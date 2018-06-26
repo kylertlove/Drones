@@ -1,6 +1,6 @@
 import { User } from "./user";
 import { KeyDown } from "../services/key-status";
-import { ASSETS } from "../services/asset-manager";
+import { ASSETS, PowerUpType } from "../services/enum-manager";
 
 export class Powerup extends User {
 
@@ -79,8 +79,4 @@ export class Powerup extends User {
             this.showText = false;
         }, 2000);
     }
-}
-
-export enum PowerUpType {
-    Spray, Health, explosionVelocity, RoF, Shield
 }

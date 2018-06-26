@@ -1,4 +1,4 @@
-import { ASSETS } from "./asset-manager";
+import { ASSETS } from "./enum-manager";
 
 //import {BehaviorSubject} from "../../node_modules/rxjs/BehaviorSubject";
 

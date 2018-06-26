@@ -1,6 +1,6 @@
 import { Player } from "./player";
 import { Entity } from "./entity";
-import { ASSETS } from "../services/asset-manager";
+import { ASSETS } from "../services/enum-manager";
 import { CanvasShape, CanvasText } from "./CanvasMenuObjects";
 import { DronesCanvas } from "../DronesCanvas";
 
@@ -18,6 +18,7 @@ export class Hud {
     this.volumeImageObj.src = this.volOn;
     this.nextImageObj = new Image(25, 25);
     this.nextImageObj.src = ASSETS.PREPEND + "drone-images/volumeNext.jpg";
+    this.initStyles();
     this.createGUI();
   }
 
@@ -133,6 +134,18 @@ export class Hud {
     pauseText.innerText = "PAUSED";
     pauseText.setAttribute('style', 'color:lime;font:40px Verdana;');
     this.guiBox.insertAdjacentElement("afterbegin", pauseText);
+    pauseText.insertAdjacentHTML('afterend',
+          `
+          <br/>
+          <label style="color:lime;font:30px Verdana;">Difficulty Level</label>
+          <br/>
+          <div class="btn-group">
+          <button onclick="changeDifficulty(0);">EASY</button>
+          <button onclick="changeDifficulty(1);">MED</button>
+          <button onclick="changeDifficulty(2);">HARD</button>
+          <button onclick="changeDifficulty(3);">WUT</button>
+          </div>
+          `);
   }
 
   /**
@@ -195,6 +208,11 @@ export class Hud {
       return 'color:black;font:20px Verdana;font-weight: 700;background-color:lime;border:2px solid lime;width:15%;height:50px;transition:.6s;cursor:pointer;box-shadow:0 0 25px lime;border-radius: 12px;';
     }
     return 'color:lime;font:20px Verdana;font-weight: 700;background-color:black;border:2px solid lime;width:15%;height:50px;transition:.3s;cursor:pointer;box-shadow:0 0 15px lime;border-radius: 12px;';
+  }
+
+
+  initStyles() {
+    let styleItem
   }
 }
 

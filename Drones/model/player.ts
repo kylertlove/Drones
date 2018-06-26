@@ -1,7 +1,7 @@
 import { User } from './user';
 import { KeyDown } from '../services/key-status';
 import { PlayerBullets } from "./playerBullets";
-import { ASSETS } from "../services/asset-manager";
+import { ASSETS } from "../services/enum-manager";
 
 export class Player extends User {
 

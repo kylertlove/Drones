@@ -128,15 +128,30 @@ define("model/projectile", ["require", "exports"], function (require, exports) {
     }());
     exports.Projectile = Projectile;
 });
-define("services/asset-manager", ["require", "exports"], function (require, exports) {
+define("services/enum-manager", ["require", "exports"], function (require, exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var ASSETS;
     (function (ASSETS) {
         ASSETS["PREPEND"] = "./assets/";
     })(ASSETS = exports.ASSETS || (exports.ASSETS = {}));
+    var PowerUpType;
+    (function (PowerUpType) {
+        PowerUpType[PowerUpType["Spray"] = 0] = "Spray";
+        PowerUpType[PowerUpType["Health"] = 1] = "Health";
+        PowerUpType[PowerUpType["explosionVelocity"] = 2] = "explosionVelocity";
+        PowerUpType[PowerUpType["RoF"] = 3] = "RoF";
+        PowerUpType[PowerUpType["Shield"] = 4] = "Shield";
+    })(PowerUpType = exports.PowerUpType || (exports.PowerUpType = {}));
+    var DifficultyLevel;
+    (function (DifficultyLevel) {
+        DifficultyLevel[DifficultyLevel["EASYPEASY"] = 0.04] = "EASYPEASY";
+        DifficultyLevel[DifficultyLevel["NORMAL"] = 0.07] = "NORMAL";
+        DifficultyLevel[DifficultyLevel["HARD"] = 0.13] = "HARD";
+        DifficultyLevel[DifficultyLevel["WUT"] = 0.2] = "WUT";
+    })(DifficultyLevel = exports.DifficultyLevel || (exports.DifficultyLevel = {}));
 });
-define("model/playerBullets", ["require", "exports", "model/projectile", "services/asset-manager"], function (require, exports, projectile_1, asset_manager_1) {
+define("model/playerBullets", ["require", "exports", "model/projectile", "services/enum-manager"], function (require, exports, projectile_1, enum_manager_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var PlayerBullets = /** @class */ (function (_super) {
@@ -147,7 +162,7 @@ define("model/playerBullets", ["require", "exports", "model/projectile", "servic
             _this.X = x;
             _this.Y = y;
             _this.Speed = speed;
-            _this.sprite.src = asset_manager_1.ASSETS.PREPEND + "drone-images/player-bullet.png";
+            _this.sprite.src = enum_manager_1.ASSETS.PREPEND + "drone-images/player-bullet.png";
             return _this;
         }
         PlayerBullets.prototype.powerUpCycle = function () {
@@ -158,7 +173,7 @@ define("model/playerBullets", ["require", "exports", "model/projectile", "servic
     }(projectile_1.Projectile));
     exports.PlayerBullets = PlayerBullets;
 });
-define("model/player", ["require", "exports", "model/user", "model/playerBullets", "services/asset-manager"], function (require, exports, user_1, playerBullets_1, asset_manager_2) {
+define("model/player", ["require", "exports", "model/user", "model/playerBullets", "services/enum-manager"], function (require, exports, user_1, playerBullets_1, enum_manager_2) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var Player = /** @class */ (function (_super) {
@@ -168,8 +183,8 @@ define("model/player", ["require", "exports", "model/user", "model/playerBullets
             _this.shieldTick = 10;
             _this.playerVelocity = 250;
             _this.maxHealth = 60;
-            _this.baseSprite = asset_manager_2.ASSETS.PREPEND + "drone-images/playerShip.png";
-            _this.shieldSprite = asset_manager_2.ASSETS.PREPEND + "drone-images/playerShip-shield-loop.png";
+            _this.baseSprite = enum_manager_2.ASSETS.PREPEND + "drone-images/playerShip.png";
+            _this.shieldSprite = enum_manager_2.ASSETS.PREPEND + "drone-images/playerShip-shield-loop.png";
             _this.shieldSpriteNum = 0;
             _this.shieldInstanceLocation = [0, 117, 234, 351, 468]; //starting X value location of each image to show
             _this.shieldPointer = 0;
@@ -266,12 +281,12 @@ define("model/player", ["require", "exports", "model/user", "model/playerBullets
     }(user_1.User));
     exports.Player = Player;
 });
-define("model/enemy-drones", ["require", "exports", "model/projectile", "services/asset-manager"], function (require, exports, projectile_2, asset_manager_3) {
+define("model/drone", ["require", "exports", "model/projectile", "services/enum-manager"], function (require, exports, projectile_2, enum_manager_3) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
-    var Enemy = /** @class */ (function (_super) {
-        __extends(Enemy, _super);
-        function Enemy(speed, x, y) {
+    var Drone = /** @class */ (function (_super) {
+        __extends(Drone, _super);
+        function Drone(speed, x, y) {
             var _this = _super.call(this) || this;
             _this.X = x;
             _this.Y = y;
@@ -280,11 +295,11 @@ define("model/enemy-drones", ["require", "exports", "model/projectile", "service
             _this.Height = 30;
             _this.age = Math.floor(Math.random() * 128);
             _this.hasBeenShot = false;
-            _this.sprite.src = asset_manager_3.ASSETS.PREPEND + "drone-images/alienship.png";
+            _this.sprite.src = enum_manager_3.ASSETS.PREPEND + "drone-images/alienship.png";
             return _this;
         }
         //override projectile
-        Enemy.prototype.update = function (canvas, keyHandler, dT) {
+        Drone.prototype.update = function (canvas, keyHandler, dT) {
             if (!this.inBounds(canvas)) {
                 this.active = false;
             }
@@ -294,20 +309,20 @@ define("model/enemy-drones", ["require", "exports", "model/projectile", "service
                 this.age++;
             }
         };
-        Enemy.prototype.explode = function () {
+        Drone.prototype.explode = function () {
             var _this = this;
             this.hasBeenShot = true;
-            this.sprite.src = asset_manager_3.ASSETS.PREPEND + "drone-images/explode-red.png";
+            this.sprite.src = enum_manager_3.ASSETS.PREPEND + "drone-images/explode-red.png";
             setTimeout(function () {
                 _this.active = false;
             }, 250);
         };
         ;
-        return Enemy;
+        return Drone;
     }(projectile_2.Projectile));
-    exports.Enemy = Enemy;
+    exports.Drone = Drone;
 });
-define("model/powerups", ["require", "exports", "model/user", "services/asset-manager"], function (require, exports, user_2, asset_manager_4) {
+define("model/powerups", ["require", "exports", "model/user", "services/enum-manager"], function (require, exports, user_2, enum_manager_4) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var Powerup = /** @class */ (function (_super) {
@@ -335,24 +350,24 @@ define("model/powerups", ["require", "exports", "model/user", "services/asset-ma
         Powerup.prototype.getNewType = function () {
             var rand = Math.random() * 100;
             if (rand >= 0 && rand < 20) {
-                this.sprite.src = asset_manager_4.ASSETS.PREPEND + "drone-images/powerup-spray.png";
-                this.type = PowerUpType.Spray;
+                this.sprite.src = enum_manager_4.ASSETS.PREPEND + "drone-images/powerup-spray.png";
+                this.type = enum_manager_4.PowerUpType.Spray;
             }
             else if (rand >= 20 && rand < 40) {
-                this.sprite.src = asset_manager_4.ASSETS.PREPEND + "drone-images/powerup-health.png";
-                this.type = PowerUpType.Health;
+                this.sprite.src = enum_manager_4.ASSETS.PREPEND + "drone-images/powerup-health.png";
+                this.type = enum_manager_4.PowerUpType.Health;
             }
             else if (rand >= 40 && rand < 60) {
-                this.sprite.src = asset_manager_4.ASSETS.PREPEND + "drone-images/powerup-explosionVelocity.png";
-                this.type = PowerUpType.explosionVelocity;
+                this.sprite.src = enum_manager_4.ASSETS.PREPEND + "drone-images/powerup-explosionVelocity.png";
+                this.type = enum_manager_4.PowerUpType.explosionVelocity;
             }
             else if (rand >= 60 && rand < 80) {
-                this.sprite.src = asset_manager_4.ASSETS.PREPEND + "drone-images/powerup-shield.png";
-                this.type = PowerUpType.Shield;
+                this.sprite.src = enum_manager_4.ASSETS.PREPEND + "drone-images/powerup-shield.png";
+                this.type = enum_manager_4.PowerUpType.Shield;
             }
             else if (rand >= 80) {
-                this.sprite.src = asset_manager_4.ASSETS.PREPEND + "drone-images/powerup-rOf.png";
-                this.type = PowerUpType.RoF;
+                this.sprite.src = enum_manager_4.ASSETS.PREPEND + "drone-images/powerup-rOf.png";
+                this.type = enum_manager_4.PowerUpType.RoF;
             }
             //testing shield
             // this.sprite.src = ASSETS.PREPEND + "drone-images/powerup-shield.png";
@@ -360,15 +375,15 @@ define("model/powerups", ["require", "exports", "model/user", "services/asset-ma
         };
         Powerup.prototype.getFlashText = function () {
             switch (this.showType) {
-                case PowerUpType.Spray:
+                case enum_manager_4.PowerUpType.Spray:
                     return "Main Weapon Upgrade!";
-                case PowerUpType.Health:
+                case enum_manager_4.PowerUpType.Health:
                     return "+10 Health!";
-                case PowerUpType.explosionVelocity:
+                case enum_manager_4.PowerUpType.explosionVelocity:
                     return "Increase Missile Damage";
-                case PowerUpType.RoF:
+                case enum_manager_4.PowerUpType.RoF:
                     return "Rate of Fire Increase";
-                case PowerUpType.Shield:
+                case enum_manager_4.PowerUpType.Shield:
                     return "Shields!";
                 default:
                     return "";
@@ -385,16 +400,8 @@ define("model/powerups", ["require", "exports", "model/user", "services/asset-ma
         return Powerup;
     }(user_2.User));
     exports.Powerup = Powerup;
-    var PowerUpType;
-    (function (PowerUpType) {
-        PowerUpType[PowerUpType["Spray"] = 0] = "Spray";
-        PowerUpType[PowerUpType["Health"] = 1] = "Health";
-        PowerUpType[PowerUpType["explosionVelocity"] = 2] = "explosionVelocity";
-        PowerUpType[PowerUpType["RoF"] = 3] = "RoF";
-        PowerUpType[PowerUpType["Shield"] = 4] = "Shield";
-    })(PowerUpType = exports.PowerUpType || (exports.PowerUpType = {}));
 });
-define("model/missile", ["require", "exports", "model/user", "services/asset-manager"], function (require, exports, user_3, asset_manager_5) {
+define("model/missile", ["require", "exports", "model/user", "services/enum-manager"], function (require, exports, user_3, enum_manager_5) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var Missile = /** @class */ (function (_super) {
@@ -405,9 +412,9 @@ define("model/missile", ["require", "exports", "model/user", "services/asset-man
             _this.missileVelocity = 450;
             _this.defaultExplosionVelocity = 100;
             _this.explodingMissile = false;
-            _this.defaultSprite = asset_manager_5.ASSETS.PREPEND + "drone-images/missile-weak.png";
-            _this.powerupSprite = asset_manager_5.ASSETS.PREPEND + "drone-images/missile-powerup.png";
-            _this.explodingSprite = asset_manager_5.ASSETS.PREPEND + "drone-images/explode-red.png";
+            _this.defaultSprite = enum_manager_5.ASSETS.PREPEND + "drone-images/missile-weak.png";
+            _this.powerupSprite = enum_manager_5.ASSETS.PREPEND + "drone-images/missile-powerup.png";
+            _this.explodingSprite = enum_manager_5.ASSETS.PREPEND + "drone-images/explode-red.png";
             _this.needMissile = false;
             _this.sprite.src = hasExplosionVelocity ? _this.powerupSprite : _this.defaultSprite;
             _this.explosionVelocity = hasExplosionVelocity ? 400 : _this.defaultExplosionVelocity;
@@ -442,7 +449,7 @@ define("model/missile", ["require", "exports", "model/user", "services/asset-man
     }(user_3.User));
     exports.Missile = Missile;
 });
-define("model/enemyBullets", ["require", "exports", "model/projectile", "services/asset-manager"], function (require, exports, projectile_3, asset_manager_6) {
+define("model/enemyBullets", ["require", "exports", "model/projectile", "services/enum-manager"], function (require, exports, projectile_3, enum_manager_6) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var EnemyBullet = /** @class */ (function (_super) {
@@ -453,7 +460,7 @@ define("model/enemyBullets", ["require", "exports", "model/projectile", "service
             _this.X = x;
             _this.Y = y;
             _this.Speed = speed;
-            _this.sprite.src = asset_manager_6.ASSETS.PREPEND + "drone-images/bossBullet.png";
+            _this.sprite.src = enum_manager_6.ASSETS.PREPEND + "drone-images/bossBullet.png";
             return _this;
         }
         EnemyBullet.prototype.powerUpCycle = function () {
@@ -464,7 +471,7 @@ define("model/enemyBullets", ["require", "exports", "model/projectile", "service
     }(projectile_3.Projectile));
     exports.EnemyBullet = EnemyBullet;
 });
-define("model/boss.drones", ["require", "exports", "model/user", "model/enemyBullets", "services/asset-manager"], function (require, exports, user_4, enemyBullets_1, asset_manager_7) {
+define("model/boss.drones", ["require", "exports", "model/user", "model/enemyBullets", "services/enum-manager"], function (require, exports, user_4, enemyBullets_1, enum_manager_7) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var Boss = /** @class */ (function (_super) {
@@ -473,7 +480,7 @@ define("model/boss.drones", ["require", "exports", "model/user", "model/enemyBul
             var _this = _super.call(this, 'fff', 200, 100, 0, 300) || this;
             _this.active = false;
             _this.bossVelocity = 80;
-            _this.defaultSprite = asset_manager_7.ASSETS.PREPEND + "drone-images/boss.png";
+            _this.defaultSprite = enum_manager_7.ASSETS.PREPEND + "drone-images/boss.png";
             _this.health = 100;
             _this.sprite.src = _this.defaultSprite;
             return _this;
@@ -509,7 +516,7 @@ define("model/boss.drones", ["require", "exports", "model/user", "model/enemyBul
             var _this = this;
             this.active = false;
             this.explodingBoss = true;
-            this.sprite.src = asset_manager_7.ASSETS.PREPEND + "drone-images/explode-yellow.png";
+            this.sprite.src = enum_manager_7.ASSETS.PREPEND + "drone-images/explode-yellow.png";
             setTimeout(function () {
                 _this.explodingBoss = false;
                 _this.sprite.src = _this.defaultSprite;
@@ -566,19 +573,19 @@ define("model/CanvasMenuObjects", ["require", "exports"], function (require, exp
     }());
     exports.CanvasText = CanvasText;
 });
-define("model/hud", ["require", "exports", "services/asset-manager", "model/CanvasMenuObjects"], function (require, exports, asset_manager_8, CanvasMenuObjects_1) {
+define("model/hud", ["require", "exports", "services/enum-manager", "model/CanvasMenuObjects"], function (require, exports, enum_manager_8, CanvasMenuObjects_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var Hud = /** @class */ (function () {
         function Hud() {
             this.showLevelText = "Level 1";
-            this.volOn = asset_manager_8.ASSETS.PREPEND + "drone-images/volume.png";
-            this.volPaused = asset_manager_8.ASSETS.PREPEND + "drone-images/volume-pause.png";
+            this.volOn = enum_manager_8.ASSETS.PREPEND + "drone-images/volume.png";
+            this.volPaused = enum_manager_8.ASSETS.PREPEND + "drone-images/volume-pause.png";
             this.textColor = "lime";
             this.volumeImageObj = new Image(25, 25);
             this.volumeImageObj.src = this.volOn;
             this.nextImageObj = new Image(25, 25);
-            this.nextImageObj.src = asset_manager_8.ASSETS.PREPEND + "drone-images/volumeNext.jpg";
+            this.nextImageObj.src = enum_manager_8.ASSETS.PREPEND + "drone-images/volumeNext.jpg";
             this.createGUI();
         }
         Hud.prototype.displayText = function (canvas, text) {
@@ -756,7 +763,7 @@ define("model/hud", ["require", "exports", "services/asset-manager", "model/Canv
         SCREEN_ACTIONS[SCREEN_ACTIONS["GAME_OVER"] = 2] = "GAME_OVER";
     })(SCREEN_ACTIONS = exports.SCREEN_ACTIONS || (exports.SCREEN_ACTIONS = {}));
 });
-define("services/audio.service", ["require", "exports", "services/asset-manager"], function (require, exports, asset_manager_9) {
+define("services/audio.service", ["require", "exports", "services/enum-manager"], function (require, exports, enum_manager_9) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     //import {BehaviorSubject} from "../../node_modules/rxjs/BehaviorSubject";
@@ -766,9 +773,9 @@ define("services/audio.service", ["require", "exports", "services/asset-manager"
             this.song = 0;
             this.musicVolume = .3;
             this.playlist = [
-                asset_manager_9.ASSETS.PREPEND + "sounds/PatrickLieberkind-1.wav",
-                asset_manager_9.ASSETS.PREPEND + "sounds/PatrickLieberkind-2.wav",
-                asset_manager_9.ASSETS.PREPEND + "sounds/PatrickLieberkind-3.wav"
+                enum_manager_9.ASSETS.PREPEND + "sounds/PatrickLieberkind-1.wav",
+                enum_manager_9.ASSETS.PREPEND + "sounds/PatrickLieberkind-2.wav",
+                enum_manager_9.ASSETS.PREPEND + "sounds/PatrickLieberkind-3.wav"
             ];
             this.audioElem = new Audio();
             this.missleElem = new Audio();
@@ -801,13 +808,13 @@ define("services/audio.service", ["require", "exports", "services/asset-manager"
         };
         AudioService.prototype._noiseFireMissile = function () {
             this.missleElem.pause();
-            this.missleElem.src = asset_manager_9.ASSETS.PREPEND + "sounds/fireMissle.wav";
+            this.missleElem.src = enum_manager_9.ASSETS.PREPEND + "sounds/fireMissle.wav";
             this.missleElem.volume = .3;
             this.missleElem.play();
         };
         AudioService.prototype._noiseFireZeLazor = function () {
             this.lazorElem.pause();
-            this.lazorElem.src = asset_manager_9.ASSETS.PREPEND + "sounds/laser.wav";
+            this.lazorElem.src = enum_manager_9.ASSETS.PREPEND + "sounds/laser.wav";
             this.lazorElem.volume = .02;
             this.lazorElem.play();
         };
@@ -815,7 +822,7 @@ define("services/audio.service", ["require", "exports", "services/asset-manager"
     }());
     exports.AudioService = AudioService;
 });
-define("services/drones-manager.service", ["require", "exports", "model/player", "services/key-status", "model/enemy-drones", "model/powerups", "model/missile", "model/boss.drones", "model/hud", "services/audio.service"], function (require, exports, player_1, key_status_1, enemy_drones_1, powerups_1, missile_1, boss_drones_1, hud_1, audio_service_1) {
+define("services/drones-manager.service", ["require", "exports", "model/player", "services/key-status", "model/drone", "model/powerups", "model/missile", "model/boss.drones", "model/hud", "services/audio.service", "services/enum-manager"], function (require, exports, player_1, key_status_1, drone_1, powerups_1, missile_1, boss_drones_1, hud_1, audio_service_1, enum_manager_10) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var DronesManagerService = /** @class */ (function () {
@@ -833,7 +840,7 @@ define("services/drones-manager.service", ["require", "exports", "model/player",
             this.playerBullets = [];
             this.enemyFleet = [];
             this.enemyBullets = [];
-            this.GAME_DIFFICULTY = .04; //TODO: make enum
+            this.GAME_DIFFICULTY = enum_manager_10.DifficultyLevel.WUT;
             this.GameOver = false;
             this.KILLS = 0;
         }
@@ -963,7 +970,7 @@ define("services/drones-manager.service", ["require", "exports", "model/player",
             var _this = this;
             //add enemies
             if (Math.random() < this.GAME_DIFFICULTY + .02) {
-                this.enemyFleet.push(new enemy_drones_1.Enemy(200, canvas.canvas.width - 30, (canvas.canvas.width / 12 + Math.random() * canvas.canvas.width / 3)));
+                this.enemyFleet.push(new drone_1.Drone(200, canvas.canvas.width - 30, (canvas.canvas.width / 12 + Math.random() * canvas.canvas.width / 3)));
             }
             //update enemy position
             this.enemyFleet.forEach(function (enemy) {
@@ -1050,20 +1057,20 @@ define("services/drones-manager.service", ["require", "exports", "model/player",
             //player - powerups
             if (this.powerUp.active && this.collides(this.player, this.powerUp)) {
                 switch (this.powerUp.type) {
-                    case powerups_1.PowerUpType.Spray:
+                    case enum_manager_10.PowerUpType.Spray:
                         this.player.hasSprayPowerUp = true;
                         break;
-                    case powerups_1.PowerUpType.Health:
+                    case enum_manager_10.PowerUpType.Health:
                         this.player.addHealth(10);
                         break;
-                    case powerups_1.PowerUpType.explosionVelocity:
+                    case enum_manager_10.PowerUpType.explosionVelocity:
                         this.player.hasExplosionVelocity = true;
                         this.playerMissile.explosionVelocity = 400;
                         break;
-                    case powerups_1.PowerUpType.RoF:
+                    case enum_manager_10.PowerUpType.RoF:
                         this.player.hasRoFpowerUp = true;
                         break;
-                    case powerups_1.PowerUpType.Shield:
+                    case enum_manager_10.PowerUpType.Shield:
                         this.player.activateShield();
                         break;
                 }
@@ -1112,14 +1119,6 @@ define("services/drones-manager.service", ["require", "exports", "model/player",
             });
             if (this.playerMissile.needMissile) {
                 this.playerMissile = new missile_1.Missile(this.player.hasExplosionVelocity);
-            }
-            if (this.KILLS > 100 && this.GAME_DIFFICULTY !== .07) {
-                this.GAME_DIFFICULTY = .07;
-                this.hud.showLevelText = "Level 2";
-            }
-            if (this.KILLS > 500 && this.GAME_DIFFICULTY !== .13) {
-                this.GAME_DIFFICULTY = .13;
-                this.hud.showLevelText = "Level 3";
             }
         };
         /** Collision Detection Handler */
