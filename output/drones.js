@@ -322,7 +322,27 @@ define("model/drone", ["require", "exports", "model/projectile", "services/enum-
     }(projectile_2.Projectile));
     exports.Drone = Drone;
 });
-define("model/powerups", ["require", "exports", "model/user", "services/enum-manager"], function (require, exports, user_2, enum_manager_4) {
+define("services/utilty.service", ["require", "exports"], function (require, exports) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+    /**
+     * Utility Class
+     */
+    var Utils = /** @class */ (function () {
+        function Utils() {
+        }
+        /**
+         * Takes in an array and returns a random item from it
+         * @param Array
+         */
+        Utils.prototype.getRandomItemFromList = function (list) {
+            return list[Math.floor(Math.random() * Math.floor(list.length))];
+        };
+        return Utils;
+    }());
+    exports.Utils = Utils;
+});
+define("model/powerups", ["require", "exports", "model/user", "services/enum-manager", "services/utilty.service"], function (require, exports, user_2, enum_manager_4, utilty_service_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var Powerup = /** @class */ (function (_super) {
@@ -331,7 +351,7 @@ define("model/powerups", ["require", "exports", "model/user", "services/enum-man
             var _this = _super.call(this, 'aaa', 50, 41, 0, 200) || this;
             _this.showText = false;
             _this.active = false;
-            _this.getNewType();
+            _this.getRandomPowerup(new utilty_service_1.Utils());
             return _this;
         }
         Powerup.prototype.update = function (canvas, keyHandler, dT) {
@@ -347,29 +367,11 @@ define("model/powerups", ["require", "exports", "model/user", "services/enum-man
             return this.X >= 0 && this.X <= canvas.canvas.width &&
                 this.Y >= 0 && this.Y <= canvas.canvas.height;
         };
-        Powerup.prototype.getNewType = function () {
-            var rand = Math.random() * 100;
-            if (rand >= 0 && rand < 20) {
-                this.sprite.src = enum_manager_4.ASSETS.PREPEND + "drone-images/powerup-spray.png";
-                this.type = enum_manager_4.PowerUpType.Spray;
-            }
-            else if (rand >= 20 && rand < 40) {
-                this.sprite.src = enum_manager_4.ASSETS.PREPEND + "drone-images/powerup-health.png";
-                this.type = enum_manager_4.PowerUpType.Health;
-            }
-            else if (rand >= 40 && rand < 60) {
-                this.sprite.src = enum_manager_4.ASSETS.PREPEND + "drone-images/powerup-explosionVelocity.png";
-                this.type = enum_manager_4.PowerUpType.explosionVelocity;
-            }
-            else if (rand >= 60 && rand < 80) {
-                this.sprite.src = enum_manager_4.ASSETS.PREPEND + "drone-images/powerup-shield.png";
-                this.type = enum_manager_4.PowerUpType.Shield;
-            }
-            else if (rand >= 80) {
-                this.sprite.src = enum_manager_4.ASSETS.PREPEND + "drone-images/powerup-rOf.png";
-                this.type = enum_manager_4.PowerUpType.RoF;
-            }
-            //testing shield
+        Powerup.prototype.getRandomPowerup = function (utils) {
+            var powerUp = utils.getRandomItemFromList(this.getPowerupList());
+            this.sprite.src = powerUp.sprite;
+            this.type = powerUp.type;
+            // testing shield
             // this.sprite.src = ASSETS.PREPEND + "drone-images/powerup-shield.png";
             // this.type = PowerUpType.Shield;
         };
@@ -396,6 +398,30 @@ define("model/powerups", ["require", "exports", "model/user", "services/enum-man
             setTimeout(function () {
                 _this.showText = false;
             }, 2000);
+        };
+        Powerup.prototype.getPowerupList = function () {
+            return [
+                {
+                    type: enum_manager_4.PowerUpType.explosionVelocity,
+                    sprite: enum_manager_4.ASSETS.PREPEND + "drone-images/powerup-explosionVelocity.png"
+                },
+                {
+                    type: enum_manager_4.PowerUpType.Health,
+                    sprite: enum_manager_4.ASSETS.PREPEND + "drone-images/powerup-health.png"
+                },
+                {
+                    type: enum_manager_4.PowerUpType.RoF,
+                    sprite: enum_manager_4.ASSETS.PREPEND + "drone-images/powerup-rOf.png"
+                },
+                {
+                    type: enum_manager_4.PowerUpType.Shield,
+                    sprite: enum_manager_4.ASSETS.PREPEND + "drone-images/powerup-shield.png"
+                },
+                {
+                    type: enum_manager_4.PowerUpType.Spray,
+                    sprite: "drone-images/powerup-spray.png"
+                }
+            ];
         };
         return Powerup;
     }(user_2.User));
@@ -586,6 +612,7 @@ define("model/hud", ["require", "exports", "services/enum-manager", "model/Canva
             this.volumeImageObj.src = this.volOn;
             this.nextImageObj = new Image(25, 25);
             this.nextImageObj.src = enum_manager_8.ASSETS.PREPEND + "drone-images/volumeNext.jpg";
+            this.initStyles();
             this.createGUI();
         }
         Hud.prototype.displayText = function (canvas, text) {
@@ -694,6 +721,7 @@ define("model/hud", ["require", "exports", "services/enum-manager", "model/Canva
             pauseText.innerText = "PAUSED";
             pauseText.setAttribute('style', 'color:lime;font:40px Verdana;');
             this.guiBox.insertAdjacentElement("afterbegin", pauseText);
+            pauseText.insertAdjacentHTML('afterend', "\n          <br/>\n          <label style=\"color:lime;font:30px Verdana;\">Difficulty Level</label>\n          <br/>\n          <div class=\"btn-group\">\n          <button onclick=\"changeDifficulty(0);\">EASY</button>\n          <button onclick=\"changeDifficulty(1);\">MED</button>\n          <button onclick=\"changeDifficulty(2);\">HARD</button>\n          <button onclick=\"changeDifficulty(3);\">WUT</button>\n          </div>\n          ");
         };
         /**
          * Game Over Screen
@@ -752,6 +780,9 @@ define("model/hud", ["require", "exports", "services/enum-manager", "model/Canva
                 return 'color:black;font:20px Verdana;font-weight: 700;background-color:lime;border:2px solid lime;width:15%;height:50px;transition:.6s;cursor:pointer;box-shadow:0 0 25px lime;border-radius: 12px;';
             }
             return 'color:lime;font:20px Verdana;font-weight: 700;background-color:black;border:2px solid lime;width:15%;height:50px;transition:.3s;cursor:pointer;box-shadow:0 0 15px lime;border-radius: 12px;';
+        };
+        Hud.prototype.initStyles = function () {
+            var styleItem;
         };
         return Hud;
     }());
@@ -822,7 +853,7 @@ define("services/audio.service", ["require", "exports", "services/enum-manager"]
     }());
     exports.AudioService = AudioService;
 });
-define("services/drones-manager.service", ["require", "exports", "model/player", "services/key-status", "model/drone", "model/powerups", "model/missile", "model/boss.drones", "model/hud", "services/audio.service", "services/enum-manager"], function (require, exports, player_1, key_status_1, drone_1, powerups_1, missile_1, boss_drones_1, hud_1, audio_service_1, enum_manager_10) {
+define("services/drones-manager.service", ["require", "exports", "model/player", "services/key-status", "model/drone", "model/powerups", "model/missile", "model/boss.drones", "model/hud", "services/audio.service", "services/enum-manager", "services/utilty.service"], function (require, exports, player_1, key_status_1, drone_1, powerups_1, missile_1, boss_drones_1, hud_1, audio_service_1, enum_manager_10, utilty_service_2) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var DronesManagerService = /** @class */ (function () {
@@ -834,6 +865,7 @@ define("services/drones-manager.service", ["require", "exports", "model/player",
             this.playerMissile = new missile_1.Missile(false);
             this.boss = new boss_drones_1.Boss();
             this.soundService = new audio_service_1.AudioService();
+            this.utils = new utilty_service_2.Utils();
             this.dT = 0;
             this.pauseGame = false;
             this.playerRoF = 0;
@@ -1008,7 +1040,7 @@ define("services/drones-manager.service", ["require", "exports", "model/player",
             if (!this.boss.active) {
                 if (this.KILLS % 273 === 0 && this.KILLS !== 0) {
                     this.boss.active = true;
-                    this.boss.health = 500;
+                    this.boss.health = 300 + (1000 * this.GAME_DIFFICULTY);
                     this.boss.X = canvas.canvas.width - 300;
                     this.boss.Y = canvas.canvas.height / 2;
                 }
@@ -1031,7 +1063,9 @@ define("services/drones-manager.service", ["require", "exports", "model/player",
                     });
                 }
             });
-            //enemies - player && enemies - missiles
+            /**
+           * enemies - player && enemies - missiles
+           */
             this.enemyFleet.forEach(function (enemy) {
                 if (!enemy.hasBeenShot) {
                     if (_this.collides(enemy, _this.player)) {
@@ -1054,7 +1088,9 @@ define("services/drones-manager.service", ["require", "exports", "model/player",
                     }
                 }
             });
-            //player - powerups
+            /**
+             * player - powerups
+             */
             if (this.powerUp.active && this.collides(this.player, this.powerUp)) {
                 switch (this.powerUp.type) {
                     case enum_manager_10.PowerUpType.Spray:
@@ -1079,9 +1115,11 @@ define("services/drones-manager.service", ["require", "exports", "model/player",
                 this.powerUp.active = false;
                 this.powerUp.X = canvas.canvas.width;
                 //change the type of the powerup
-                this.powerUp.getNewType();
+                this.powerUp.getRandomPowerup(this.utils);
             }
-            //boss - playerbullets
+            /**
+             * boss - playerbullets
+             */
             if (this.boss.active) {
                 this.playerBullets.forEach(function (bullet) {
                     if (_this.collides(_this.boss, bullet)) {
@@ -1092,7 +1130,9 @@ define("services/drones-manager.service", ["require", "exports", "model/player",
                         bullet.active = false;
                     }
                 });
-                //boss - missile
+                /**
+                 * boss - missile
+                 */
                 if (this.playerMissile.activeMissile && this.collides(this.playerMissile, this.boss)) {
                     this.boss.health -= this.player.hasExplosionVelocity ? 100 : 50;
                     this.playerMissile.destroy(canvas);
@@ -1107,7 +1147,9 @@ define("services/drones-manager.service", ["require", "exports", "model/player",
                     });
                 }
             }
-            //enemy bullets - player
+            /**
+             * enemy bullets - player
+             */
             this.enemyBullets.forEach(function (bullet) {
                 if (_this.collides(bullet, _this.player)) {
                     bullet.active = false;

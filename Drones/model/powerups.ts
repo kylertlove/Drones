@@ -1,6 +1,7 @@
 import { User } from "./user";
 import { KeyDown } from "../services/key-status";
 import { ASSETS, PowerUpType } from "../services/enum-manager";
+import { Utils } from "../services/utilty.service";
 
 export class Powerup extends User {
 
@@ -12,7 +13,7 @@ export class Powerup extends User {
     constructor() {
         super('aaa', 50, 41, 0, 200);
         this.active = false;
-        this.getNewType();
+        this.getRandomPowerup(new Utils());
     }
 
     update(canvas: CanvasRenderingContext2D, keyHandler: KeyDown, dT: number) {
@@ -29,28 +30,11 @@ export class Powerup extends User {
             this.Y >= 0 && this.Y <= canvas.canvas.height;
     }
 
-    getNewType() {
-
-        let rand = Math.random() * 100;
-        if (rand >= 0 && rand < 20) {
-            this.sprite.src = ASSETS.PREPEND + "drone-images/powerup-spray.png";
-            this.type = PowerUpType.Spray;
-        } else if (rand >= 20 && rand < 40) {
-            this.sprite.src = ASSETS.PREPEND + "drone-images/powerup-health.png";
-            this.type = PowerUpType.Health;
-        } else if (rand >= 40 && rand < 60) {
-            this.sprite.src = ASSETS.PREPEND + "drone-images/powerup-explosionVelocity.png";
-            this.type = PowerUpType.explosionVelocity;
-        } else if (rand >= 60 && rand < 80) {
-            this.sprite.src = ASSETS.PREPEND + "drone-images/powerup-shield.png";
-            this.type = PowerUpType.Shield;
-        } 
-        else if (rand >= 80) {
-            this.sprite.src = ASSETS.PREPEND + "drone-images/powerup-rOf.png";
-            this.type = PowerUpType.RoF;
-        }
-
-        //testing shield
+    getRandomPowerup(utils: Utils) {
+        let powerUp = utils.getRandomItemFromList(this.getPowerupList());
+        this.sprite.src = powerUp.sprite;
+        this.type = powerUp.type;
+        // testing shield
         // this.sprite.src = ASSETS.PREPEND + "drone-images/powerup-shield.png";
         // this.type = PowerUpType.Shield;
     }
@@ -79,4 +63,34 @@ export class Powerup extends User {
             this.showText = false;
         }, 2000);
     }
+
+    getPowerupList():PowerupModel[]{
+        return [
+            {
+                type:PowerUpType.explosionVelocity,
+                sprite: ASSETS.PREPEND + "drone-images/powerup-explosionVelocity.png"
+            },
+            {
+                type:PowerUpType.Health,
+                sprite: ASSETS.PREPEND + "drone-images/powerup-health.png"
+            }, 
+            {
+                type:PowerUpType.RoF,
+                sprite: ASSETS.PREPEND + "drone-images/powerup-rOf.png"
+            },
+            {
+                type:PowerUpType.Shield,
+                sprite: ASSETS.PREPEND + "drone-images/powerup-shield.png"
+            },
+            {
+                type:PowerUpType.Spray,
+                sprite: "drone-images/powerup-spray.png"
+            }
+        ]
+    }
+}
+
+export interface PowerupModel {
+    type:PowerUpType,
+    sprite:string
 }

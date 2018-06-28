@@ -10,6 +10,7 @@ import { EnemyBullet } from "../model/enemyBullets";
 import { Hud } from "../model/hud";
 import { AudioService } from 'audio.service';
 import { PowerUpType, DifficultyLevel } from 'enum-manager';
+import { Utils } from './utilty.service';
 
 export class DronesManagerService {
 
@@ -25,10 +26,11 @@ export class DronesManagerService {
   enemyFleet: Drone[];
   boss: Boss;
   enemyBullets: EnemyBullet[];
-  GAME_DIFFICULTY; 
+  GAME_DIFFICULTY: DifficultyLevel; 
   GameOver: Boolean;
   hud: Hud;
   KILLS: number;
+  utils:Utils;
 
   constructor() {
     this.hud = new Hud();
@@ -38,6 +40,7 @@ export class DronesManagerService {
     this.playerMissile = new Missile(false);
     this.boss = new Boss();
     this.soundService = new AudioService();
+    this.utils = new Utils();
     this.dT = 0;
     this.pauseGame = false;
     this.playerRoF = 0;
@@ -230,7 +233,9 @@ export class DronesManagerService {
         });
       }
     });
-    //enemies - player && enemies - missiles
+      /**
+     * enemies - player && enemies - missiles
+     */
     this.enemyFleet.forEach((enemy) => {
       if (!enemy.hasBeenShot) {
         if (this.collides(enemy, this.player)) {
@@ -253,7 +258,9 @@ export class DronesManagerService {
         }
       }
     });
-    //player - powerups
+    /**
+     * player - powerups
+     */
     if (this.powerUp.active && this.collides(this.player, this.powerUp)) {
       switch (this.powerUp.type) {
         case PowerUpType.Spray:
@@ -278,9 +285,12 @@ export class DronesManagerService {
       this.powerUp.active = false;
       this.powerUp.X = canvas.canvas.width;
       //change the type of the powerup
-      this.powerUp.getNewType();
+      this.powerUp.getRandomPowerup(this.utils);
     }
-    //boss - playerbullets
+    
+    /**
+     * boss - playerbullets
+     */
     if (this.boss.active) {
       this.playerBullets.forEach((bullet) => {
         if (this.collides(this.boss, bullet)) {
@@ -289,7 +299,10 @@ export class DronesManagerService {
           bullet.active = false;
         }
       });
-      //boss - missile
+      
+      /**
+       * boss - missile
+       */
       if (this.playerMissile.activeMissile && this.collides(this.playerMissile, this.boss)) {
         this.boss.health -= this.player.hasExplosionVelocity ? 100 : 50;
         this.playerMissile.destroy(canvas);
@@ -302,7 +315,9 @@ export class DronesManagerService {
         })
       }
     }
-    //enemy bullets - player
+    /**
+     * enemy bullets - player
+     */
     this.enemyBullets.forEach((bullet) => {
       if (this.collides(bullet, this.player)) {
         bullet.active = false;
