@@ -20,8 +20,13 @@ export class User implements Entity {
     }
 
     draw(canvas: CanvasRenderingContext2D) {
-        canvas.fillStyle = this.color;
-        canvas.drawImage(this.sprite, this.X, this.Y, this.width, this.height);
+        try {
+            canvas.fillStyle = this.color;
+            canvas.drawImage(this.sprite, this.X, this.Y, this.width, this.height);
+        } catch (e) {
+            debugger;
+            console.log(e);
+        }
         //canvas.fillRect(this.X, this.Y, this.width, this.height);
     }
 

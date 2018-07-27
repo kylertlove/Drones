@@ -47,7 +47,7 @@ export class DronesManagerService {
     this.playerBullets = [];
     this.enemyFleet = [];
     this.enemyBullets = [];
-    this.GAME_DIFFICULTY = DifficultyLevel.WUT;
+    this.GAME_DIFFICULTY = DifficultyLevel.NORMAL;
     this.GameOver = false;
     this.KILLS = 0;
   }

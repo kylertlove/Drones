@@ -84,7 +84,7 @@ export class Powerup extends User {
             },
             {
                 type:PowerUpType.Spray,
-                sprite: "drone-images/powerup-spray.png"
+                sprite: ASSETS.PREPEND + "drone-images/powerup-spray.png"
             }
         ]
     }

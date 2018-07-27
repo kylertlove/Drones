@@ -30,8 +30,8 @@ export class Missile extends User {
     }
 
     inBounds(canvas: CanvasRenderingContext2D){
-        return this.X >= 0 && this.X <= canvas.canvas.width &&
-        this.Y >= 0 && this.Y <= canvas.canvas.height;
+        return this.X >= -20 && this.X <= canvas.canvas.width + 20 &&
+        this.Y >= -20 && this.Y <= canvas.canvas.height + 20;
     }
 
     destroy(canvas: CanvasRenderingContext2D) {

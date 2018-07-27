@@ -75,8 +75,14 @@ define("model/user", ["require", "exports"], function (require, exports) {
             this.sprite = new Image();
         }
         User.prototype.draw = function (canvas) {
-            canvas.fillStyle = this.color;
-            canvas.drawImage(this.sprite, this.X, this.Y, this.width, this.height);
+            try {
+                canvas.fillStyle = this.color;
+                canvas.drawImage(this.sprite, this.X, this.Y, this.width, this.height);
+            }
+            catch (e) {
+                debugger;
+                console.log(e);
+            }
             //canvas.fillRect(this.X, this.Y, this.width, this.height);
         };
         User.prototype.explode = function () {
@@ -419,7 +425,7 @@ define("model/powerups", ["require", "exports", "model/user", "services/enum-man
                 },
                 {
                     type: enum_manager_4.PowerUpType.Spray,
-                    sprite: "drone-images/powerup-spray.png"
+                    sprite: enum_manager_4.ASSETS.PREPEND + "drone-images/powerup-spray.png"
                 }
             ];
         };
@@ -455,8 +461,8 @@ define("model/missile", ["require", "exports", "model/user", "services/enum-mana
             }
         };
         Missile.prototype.inBounds = function (canvas) {
-            return this.X >= 0 && this.X <= canvas.canvas.width &&
-                this.Y >= 0 && this.Y <= canvas.canvas.height;
+            return this.X >= -20 && this.X <= canvas.canvas.width + 20 &&
+                this.Y >= -20 && this.Y <= canvas.canvas.height + 20;
         };
         Missile.prototype.destroy = function (canvas) {
             var _this = this;
@@ -615,6 +621,9 @@ define("model/hud", ["require", "exports", "services/enum-manager", "model/Canva
             this.initStyles();
             this.createGUI();
         }
+        Hud.prototype.setCanvasHandler = function (canvasHandler) {
+            this.CanvasHandler = canvasHandler;
+        };
         Hud.prototype.displayText = function (canvas, text) {
             var displayText = new CanvasMenuObjects_1.CanvasText(text, (canvas.canvas.width / 2), (canvas.canvas.height / 6), this.textColor, "25px Jazz LET, fantasy");
             canvas.font = displayText.font;
@@ -721,7 +730,20 @@ define("model/hud", ["require", "exports", "services/enum-manager", "model/Canva
             pauseText.innerText = "PAUSED";
             pauseText.setAttribute('style', 'color:lime;font:40px Verdana;');
             this.guiBox.insertAdjacentElement("afterbegin", pauseText);
-            pauseText.insertAdjacentHTML('afterend', "\n          <br/>\n          <label style=\"color:lime;font:30px Verdana;\">Difficulty Level</label>\n          <br/>\n          <div class=\"btn-group\">\n          <button onclick=\"changeDifficulty(0);\">EASY</button>\n          <button onclick=\"changeDifficulty(1);\">MED</button>\n          <button onclick=\"changeDifficulty(2);\">HARD</button>\n          <button onclick=\"changeDifficulty(3);\">WUT</button>\n          </div>\n          ");
+            var newLine1 = this.getNewLineElem(15);
+            pauseText.insertAdjacentElement("afterend", newLine1);
+            var easyBtn = document.createElement('BUTTON');
+            easyBtn.onclick = function () { Controller.setDifficulty(1); };
+            easyBtn.innerText = "EASY";
+            newLine1.insertAdjacentElement('afterend', easyBtn);
+            var medBtn = document.createElement('BUTTON');
+            medBtn.onclick = function () { Controller.setDifficulty(2); };
+            medBtn.innerText = "MEDIUM";
+            easyBtn.insertAdjacentElement('afterend', medBtn);
+            var hardBtn = document.createElement('BUTTON');
+            hardBtn.onclick = function () { Controller.setDifficulty(3); };
+            hardBtn.innerText = "HARD";
+            medBtn.insertAdjacentElement('afterend', hardBtn);
         };
         /**
          * Game Over Screen
@@ -872,7 +894,7 @@ define("services/drones-manager.service", ["require", "exports", "model/player",
             this.playerBullets = [];
             this.enemyFleet = [];
             this.enemyBullets = [];
-            this.GAME_DIFFICULTY = enum_manager_10.DifficultyLevel.WUT;
+            this.GAME_DIFFICULTY = enum_manager_10.DifficultyLevel.NORMAL;
             this.GameOver = false;
             this.KILLS = 0;
         }
@@ -1207,7 +1229,7 @@ define("services/drones-manager.service", ["require", "exports", "model/player",
     }());
     exports.DronesManagerService = DronesManagerService;
 });
-define("DronesCanvas", ["require", "exports", "services/drones-manager.service", "model/hud"], function (require, exports, drones_manager_service_1, hud_2) {
+define("DronesCanvas", ["require", "exports", "services/drones-manager.service", "model/hud", "services/enum-manager"], function (require, exports, drones_manager_service_1, hud_2, enum_manager_11) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var DronesCanvas = /** @class */ (function () {
@@ -1255,6 +1277,7 @@ define("DronesCanvas", ["require", "exports", "services/drones-manager.service",
             this.CanvasObject.canvas.width = arr[0] - 15;
             this.CanvasObject.canvas.height = arr[1] - 25;
             this.hud = this.gameManager.hud;
+            this.hud.setCanvasHandler(this);
             this.buildCanvasGUI(hud_2.SCREEN_ACTIONS.SPLASH);
             document.addEventListener('keydown', function (e) {
                 _this.gameManager.keyChange(e.keyCode, true);
@@ -1321,22 +1344,22 @@ define("DronesCanvas", ["require", "exports", "services/drones-manager.service",
             return [myWidth, myHeight];
         };
         /**
-         * UNUSED RIGHT NOW
+         * Pause Menu - Difficulty selection update
          * @param num
          */
         DronesCanvas.prototype.setDifficulty = function (num) {
             switch (num) {
                 case 1:
-                    this.gameManager.GAME_DIFFICULTY = .04;
+                    this.gameManager.GAME_DIFFICULTY = enum_manager_11.DifficultyLevel.EASYPEASY;
                     break;
                 case 2:
-                    this.gameManager.GAME_DIFFICULTY = .07;
+                    this.gameManager.GAME_DIFFICULTY = enum_manager_11.DifficultyLevel.NORMAL;
                     break;
                 case 3:
-                    this.gameManager.GAME_DIFFICULTY = .13;
+                    this.gameManager.GAME_DIFFICULTY = enum_manager_11.DifficultyLevel.HARD;
                     break;
                 default:
-                    this.gameManager.GAME_DIFFICULTY = .07;
+                    this.gameManager.GAME_DIFFICULTY = enum_manager_11.DifficultyLevel.NORMAL;
                     break;
             }
             this.gameManager.playerRoF = 0;

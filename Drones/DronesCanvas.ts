@@ -2,6 +2,7 @@ import { DronesManagerService } from "./services/drones-manager.service";
 import { AudioService } from "./services/audio.service";
 import { CanvasShape } from "./model/CanvasMenuObjects";
 import { SCREEN_ACTIONS, Hud } from "./model/hud";
+import { DifficultyLevel } from "./services/enum-manager";
 
 
 export class DronesCanvas {
@@ -29,8 +30,8 @@ export class DronesCanvas {
     const arr: number[] = this.getWindowSize();
     this.CanvasObject.canvas.width = arr[0] - 15;
     this.CanvasObject.canvas.height = arr[1] - 25;
-
     this.hud = this.gameManager.hud;
+    this.hud.setCanvasHandler(this);
     this.buildCanvasGUI(SCREEN_ACTIONS.SPLASH);
     document.addEventListener('keydown', (e: KeyboardEvent) => {
       this.gameManager.keyChange(e.keyCode, true);
@@ -124,22 +125,23 @@ export class DronesCanvas {
   }
 
   /**
-   * UNUSED RIGHT NOW
+   * Pause Menu - Difficulty selection update
    * @param num 
    */
+  
   setDifficulty(num: number) {
     switch (num) {
       case 1:
-        this.gameManager.GAME_DIFFICULTY = .04;
+        this.gameManager.GAME_DIFFICULTY = DifficultyLevel.EASYPEASY;
         break;
       case 2:
-        this.gameManager.GAME_DIFFICULTY = .07;
+        this.gameManager.GAME_DIFFICULTY = DifficultyLevel.NORMAL;
         break;
       case 3:
-        this.gameManager.GAME_DIFFICULTY = .13;
+        this.gameManager.GAME_DIFFICULTY = DifficultyLevel.HARD;
         break;
       default:
-        this.gameManager.GAME_DIFFICULTY = .07;
+        this.gameManager.GAME_DIFFICULTY = DifficultyLevel.NORMAL;
         break;
     }
     this.gameManager.playerRoF = 0;

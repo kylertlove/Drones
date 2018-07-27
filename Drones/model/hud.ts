@@ -13,6 +13,7 @@ export class Hud {
   nextImageObj;
   textColor: string = "lime";
   guiBox: HTMLElement;
+  CanvasHandler:DronesCanvas;
   constructor() {
     this.volumeImageObj = new Image(25, 25);
     this.volumeImageObj.src = this.volOn;
@@ -20,6 +21,10 @@ export class Hud {
     this.nextImageObj.src = ASSETS.PREPEND + "drone-images/volumeNext.jpg";
     this.initStyles();
     this.createGUI();
+  }
+
+  setCanvasHandler(canvasHandler: DronesCanvas) {
+    this.CanvasHandler = canvasHandler;
   }
 
   displayText(canvas: CanvasRenderingContext2D, text: string) {
@@ -134,18 +139,21 @@ export class Hud {
     pauseText.innerText = "PAUSED";
     pauseText.setAttribute('style', 'color:lime;font:40px Verdana;');
     this.guiBox.insertAdjacentElement("afterbegin", pauseText);
-    pauseText.insertAdjacentHTML('afterend',
-          `
-          <br/>
-          <label style="color:lime;font:30px Verdana;">Difficulty Level</label>
-          <br/>
-          <div class="btn-group">
-          <button onclick="changeDifficulty(0);">EASY</button>
-          <button onclick="changeDifficulty(1);">MED</button>
-          <button onclick="changeDifficulty(2);">HARD</button>
-          <button onclick="changeDifficulty(3);">WUT</button>
-          </div>
-          `);
+    let newLine1 = this.getNewLineElem(15);
+    pauseText.insertAdjacentElement("afterend", newLine1);
+
+    let easyBtn:HTMLButtonElement = document.createElement('BUTTON') as HTMLButtonElement;
+    easyBtn.onclick = () => {Controller.setDifficulty(1)}
+    easyBtn.innerText = "EASY";
+    newLine1.insertAdjacentElement('afterend', easyBtn);
+    let medBtn:HTMLButtonElement = document.createElement('BUTTON') as HTMLButtonElement;
+    medBtn.onclick = () => {Controller.setDifficulty(2)}
+    medBtn.innerText = "MEDIUM";
+    easyBtn.insertAdjacentElement('afterend', medBtn);
+    let hardBtn:HTMLButtonElement = document.createElement('BUTTON') as HTMLButtonElement;
+    hardBtn.onclick = () => {Controller.setDifficulty(3)}
+    hardBtn.innerText = "HARD";
+    medBtn.insertAdjacentElement('afterend', hardBtn);
   }
 
   /**
