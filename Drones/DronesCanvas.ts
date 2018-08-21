@@ -1,8 +1,8 @@
 import { DronesManagerService } from "./services/drones-manager.service";
 import { AudioService } from "./services/audio.service";
 import { CanvasShape } from "./model/CanvasMenuObjects";
-import { SCREEN_ACTIONS, Hud } from "./model/hud";
-import { DifficultyLevel } from "./services/enum-manager";
+import { Hud } from "./model/hud";
+import { DifficultyLevel, SCREEN_ACTIONS } from "./services/enum-manager";
 
 
 export class DronesCanvas {
@@ -14,7 +14,7 @@ export class DronesCanvas {
   private lastTime = (new Date()).getTime();
   private deltaTime: number;
   private interval = 1000 / 30;
-  private audioPause: boolean = false;
+  public audioPause: boolean = false;
   private audioService: AudioService;
   private canvasButtonList: CanvasShape[] = [];
   private hud: Hud;
@@ -31,7 +31,6 @@ export class DronesCanvas {
     this.CanvasObject.canvas.width = arr[0] - 15;
     this.CanvasObject.canvas.height = arr[1] - 25;
     this.hud = this.gameManager.hud;
-    this.hud.setCanvasHandler(this);
     this.buildCanvasGUI(SCREEN_ACTIONS.SPLASH);
     document.addEventListener('keydown', (e: KeyboardEvent) => {
       this.gameManager.keyChange(e.keyCode, true);
@@ -148,6 +147,11 @@ export class DronesCanvas {
     this.canvasElementName.focus;
   }
 
+  toggleVolume() {
+    this.audioPause = !this.audioPause;
+    this.audioService.toggle(this.audioPause);
+  }
+
   /**
    * Builds buttons
    */
@@ -164,28 +168,5 @@ export class DronesCanvas {
         this.hud.gameOverScreen(this);
         break;
     }
-
-    //buttons that are always visible
-    // this.canvasButtonList.push(new CanvasButton(CANVAS_BUTTON_NAME.AUDIO_PLAY, 0, 0, 30, 50));
-    // this.canvasButtonList.push(new CanvasButton(CANVAS_BUTTON_NAME.NEXT, 30, 0, 30, 50));
   }
-
-  // runButtonChecks(pos) {
-  //   this.canvasButtonList.forEach((btn: CanvasButton) => {
-  //     switch (btn.name) {
-  //       case CANVAS_BUTTON_NAME.AUDIO_PLAY:
-  //         if (btn.isWithinBounds(pos.x, pos.y)) {
-  //           this.audioPause = !this.audioPause;
-  //           this.audioService.toggle(this.audioPause);
-  //           this.hud.pauseVolume(this.audioPause);
-  //         }
-  //         break;
-  //       case CANVAS_BUTTON_NAME.NEXT:
-  //         if (btn.isWithinBounds(pos.x, pos.y)) {
-  //           this.audioService.next();
-  //         }
-  //         break;
-  //     }
-  //   });
-  //}
 }

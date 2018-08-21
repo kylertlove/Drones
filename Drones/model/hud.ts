@@ -7,24 +7,10 @@ import { DronesCanvas } from "../DronesCanvas";
 
 export class Hud {
   showLevelText: string = "Level 1";
-  volumeImageObj;
-  volOn = ASSETS.PREPEND + "drone-images/volume.png"
-  volPaused = ASSETS.PREPEND + "drone-images/volume-pause.png";
-  nextImageObj;
   textColor: string = "lime";
   guiBox: HTMLElement;
-  CanvasHandler:DronesCanvas;
   constructor() {
-    this.volumeImageObj = new Image(25, 25);
-    this.volumeImageObj.src = this.volOn;
-    this.nextImageObj = new Image(25, 25);
-    this.nextImageObj.src = ASSETS.PREPEND + "drone-images/volumeNext.jpg";
-    this.initStyles();
     this.createGUI();
-  }
-
-  setCanvasHandler(canvasHandler: DronesCanvas) {
-    this.CanvasHandler = canvasHandler;
   }
 
   displayText(canvas: CanvasRenderingContext2D, text: string) {
@@ -69,20 +55,6 @@ export class Hud {
     let shieldFill = new CanvasShape((canvas.canvas.width / 2) - 125, (canvas.canvas.height - 50), fillAmount, 16);
     canvas.fillStyle = 'rgba(0,225,0,0.5)';
     canvas.fillRect(shieldFill.x, shieldFill.y, shieldFill.w, shieldFill.h);
-  }
-
-
-  volumeHud(canvas: CanvasRenderingContext2D) {
-    canvas.drawImage(this.volumeImageObj, 0, 0);
-    canvas.drawImage(this.nextImageObj, 20, 0);
-  }
-
-  pauseVolume(paused: boolean) {
-    if(paused){
-      this.volumeImageObj.src = this.volPaused;
-    }else{
-      this.volumeImageObj.src = this.volOn;
-    }
   }
 
   addCount(canvas: CanvasRenderingContext2D, enemy: Entity) {
@@ -143,17 +115,40 @@ export class Hud {
     pauseText.insertAdjacentElement("afterend", newLine1);
 
     let easyBtn:HTMLButtonElement = document.createElement('BUTTON') as HTMLButtonElement;
-    easyBtn.onclick = () => {Controller.setDifficulty(1)}
+    easyBtn = this.setButtonStyles(easyBtn);
+    easyBtn.onclick = () => {
+      Controller.setDifficulty(1)
+      easyBtn.blur();
+    }
     easyBtn.innerText = "EASY";
     newLine1.insertAdjacentElement('afterend', easyBtn);
     let medBtn:HTMLButtonElement = document.createElement('BUTTON') as HTMLButtonElement;
-    medBtn.onclick = () => {Controller.setDifficulty(2)}
+    medBtn = this.setButtonStyles(medBtn);
+    medBtn.onclick = () => {
+      Controller.setDifficulty(2);
+      medBtn.blur();
+    }
     medBtn.innerText = "MEDIUM";
     easyBtn.insertAdjacentElement('afterend', medBtn);
     let hardBtn:HTMLButtonElement = document.createElement('BUTTON') as HTMLButtonElement;
-    hardBtn.onclick = () => {Controller.setDifficulty(3)}
+    hardBtn = this.setButtonStyles(hardBtn);
+    hardBtn.onclick = () => {
+      Controller.setDifficulty(3);
+      hardBtn.blur();
+    }
     hardBtn.innerText = "HARD";
     medBtn.insertAdjacentElement('afterend', hardBtn);
+
+    let newLine2 = this.getNewLineElem(20);
+    hardBtn.insertAdjacentElement("afterend", newLine2);
+    let volueBtn:HTMLButtonElement = document.createElement('BUTTON') as HTMLButtonElement;
+    volueBtn = this.setButtonStyles(volueBtn);
+    volueBtn.onclick = () => { 
+      Controller.toggleVolume();
+      volueBtn.blur();
+     }
+    volueBtn.innerText = "Play Music";
+    newLine2.insertAdjacentElement('afterend', volueBtn);
   }
 
   /**
@@ -167,16 +162,10 @@ export class Hud {
     let resetBtn:HTMLButtonElement = document.createElement('BUTTON') as HTMLButtonElement;
     resetBtn.innerText = "RESET";
     resetBtn.id = "resetBtn";
-    resetBtn.setAttribute('style', this.getButtonStyle(false));
+    resetBtn = this.setButtonStyles(resetBtn);
     resetBtn.onclick = () => {
       this.clearGUI();
       Controller.reset();
-    }
-    resetBtn.onmouseover = () => {
-      resetBtn.setAttribute('style', this.getButtonStyle(true));
-    }
-    resetBtn.onmouseleave = () => {
-      resetBtn.setAttribute('style', this.getButtonStyle(false));
     }
     this.guiBox.insertAdjacentElement("afterbegin", gameOverText);
     let thirdLine = this.getNewLineElem(25);
@@ -218,12 +207,15 @@ export class Hud {
     return 'color:lime;font:20px Verdana;font-weight: 700;background-color:black;border:2px solid lime;width:15%;height:50px;transition:.3s;cursor:pointer;box-shadow:0 0 15px lime;border-radius: 12px;';
   }
 
-
-  initStyles() {
-    let styleItem
+  setButtonStyles(button:HTMLButtonElement) {
+    button.setAttribute('style', this.getButtonStyle(false));
+    button.onmouseover = () => {
+      button.setAttribute('style', this.getButtonStyle(true));
+    }
+    button.onmouseleave = () => {
+      button.setAttribute('style', this.getButtonStyle(false));
+    }
+    return button;
   }
 }
 
-export enum SCREEN_ACTIONS {
-  SPLASH, PAUSE, GAME_OVER
-}

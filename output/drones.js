@@ -156,6 +156,12 @@ define("services/enum-manager", ["require", "exports"], function (require, expor
         DifficultyLevel[DifficultyLevel["HARD"] = 0.13] = "HARD";
         DifficultyLevel[DifficultyLevel["WUT"] = 0.2] = "WUT";
     })(DifficultyLevel = exports.DifficultyLevel || (exports.DifficultyLevel = {}));
+    var SCREEN_ACTIONS;
+    (function (SCREEN_ACTIONS) {
+        SCREEN_ACTIONS[SCREEN_ACTIONS["SPLASH"] = 0] = "SPLASH";
+        SCREEN_ACTIONS[SCREEN_ACTIONS["PAUSE"] = 1] = "PAUSE";
+        SCREEN_ACTIONS[SCREEN_ACTIONS["GAME_OVER"] = 2] = "GAME_OVER";
+    })(SCREEN_ACTIONS = exports.SCREEN_ACTIONS || (exports.SCREEN_ACTIONS = {}));
 });
 define("model/playerBullets", ["require", "exports", "model/projectile", "services/enum-manager"], function (require, exports, projectile_1, enum_manager_1) {
     "use strict";
@@ -605,25 +611,15 @@ define("model/CanvasMenuObjects", ["require", "exports"], function (require, exp
     }());
     exports.CanvasText = CanvasText;
 });
-define("model/hud", ["require", "exports", "services/enum-manager", "model/CanvasMenuObjects"], function (require, exports, enum_manager_8, CanvasMenuObjects_1) {
+define("model/hud", ["require", "exports", "model/CanvasMenuObjects"], function (require, exports, CanvasMenuObjects_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var Hud = /** @class */ (function () {
         function Hud() {
             this.showLevelText = "Level 1";
-            this.volOn = enum_manager_8.ASSETS.PREPEND + "drone-images/volume.png";
-            this.volPaused = enum_manager_8.ASSETS.PREPEND + "drone-images/volume-pause.png";
             this.textColor = "lime";
-            this.volumeImageObj = new Image(25, 25);
-            this.volumeImageObj.src = this.volOn;
-            this.nextImageObj = new Image(25, 25);
-            this.nextImageObj.src = enum_manager_8.ASSETS.PREPEND + "drone-images/volumeNext.jpg";
-            this.initStyles();
             this.createGUI();
         }
-        Hud.prototype.setCanvasHandler = function (canvasHandler) {
-            this.CanvasHandler = canvasHandler;
-        };
         Hud.prototype.displayText = function (canvas, text) {
             var displayText = new CanvasMenuObjects_1.CanvasText(text, (canvas.canvas.width / 2), (canvas.canvas.height / 6), this.textColor, "25px Jazz LET, fantasy");
             canvas.font = displayText.font;
@@ -664,18 +660,6 @@ define("model/hud", ["require", "exports", "services/enum-manager", "model/Canva
             var shieldFill = new CanvasMenuObjects_1.CanvasShape((canvas.canvas.width / 2) - 125, (canvas.canvas.height - 50), fillAmount, 16);
             canvas.fillStyle = 'rgba(0,225,0,0.5)';
             canvas.fillRect(shieldFill.x, shieldFill.y, shieldFill.w, shieldFill.h);
-        };
-        Hud.prototype.volumeHud = function (canvas) {
-            canvas.drawImage(this.volumeImageObj, 0, 0);
-            canvas.drawImage(this.nextImageObj, 20, 0);
-        };
-        Hud.prototype.pauseVolume = function (paused) {
-            if (paused) {
-                this.volumeImageObj.src = this.volPaused;
-            }
-            else {
-                this.volumeImageObj.src = this.volOn;
-            }
         };
         Hud.prototype.addCount = function (canvas, enemy) {
             var hitCount = new CanvasMenuObjects_1.CanvasText("+1", enemy.X, enemy.Y, this.textColor, "15px Arial");
@@ -733,17 +717,39 @@ define("model/hud", ["require", "exports", "services/enum-manager", "model/Canva
             var newLine1 = this.getNewLineElem(15);
             pauseText.insertAdjacentElement("afterend", newLine1);
             var easyBtn = document.createElement('BUTTON');
-            easyBtn.onclick = function () { Controller.setDifficulty(1); };
+            easyBtn = this.setButtonStyles(easyBtn);
+            easyBtn.onclick = function () {
+                Controller.setDifficulty(1);
+                easyBtn.blur();
+            };
             easyBtn.innerText = "EASY";
             newLine1.insertAdjacentElement('afterend', easyBtn);
             var medBtn = document.createElement('BUTTON');
-            medBtn.onclick = function () { Controller.setDifficulty(2); };
+            medBtn = this.setButtonStyles(medBtn);
+            medBtn.onclick = function () {
+                Controller.setDifficulty(2);
+                medBtn.blur();
+            };
             medBtn.innerText = "MEDIUM";
             easyBtn.insertAdjacentElement('afterend', medBtn);
             var hardBtn = document.createElement('BUTTON');
-            hardBtn.onclick = function () { Controller.setDifficulty(3); };
+            hardBtn = this.setButtonStyles(hardBtn);
+            hardBtn.onclick = function () {
+                Controller.setDifficulty(3);
+                hardBtn.blur();
+            };
             hardBtn.innerText = "HARD";
             medBtn.insertAdjacentElement('afterend', hardBtn);
+            var newLine2 = this.getNewLineElem(20);
+            hardBtn.insertAdjacentElement("afterend", newLine2);
+            var volueBtn = document.createElement('BUTTON');
+            volueBtn = this.setButtonStyles(volueBtn);
+            volueBtn.onclick = function () {
+                Controller.toggleVolume();
+                volueBtn.blur();
+            };
+            volueBtn.innerText = "Play Music";
+            newLine2.insertAdjacentElement('afterend', volueBtn);
         };
         /**
          * Game Over Screen
@@ -757,16 +763,10 @@ define("model/hud", ["require", "exports", "services/enum-manager", "model/Canva
             var resetBtn = document.createElement('BUTTON');
             resetBtn.innerText = "RESET";
             resetBtn.id = "resetBtn";
-            resetBtn.setAttribute('style', this.getButtonStyle(false));
+            resetBtn = this.setButtonStyles(resetBtn);
             resetBtn.onclick = function () {
                 _this.clearGUI();
                 Controller.reset();
-            };
-            resetBtn.onmouseover = function () {
-                resetBtn.setAttribute('style', _this.getButtonStyle(true));
-            };
-            resetBtn.onmouseleave = function () {
-                resetBtn.setAttribute('style', _this.getButtonStyle(false));
             };
             this.guiBox.insertAdjacentElement("afterbegin", gameOverText);
             var thirdLine = this.getNewLineElem(25);
@@ -803,20 +803,22 @@ define("model/hud", ["require", "exports", "services/enum-manager", "model/Canva
             }
             return 'color:lime;font:20px Verdana;font-weight: 700;background-color:black;border:2px solid lime;width:15%;height:50px;transition:.3s;cursor:pointer;box-shadow:0 0 15px lime;border-radius: 12px;';
         };
-        Hud.prototype.initStyles = function () {
-            var styleItem;
+        Hud.prototype.setButtonStyles = function (button) {
+            var _this = this;
+            button.setAttribute('style', this.getButtonStyle(false));
+            button.onmouseover = function () {
+                button.setAttribute('style', _this.getButtonStyle(true));
+            };
+            button.onmouseleave = function () {
+                button.setAttribute('style', _this.getButtonStyle(false));
+            };
+            return button;
         };
         return Hud;
     }());
     exports.Hud = Hud;
-    var SCREEN_ACTIONS;
-    (function (SCREEN_ACTIONS) {
-        SCREEN_ACTIONS[SCREEN_ACTIONS["SPLASH"] = 0] = "SPLASH";
-        SCREEN_ACTIONS[SCREEN_ACTIONS["PAUSE"] = 1] = "PAUSE";
-        SCREEN_ACTIONS[SCREEN_ACTIONS["GAME_OVER"] = 2] = "GAME_OVER";
-    })(SCREEN_ACTIONS = exports.SCREEN_ACTIONS || (exports.SCREEN_ACTIONS = {}));
 });
-define("services/audio.service", ["require", "exports", "services/enum-manager"], function (require, exports, enum_manager_9) {
+define("services/audio.service", ["require", "exports", "services/enum-manager"], function (require, exports, enum_manager_8) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     //import {BehaviorSubject} from "../../node_modules/rxjs/BehaviorSubject";
@@ -826,9 +828,9 @@ define("services/audio.service", ["require", "exports", "services/enum-manager"]
             this.song = 0;
             this.musicVolume = .3;
             this.playlist = [
-                enum_manager_9.ASSETS.PREPEND + "sounds/PatrickLieberkind-1.wav",
-                enum_manager_9.ASSETS.PREPEND + "sounds/PatrickLieberkind-2.wav",
-                enum_manager_9.ASSETS.PREPEND + "sounds/PatrickLieberkind-3.wav"
+                enum_manager_8.ASSETS.PREPEND + "sounds/PatrickLieberkind-1.wav",
+                enum_manager_8.ASSETS.PREPEND + "sounds/PatrickLieberkind-2.wav",
+                enum_manager_8.ASSETS.PREPEND + "sounds/PatrickLieberkind-3.wav"
             ];
             this.audioElem = new Audio();
             this.missleElem = new Audio();
@@ -861,13 +863,13 @@ define("services/audio.service", ["require", "exports", "services/enum-manager"]
         };
         AudioService.prototype._noiseFireMissile = function () {
             this.missleElem.pause();
-            this.missleElem.src = enum_manager_9.ASSETS.PREPEND + "sounds/fireMissle.wav";
+            this.missleElem.src = enum_manager_8.ASSETS.PREPEND + "sounds/fireMissle.wav";
             this.missleElem.volume = .3;
             this.missleElem.play();
         };
         AudioService.prototype._noiseFireZeLazor = function () {
             this.lazorElem.pause();
-            this.lazorElem.src = enum_manager_9.ASSETS.PREPEND + "sounds/laser.wav";
+            this.lazorElem.src = enum_manager_8.ASSETS.PREPEND + "sounds/laser.wav";
             this.lazorElem.volume = .02;
             this.lazorElem.play();
         };
@@ -875,7 +877,7 @@ define("services/audio.service", ["require", "exports", "services/enum-manager"]
     }());
     exports.AudioService = AudioService;
 });
-define("services/drones-manager.service", ["require", "exports", "model/player", "services/key-status", "model/drone", "model/powerups", "model/missile", "model/boss.drones", "model/hud", "services/audio.service", "services/enum-manager", "services/utilty.service"], function (require, exports, player_1, key_status_1, drone_1, powerups_1, missile_1, boss_drones_1, hud_1, audio_service_1, enum_manager_10, utilty_service_2) {
+define("services/drones-manager.service", ["require", "exports", "model/player", "services/key-status", "model/drone", "model/powerups", "model/missile", "model/boss.drones", "model/hud", "services/audio.service", "services/enum-manager", "services/utilty.service"], function (require, exports, player_1, key_status_1, drone_1, powerups_1, missile_1, boss_drones_1, hud_1, audio_service_1, enum_manager_9, utilty_service_2) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var DronesManagerService = /** @class */ (function () {
@@ -894,7 +896,7 @@ define("services/drones-manager.service", ["require", "exports", "model/player",
             this.playerBullets = [];
             this.enemyFleet = [];
             this.enemyBullets = [];
-            this.GAME_DIFFICULTY = enum_manager_10.DifficultyLevel.NORMAL;
+            this.GAME_DIFFICULTY = enum_manager_9.DifficultyLevel.NORMAL;
             this.GameOver = false;
             this.KILLS = 0;
         }
@@ -958,7 +960,6 @@ define("services/drones-manager.service", ["require", "exports", "model/player",
             });
             //draw HUD
             this.hud.playerStats(canvas, this.player, this.KILLS);
-            this.hud.volumeHud(canvas);
             if (this.player.hasShield) {
                 this.hud.drawShieldTick(canvas, this.player.shieldTick);
             }
@@ -1115,20 +1116,20 @@ define("services/drones-manager.service", ["require", "exports", "model/player",
              */
             if (this.powerUp.active && this.collides(this.player, this.powerUp)) {
                 switch (this.powerUp.type) {
-                    case enum_manager_10.PowerUpType.Spray:
+                    case enum_manager_9.PowerUpType.Spray:
                         this.player.hasSprayPowerUp = true;
                         break;
-                    case enum_manager_10.PowerUpType.Health:
+                    case enum_manager_9.PowerUpType.Health:
                         this.player.addHealth(10);
                         break;
-                    case enum_manager_10.PowerUpType.explosionVelocity:
+                    case enum_manager_9.PowerUpType.explosionVelocity:
                         this.player.hasExplosionVelocity = true;
                         this.playerMissile.explosionVelocity = 400;
                         break;
-                    case enum_manager_10.PowerUpType.RoF:
+                    case enum_manager_9.PowerUpType.RoF:
                         this.player.hasRoFpowerUp = true;
                         break;
-                    case enum_manager_10.PowerUpType.Shield:
+                    case enum_manager_9.PowerUpType.Shield:
                         this.player.activateShield();
                         break;
                 }
@@ -1229,7 +1230,7 @@ define("services/drones-manager.service", ["require", "exports", "model/player",
     }());
     exports.DronesManagerService = DronesManagerService;
 });
-define("DronesCanvas", ["require", "exports", "services/drones-manager.service", "model/hud", "services/enum-manager"], function (require, exports, drones_manager_service_1, hud_2, enum_manager_11) {
+define("DronesCanvas", ["require", "exports", "services/drones-manager.service", "services/enum-manager"], function (require, exports, drones_manager_service_1, enum_manager_10) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var DronesCanvas = /** @class */ (function () {
@@ -1263,7 +1264,7 @@ define("DronesCanvas", ["require", "exports", "services/drones-manager.service",
                 }
                 else if (_this.gameManager.GameOver) {
                     //game over. Draw menu box
-                    _this.buildCanvasGUI(hud_2.SCREEN_ACTIONS.GAME_OVER);
+                    _this.buildCanvasGUI(enum_manager_10.SCREEN_ACTIONS.GAME_OVER);
                 }
             };
             this.CanvasObject = canvasElementName.getContext('2d');
@@ -1277,8 +1278,7 @@ define("DronesCanvas", ["require", "exports", "services/drones-manager.service",
             this.CanvasObject.canvas.width = arr[0] - 15;
             this.CanvasObject.canvas.height = arr[1] - 25;
             this.hud = this.gameManager.hud;
-            this.hud.setCanvasHandler(this);
-            this.buildCanvasGUI(hud_2.SCREEN_ACTIONS.SPLASH);
+            this.buildCanvasGUI(enum_manager_10.SCREEN_ACTIONS.SPLASH);
             document.addEventListener('keydown', function (e) {
                 _this.gameManager.keyChange(e.keyCode, true);
             });
@@ -1286,7 +1286,7 @@ define("DronesCanvas", ["require", "exports", "services/drones-manager.service",
                 _this.gameManager.keyChange(e.keyCode, false);
                 if (e.keyCode === 13) {
                     if (_this.gameManager.pauseGame) {
-                        _this.buildCanvasGUI(hud_2.SCREEN_ACTIONS.PAUSE);
+                        _this.buildCanvasGUI(enum_manager_10.SCREEN_ACTIONS.PAUSE);
                     }
                     else {
                         _this.hud.clearGUI();
@@ -1315,7 +1315,7 @@ define("DronesCanvas", ["require", "exports", "services/drones-manager.service",
         DronesCanvas.prototype.reset = function () {
             window.cancelAnimationFrame(this.gameLoop);
             this.gameManager = new drones_manager_service_1.DronesManagerService();
-            this.buildCanvasGUI(hud_2.SCREEN_ACTIONS.SPLASH);
+            this.buildCanvasGUI(enum_manager_10.SCREEN_ACTIONS.SPLASH);
         };
         /**
          * Function called to get Window Size of page.
@@ -1350,20 +1350,24 @@ define("DronesCanvas", ["require", "exports", "services/drones-manager.service",
         DronesCanvas.prototype.setDifficulty = function (num) {
             switch (num) {
                 case 1:
-                    this.gameManager.GAME_DIFFICULTY = enum_manager_11.DifficultyLevel.EASYPEASY;
+                    this.gameManager.GAME_DIFFICULTY = enum_manager_10.DifficultyLevel.EASYPEASY;
                     break;
                 case 2:
-                    this.gameManager.GAME_DIFFICULTY = enum_manager_11.DifficultyLevel.NORMAL;
+                    this.gameManager.GAME_DIFFICULTY = enum_manager_10.DifficultyLevel.NORMAL;
                     break;
                 case 3:
-                    this.gameManager.GAME_DIFFICULTY = enum_manager_11.DifficultyLevel.HARD;
+                    this.gameManager.GAME_DIFFICULTY = enum_manager_10.DifficultyLevel.HARD;
                     break;
                 default:
-                    this.gameManager.GAME_DIFFICULTY = enum_manager_11.DifficultyLevel.NORMAL;
+                    this.gameManager.GAME_DIFFICULTY = enum_manager_10.DifficultyLevel.NORMAL;
                     break;
             }
             this.gameManager.playerRoF = 0;
             this.canvasElementName.focus;
+        };
+        DronesCanvas.prototype.toggleVolume = function () {
+            this.audioPause = !this.audioPause;
+            this.audioService.toggle(this.audioPause);
         };
         /**
          * Builds buttons
@@ -1371,19 +1375,16 @@ define("DronesCanvas", ["require", "exports", "services/drones-manager.service",
         DronesCanvas.prototype.buildCanvasGUI = function (screen) {
             this.canvasButtonList = [];
             switch (screen) {
-                case hud_2.SCREEN_ACTIONS.SPLASH:
+                case enum_manager_10.SCREEN_ACTIONS.SPLASH:
                     this.hud.splashScreen(this);
                     break;
-                case hud_2.SCREEN_ACTIONS.PAUSE:
+                case enum_manager_10.SCREEN_ACTIONS.PAUSE:
                     this.hud.pauseScreen(this);
                     break;
-                case hud_2.SCREEN_ACTIONS.GAME_OVER:
+                case enum_manager_10.SCREEN_ACTIONS.GAME_OVER:
                     this.hud.gameOverScreen(this);
                     break;
             }
-            //buttons that are always visible
-            // this.canvasButtonList.push(new CanvasButton(CANVAS_BUTTON_NAME.AUDIO_PLAY, 0, 0, 30, 50));
-            // this.canvasButtonList.push(new CanvasButton(CANVAS_BUTTON_NAME.NEXT, 30, 0, 30, 50));
         };
         return DronesCanvas;
     }());
