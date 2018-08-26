@@ -8,4 +8,4 @@ Built in Typescript, and transpiled into es5 with amd modules and executed with 
 (make sure to have npm/node installed)
 * run `npm install`
 * `npm run tsc`
-* Then just open the index.html in broweser
+* Then just open the index.html in a browser
