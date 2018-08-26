@@ -18,7 +18,7 @@ export class Missile extends User {
         super('fff', 60, 30, 0, 0);
         this.needMissile = false;
         this.sprite.src = hasExplosionVelocity ? this.powerupSprite : this.defaultSprite
-        this.explosionVelocity = hasExplosionVelocity ? 400 : this.defaultExplosionVelocity;
+        this.explosionVelocity = hasExplosionVelocity ? this.defaultExplosionVelocity * 5 : this.defaultExplosionVelocity;
     }
 
     update(canvas: CanvasRenderingContext2D, keyHandler: KeyDown, dT: number) {

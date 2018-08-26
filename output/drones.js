@@ -455,7 +455,7 @@ define("model/missile", ["require", "exports", "model/user", "services/enum-mana
             _this.explodingSprite = enum_manager_5.ASSETS.PREPEND + "drone-images/explode-red.png";
             _this.needMissile = false;
             _this.sprite.src = hasExplosionVelocity ? _this.powerupSprite : _this.defaultSprite;
-            _this.explosionVelocity = hasExplosionVelocity ? 400 : _this.defaultExplosionVelocity;
+            _this.explosionVelocity = hasExplosionVelocity ? _this.defaultExplosionVelocity * 5 : _this.defaultExplosionVelocity;
             return _this;
         }
         Missile.prototype.update = function (canvas, keyHandler, dT) {
@@ -611,7 +611,7 @@ define("model/CanvasMenuObjects", ["require", "exports"], function (require, exp
     }());
     exports.CanvasText = CanvasText;
 });
-define("model/hud", ["require", "exports", "model/CanvasMenuObjects"], function (require, exports, CanvasMenuObjects_1) {
+define("model/hud", ["require", "exports", "services/enum-manager", "model/CanvasMenuObjects"], function (require, exports, enum_manager_8, CanvasMenuObjects_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var Hud = /** @class */ (function () {
@@ -633,10 +633,25 @@ define("model/hud", ["require", "exports", "model/CanvasMenuObjects"], function 
          * @param player
          * @param kills
          */
-        Hud.prototype.playerStats = function (canvas, player, kills) {
+        Hud.prototype.playerStats = function (canvas, player, kills, gameDifficulty) {
+            var difficultySaying;
+            switch (gameDifficulty) {
+                case enum_manager_8.DifficultyLevel.NORMAL:
+                    difficultySaying = "Difficulty: Noob";
+                    break;
+                case enum_manager_8.DifficultyLevel.HARD:
+                    difficultySaying = "Difficulty: Normie";
+                    break;
+                case enum_manager_8.DifficultyLevel.WUT:
+                    difficultySaying = "Difficulty: lol. wut r doin";
+                    break;
+                default:
+                    difficultySaying = "";
+                    break;
+            }
             var health = new CanvasMenuObjects_1.CanvasText("Health: " + player.health.toString(), (canvas.canvas.width / 40), (canvas.canvas.height - (canvas.canvas.height / 14)), this.textColor, "17px Jazz LET, fantasy");
             var KillsText = new CanvasMenuObjects_1.CanvasText("Kills: " + kills.toString(), (canvas.canvas.width / 40), (canvas.canvas.height - (canvas.canvas.height / 10)), this.textColor, "17px Jazz LET, fantasy");
-            var level = new CanvasMenuObjects_1.CanvasText(this.showLevelText, (canvas.canvas.width / 40), (canvas.canvas.height - (canvas.canvas.height / 7)), this.textColor, "17px Jazz LET, fantasy");
+            var level = new CanvasMenuObjects_1.CanvasText(difficultySaying, (canvas.canvas.width / 40), (canvas.canvas.height - (canvas.canvas.height / 7)), this.textColor, "17px Jazz LET, fantasy");
             canvas.font = health.font;
             canvas.fillStyle = this.textColor;
             canvas.strokeStyle = this.textColor;
@@ -818,7 +833,7 @@ define("model/hud", ["require", "exports", "model/CanvasMenuObjects"], function 
     }());
     exports.Hud = Hud;
 });
-define("services/audio.service", ["require", "exports", "services/enum-manager"], function (require, exports, enum_manager_8) {
+define("services/audio.service", ["require", "exports", "services/enum-manager"], function (require, exports, enum_manager_9) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     //import {BehaviorSubject} from "../../node_modules/rxjs/BehaviorSubject";
@@ -828,9 +843,9 @@ define("services/audio.service", ["require", "exports", "services/enum-manager"]
             this.song = 0;
             this.musicVolume = .3;
             this.playlist = [
-                enum_manager_8.ASSETS.PREPEND + "sounds/PatrickLieberkind-1.wav",
-                enum_manager_8.ASSETS.PREPEND + "sounds/PatrickLieberkind-2.wav",
-                enum_manager_8.ASSETS.PREPEND + "sounds/PatrickLieberkind-3.wav"
+                enum_manager_9.ASSETS.PREPEND + "sounds/PatrickLieberkind-1.wav",
+                enum_manager_9.ASSETS.PREPEND + "sounds/PatrickLieberkind-2.wav",
+                enum_manager_9.ASSETS.PREPEND + "sounds/PatrickLieberkind-3.wav"
             ];
             this.audioElem = new Audio();
             this.missleElem = new Audio();
@@ -863,13 +878,13 @@ define("services/audio.service", ["require", "exports", "services/enum-manager"]
         };
         AudioService.prototype._noiseFireMissile = function () {
             this.missleElem.pause();
-            this.missleElem.src = enum_manager_8.ASSETS.PREPEND + "sounds/fireMissle.wav";
+            this.missleElem.src = enum_manager_9.ASSETS.PREPEND + "sounds/fireMissle.wav";
             this.missleElem.volume = .3;
             this.missleElem.play();
         };
         AudioService.prototype._noiseFireZeLazor = function () {
             this.lazorElem.pause();
-            this.lazorElem.src = enum_manager_8.ASSETS.PREPEND + "sounds/laser.wav";
+            this.lazorElem.src = enum_manager_9.ASSETS.PREPEND + "sounds/laser.wav";
             this.lazorElem.volume = .02;
             this.lazorElem.play();
         };
@@ -877,7 +892,7 @@ define("services/audio.service", ["require", "exports", "services/enum-manager"]
     }());
     exports.AudioService = AudioService;
 });
-define("services/drones-manager.service", ["require", "exports", "model/player", "services/key-status", "model/drone", "model/powerups", "model/missile", "model/boss.drones", "model/hud", "services/audio.service", "services/enum-manager", "services/utilty.service"], function (require, exports, player_1, key_status_1, drone_1, powerups_1, missile_1, boss_drones_1, hud_1, audio_service_1, enum_manager_9, utilty_service_2) {
+define("services/drones-manager.service", ["require", "exports", "model/player", "services/key-status", "model/drone", "model/powerups", "model/missile", "model/boss.drones", "model/hud", "services/audio.service", "services/enum-manager", "services/utilty.service"], function (require, exports, player_1, key_status_1, drone_1, powerups_1, missile_1, boss_drones_1, hud_1, audio_service_1, enum_manager_10, utilty_service_2) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var DronesManagerService = /** @class */ (function () {
@@ -896,7 +911,7 @@ define("services/drones-manager.service", ["require", "exports", "model/player",
             this.playerBullets = [];
             this.enemyFleet = [];
             this.enemyBullets = [];
-            this.GAME_DIFFICULTY = enum_manager_9.DifficultyLevel.NORMAL;
+            this.GAME_DIFFICULTY = enum_manager_10.DifficultyLevel.NORMAL;
             this.GameOver = false;
             this.KILLS = 0;
         }
@@ -959,7 +974,7 @@ define("services/drones-manager.service", ["require", "exports", "model/player",
                 bullet.draw(canvas);
             });
             //draw HUD
-            this.hud.playerStats(canvas, this.player, this.KILLS);
+            this.hud.playerStats(canvas, this.player, this.KILLS, this.GAME_DIFFICULTY);
             if (this.player.hasShield) {
                 this.hud.drawShieldTick(canvas, this.player.shieldTick);
             }
@@ -1116,20 +1131,20 @@ define("services/drones-manager.service", ["require", "exports", "model/player",
              */
             if (this.powerUp.active && this.collides(this.player, this.powerUp)) {
                 switch (this.powerUp.type) {
-                    case enum_manager_9.PowerUpType.Spray:
+                    case enum_manager_10.PowerUpType.Spray:
                         this.player.hasSprayPowerUp = true;
                         break;
-                    case enum_manager_9.PowerUpType.Health:
+                    case enum_manager_10.PowerUpType.Health:
                         this.player.addHealth(10);
                         break;
-                    case enum_manager_9.PowerUpType.explosionVelocity:
+                    case enum_manager_10.PowerUpType.explosionVelocity:
                         this.player.hasExplosionVelocity = true;
                         this.playerMissile.explosionVelocity = 400;
                         break;
-                    case enum_manager_9.PowerUpType.RoF:
+                    case enum_manager_10.PowerUpType.RoF:
                         this.player.hasRoFpowerUp = true;
                         break;
-                    case enum_manager_9.PowerUpType.Shield:
+                    case enum_manager_10.PowerUpType.Shield:
                         this.player.activateShield();
                         break;
                 }
@@ -1230,7 +1245,7 @@ define("services/drones-manager.service", ["require", "exports", "model/player",
     }());
     exports.DronesManagerService = DronesManagerService;
 });
-define("DronesCanvas", ["require", "exports", "services/drones-manager.service", "services/enum-manager"], function (require, exports, drones_manager_service_1, enum_manager_10) {
+define("DronesCanvas", ["require", "exports", "services/drones-manager.service", "services/enum-manager"], function (require, exports, drones_manager_service_1, enum_manager_11) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var DronesCanvas = /** @class */ (function () {
@@ -1264,7 +1279,7 @@ define("DronesCanvas", ["require", "exports", "services/drones-manager.service",
                 }
                 else if (_this.gameManager.GameOver) {
                     //game over. Draw menu box
-                    _this.buildCanvasGUI(enum_manager_10.SCREEN_ACTIONS.GAME_OVER);
+                    _this.buildCanvasGUI(enum_manager_11.SCREEN_ACTIONS.GAME_OVER);
                 }
             };
             this.CanvasObject = canvasElementName.getContext('2d');
@@ -1278,7 +1293,7 @@ define("DronesCanvas", ["require", "exports", "services/drones-manager.service",
             this.CanvasObject.canvas.width = arr[0] - 15;
             this.CanvasObject.canvas.height = arr[1] - 25;
             this.hud = this.gameManager.hud;
-            this.buildCanvasGUI(enum_manager_10.SCREEN_ACTIONS.SPLASH);
+            this.buildCanvasGUI(enum_manager_11.SCREEN_ACTIONS.SPLASH);
             document.addEventListener('keydown', function (e) {
                 _this.gameManager.keyChange(e.keyCode, true);
             });
@@ -1286,7 +1301,7 @@ define("DronesCanvas", ["require", "exports", "services/drones-manager.service",
                 _this.gameManager.keyChange(e.keyCode, false);
                 if (e.keyCode === 13) {
                     if (_this.gameManager.pauseGame) {
-                        _this.buildCanvasGUI(enum_manager_10.SCREEN_ACTIONS.PAUSE);
+                        _this.buildCanvasGUI(enum_manager_11.SCREEN_ACTIONS.PAUSE);
                     }
                     else {
                         _this.hud.clearGUI();
@@ -1315,7 +1330,7 @@ define("DronesCanvas", ["require", "exports", "services/drones-manager.service",
         DronesCanvas.prototype.reset = function () {
             window.cancelAnimationFrame(this.gameLoop);
             this.gameManager = new drones_manager_service_1.DronesManagerService();
-            this.buildCanvasGUI(enum_manager_10.SCREEN_ACTIONS.SPLASH);
+            this.buildCanvasGUI(enum_manager_11.SCREEN_ACTIONS.SPLASH);
         };
         /**
          * Function called to get Window Size of page.
@@ -1350,16 +1365,16 @@ define("DronesCanvas", ["require", "exports", "services/drones-manager.service",
         DronesCanvas.prototype.setDifficulty = function (num) {
             switch (num) {
                 case 1:
-                    this.gameManager.GAME_DIFFICULTY = enum_manager_10.DifficultyLevel.EASYPEASY;
+                    this.gameManager.GAME_DIFFICULTY = enum_manager_11.DifficultyLevel.NORMAL;
                     break;
                 case 2:
-                    this.gameManager.GAME_DIFFICULTY = enum_manager_10.DifficultyLevel.NORMAL;
+                    this.gameManager.GAME_DIFFICULTY = enum_manager_11.DifficultyLevel.HARD;
                     break;
                 case 3:
-                    this.gameManager.GAME_DIFFICULTY = enum_manager_10.DifficultyLevel.HARD;
+                    this.gameManager.GAME_DIFFICULTY = enum_manager_11.DifficultyLevel.WUT;
                     break;
                 default:
-                    this.gameManager.GAME_DIFFICULTY = enum_manager_10.DifficultyLevel.NORMAL;
+                    this.gameManager.GAME_DIFFICULTY = enum_manager_11.DifficultyLevel.NORMAL;
                     break;
             }
             this.gameManager.playerRoF = 0;
@@ -1375,13 +1390,13 @@ define("DronesCanvas", ["require", "exports", "services/drones-manager.service",
         DronesCanvas.prototype.buildCanvasGUI = function (screen) {
             this.canvasButtonList = [];
             switch (screen) {
-                case enum_manager_10.SCREEN_ACTIONS.SPLASH:
+                case enum_manager_11.SCREEN_ACTIONS.SPLASH:
                     this.hud.splashScreen(this);
                     break;
-                case enum_manager_10.SCREEN_ACTIONS.PAUSE:
+                case enum_manager_11.SCREEN_ACTIONS.PAUSE:
                     this.hud.pauseScreen(this);
                     break;
-                case enum_manager_10.SCREEN_ACTIONS.GAME_OVER:
+                case enum_manager_11.SCREEN_ACTIONS.GAME_OVER:
                     this.hud.gameOverScreen(this);
                     break;
             }

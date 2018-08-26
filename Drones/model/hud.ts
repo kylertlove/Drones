@@ -1,6 +1,6 @@
 import { Player } from "./player";
 import { Entity } from "./entity";
-import { ASSETS } from "../services/enum-manager";
+import { DifficultyLevel } from "../services/enum-manager";
 import { CanvasShape, CanvasText } from "./CanvasMenuObjects";
 import { DronesCanvas } from "../DronesCanvas";
 
@@ -27,10 +27,25 @@ export class Hud {
    * @param player 
    * @param kills 
    */
-  playerStats(canvas: CanvasRenderingContext2D, player: Player, kills: number) {
+  playerStats(canvas: CanvasRenderingContext2D, player: Player, kills: number, gameDifficulty: DifficultyLevel) {
+    let difficultySaying;
+    switch (gameDifficulty) {
+        case DifficultyLevel.NORMAL:
+      difficultySaying = "Difficulty: Noob";
+        break;
+        case DifficultyLevel.HARD:
+      difficultySaying = "Difficulty: Normie";
+        break;
+        case DifficultyLevel.WUT:
+        difficultySaying = "Difficulty: lol. wut r doin";
+          break;
+      default:
+      difficultySaying = "";
+        break;
+    }
     let health = new CanvasText(`Health: ${player.health.toString()}`, (canvas.canvas.width / 40), (canvas.canvas.height - (canvas.canvas.height / 14)), this.textColor, "17px Jazz LET, fantasy");
     let KillsText = new CanvasText(`Kills: ${kills.toString()}`, (canvas.canvas.width / 40), (canvas.canvas.height - (canvas.canvas.height / 10)), this.textColor, "17px Jazz LET, fantasy");
-    let level = new CanvasText(this.showLevelText, (canvas.canvas.width / 40), (canvas.canvas.height - (canvas.canvas.height / 7)), this.textColor, "17px Jazz LET, fantasy");
+    let level = new CanvasText(difficultySaying, (canvas.canvas.width / 40), (canvas.canvas.height - (canvas.canvas.height / 7)), this.textColor, "17px Jazz LET, fantasy");
     canvas.font = health.font;
     canvas.fillStyle = this.textColor;
     canvas.strokeStyle = this.textColor;

@@ -106,7 +106,7 @@ export class DronesManagerService {
     });
 
     //draw HUD
-    this.hud.playerStats(canvas, this.player, this.KILLS);
+    this.hud.playerStats(canvas, this.player, this.KILLS, this.GAME_DIFFICULTY);
     if(this.player.hasShield){
       this.hud.drawShieldTick(canvas, this.player.shieldTick);
     }

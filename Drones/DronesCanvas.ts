@@ -131,13 +131,13 @@ export class DronesCanvas {
   setDifficulty(num: number) {
     switch (num) {
       case 1:
-        this.gameManager.GAME_DIFFICULTY = DifficultyLevel.EASYPEASY;
-        break;
-      case 2:
         this.gameManager.GAME_DIFFICULTY = DifficultyLevel.NORMAL;
         break;
-      case 3:
+      case 2:
         this.gameManager.GAME_DIFFICULTY = DifficultyLevel.HARD;
+        break;
+      case 3:
+        this.gameManager.GAME_DIFFICULTY = DifficultyLevel.WUT;
         break;
       default:
         this.gameManager.GAME_DIFFICULTY = DifficultyLevel.NORMAL;
